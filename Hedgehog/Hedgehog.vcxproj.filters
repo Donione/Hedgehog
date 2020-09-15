@@ -33,5 +33,8 @@
     <ClCompile Include="Source\Window\Window.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Message\Message.cpp">
+      <Filter>Source\Message</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
