@@ -27,14 +27,17 @@
     <ClInclude Include="Include\Message\Message.h">
       <Filter>Message</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Message\KeyMessage.h">
+      <Filter>Message</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Source\Window\Window.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
     <ClCompile Include="Source\Message\Message.cpp">
       <Filter>Source\Message</Filter>
     </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
 </Project>

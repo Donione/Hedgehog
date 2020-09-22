@@ -1,19 +1,17 @@
 #include <Message/Message.h>
 
-namespace Messaging
+
+MessageCategory Message::GetMessageCategory() const
 {
-	MessageCategory Message::GetMessageCategory() const
-	{
-		return category;
-	}
+	return category;
+}
 
-	MessageType Message::GetMessageType() const
-	{
-		return type;
-	}
+MessageType Message::GetMessageType() const
+{
+	return type;
+}
 
-	bool Message::IsInClass(MessageCategory messageClass) const
-	{
-		return GetMessageCategory() == messageClass;
-	}
+bool Message::IsInClass(MessageCategory messageClass) const
+{
+	return GetMessageCategory() == messageClass;
 }
