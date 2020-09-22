@@ -13,16 +13,31 @@
     <Filter Include="Source\Window">
       <UniqueIdentifier>{6e66ece5-4c82-4eca-8776-282a100792f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Message">
+      <UniqueIdentifier>{eaac10ce-f294-4cf8-952d-f21071b4fbd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Message">
+      <UniqueIdentifier>{d374b72d-94ef-498e-a1db-c471d2f5338c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
       <Filter>Include\Window</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Message\Message.h">
+      <Filter>Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Message\KeyMessage.h">
+      <Filter>Message</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Source\Window\Window.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Message\Message.cpp">
+      <Filter>Source\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
 </Project>

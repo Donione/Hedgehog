@@ -1,7 +1,26 @@
 #include <cstdlib>
 #include <cstdio>
+#include <functional>
+#include <iostream>
 
 #include <Window/Window.h>
+#include <Message/Message.h>
+
+//#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+//#include <spdlog/spdlog.h>
+//#include "spdlog/sinks/stdout_color_sinks.h"
+
+#include <Windows.h>
+
+
+class Application
+{
+public:
+	void foo(Message& message)
+	{
+		std::cout << message.ToString() << std::endl;
+	}
+};
 
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
@@ -17,7 +36,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	freopen_s(&fp, "CONOUT$", "w", stderr);
 
 	Window window;
-	window.Create(hInstance, L"Window 1");
+	Application app;
+	window.Create(hInstance, Window::WindowProperties("Main Window"));
+	window.SetMessageCallback(std::bind(&Application::foo, &app, std::placeholders::_1));
+	//window.SetMessageCallback(&app.foo); // can't do that
+	//window.SetMessageCallback([&app] () { app.foo(); }); // this works too
 	window.Show();
 
 	// Run the message loop
@@ -30,3 +53,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 
 	return EXIT_SUCCESS;
 }
+
