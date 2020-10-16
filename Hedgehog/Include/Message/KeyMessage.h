@@ -47,6 +47,8 @@ public:
 		return ss.str();
 
 	}
+
+	unsigned char GetKeyCode(void) { return virtualKeyCode; }
 };
 
 class KeyReleasedMessage : public KeyMessage
@@ -69,4 +71,6 @@ public:
 		return ss.str();
 
 	}
+
+	unsigned char GetKeyCode(void) { return virtualKeyCode; }
 };

@@ -5,23 +5,29 @@
 
 #include <Message/KeyMessage.h>
 
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include <imgui_impl_opengl3.h>
+
+
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    // Wire inputs into the ImGui using the example implementation
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+        return true;
+
+    // Our own handles and other
     switch (uMsg)
     {
     case WM_CREATE:
         printf("%s: Window created.\n", title.c_str());
         break;
 
-    case WM_CLOSE:
-        printf("%s: Clicked close.\n", title.c_str());
-        break;
-
-    case WM_DESTROY:
-        printf("%s: Window destroyed.\n", title.c_str());
-        PostQuitMessage(0);
-        return 0;
+    //case WM_SIZE:
 
     case WM_KEYDOWN:
     {
@@ -30,7 +36,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         KeyPressedMessage message(wParam, repeatCount, previousState);
 
         if (MessageCallback) MessageCallback(message);
-        break;
+        return 0;
     }
 
     case WM_CHAR:
@@ -48,6 +54,11 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
+    case WM_SYSCOMMAND:
+        if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+            return 0;
+        break;
+
     case WM_KEYUP:
     {
         unsigned short repeatCount = (unsigned short)(lParam & 0xFFFF);
@@ -55,7 +66,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         KeyReleasedMessage message(wParam, repeatCount, previousState);
 
         if (MessageCallback) MessageCallback(message);
-        break;
+        return 0;
     }
 
     case WM_MOUSEMOVE:
@@ -65,15 +76,16 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
+        break;
 
-        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+    case WM_CLOSE:
+        printf("%s: Clicked close.\n", title.c_str());
+        break;
 
-        EndPaint(hwnd, &ps);
+    case WM_DESTROY:
+        printf("%s: Window destroyed.\n", title.c_str());
+        PostQuitMessage(0);
         return 0;
-    }
 
     default:
         break;
@@ -125,6 +137,7 @@ void Window::Create(HINSTANCE hInstance, const WindowProperties windowProperties
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
     wc.style |= CS_DBLCLKS;
+    wc.style |= CS_OWNDC;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 
 	// Register the window class with the operating system
@@ -168,4 +181,9 @@ void Window::Update(void)
     {
         UpdateWindow(hwnd);
     }
+}
+
+HWND Window::GetHandle(void)
+{
+    return hwnd;
 }
