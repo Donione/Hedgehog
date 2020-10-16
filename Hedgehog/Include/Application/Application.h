@@ -20,6 +20,8 @@ public:
 		Init();
 	}
 
+	~Application();
+
 	void Run();
 
 	HWND GetWindowHandle(void);
