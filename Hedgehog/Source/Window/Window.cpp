@@ -161,3 +161,11 @@ void Window::Show(int nShowCmd)
         ShowWindow(hwnd, nShowCmd);
     }
 }
+
+void Window::Update(void)
+{
+    if (hwnd != NULL)
+    {
+        UpdateWindow(hwnd);
+    }
+}

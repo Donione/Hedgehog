@@ -33,6 +33,7 @@ public:
 	void Create(HINSTANCE hInstance, const WindowProperties windowProperties = WindowProperties());
     void SetMessageCallback(const std::function<void(Message&)> callback);
 	void Show(int nShowCmd = SW_SHOW);
+    void Update(void);
 
 private:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
