@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -157,6 +157,12 @@
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\..\imgui-master\imgui.cpp" />
+    <ClCompile Include="..\..\imgui-master\imgui_demo.cpp" />
+    <ClCompile Include="..\..\imgui-master\imgui_draw.cpp" />
+    <ClCompile Include="..\..\imgui-master\imgui_widgets.cpp" />
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
     <ClCompile Include="Source\Window\Window.cpp" />

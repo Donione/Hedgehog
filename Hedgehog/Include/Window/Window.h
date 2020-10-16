@@ -35,6 +35,8 @@ public:
 	void Show(int nShowCmd = SW_SHOW);
     void Update(void);
 
+    HWND GetHandle(void);
+
 private:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
