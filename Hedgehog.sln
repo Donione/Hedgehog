@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLAD", "GLAD\GLAD.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "ImGui\ImGui.vcxproj", "{47A6CC51-AE71-4B7D-9DCF-41EDDC8676AA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SandBox", "SandBox\SandBox.vcxproj", "{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{47A6CC51-AE71-4B7D-9DCF-41EDDC8676AA}.Release|x64.Build.0 = Release|x64
 		{47A6CC51-AE71-4B7D-9DCF-41EDDC8676AA}.Release|x86.ActiveCfg = Release|Win32
 		{47A6CC51-AE71-4B7D-9DCF-41EDDC8676AA}.Release|x86.Build.0 = Release|Win32
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Debug|x64.ActiveCfg = Debug|x64
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Debug|x64.Build.0 = Debug|x64
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Debug|x86.ActiveCfg = Debug|Win32
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Debug|x86.Build.0 = Debug|Win32
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Release|x64.ActiveCfg = Release|x64
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Release|x64.Build.0 = Release|x64
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Release|x86.ActiveCfg = Release|Win32
+		{0C78F36F-3F03-4A28-8A5A-4D3D3CC29B4C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
