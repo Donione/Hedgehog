@@ -51,11 +51,5 @@
     <ClCompile Include="Source\Application\Application.cpp">
       <Filter>Source\Application</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_demo.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_draw.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_opengl3.cpp" />
   </ItemGroup>
 </Project>
