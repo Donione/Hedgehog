@@ -33,7 +33,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         unsigned short repeatCount = (unsigned short)(lParam & 0xFFFF);
         bool previousState = ((lParam & (1 << 30)) >> 30);
-        KeyPressedMessage message(wParam, repeatCount, previousState);
+        KeyPressedMessage message((unsigned char)(wParam & 0xFF), repeatCount, previousState);
 
         if (MessageCallback) MessageCallback(message);
         return 0;
@@ -63,7 +63,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         unsigned short repeatCount = (unsigned short)(lParam & 0xFFFF);
         bool previousState = ((lParam & (1 << 30)) >> 30);
-        KeyReleasedMessage message(wParam, repeatCount, previousState);
+        KeyReleasedMessage message((unsigned char)(wParam & 0xFF), repeatCount, previousState);
 
         if (MessageCallback) MessageCallback(message);
         return 0;

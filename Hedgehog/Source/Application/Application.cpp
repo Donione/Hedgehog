@@ -128,13 +128,13 @@ void Application::Run()
         glBegin(GL_TRIANGLES);
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex2f(0 + 0.01 * counter, 0.5);
+        glVertex2f(0.0f + 0.01f * counter, 0.5);
 
         glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex2f(-0.5 + 0.01 * counter, -0.5);
+        glVertex2f(-0.5f + 0.01f * counter, -0.5);
 
         glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex2f(0.5 + 0.01 * counter, -0.5);
+        glVertex2f(0.5f + 0.01f * counter, -0.5);
 
         glEnd();
 
