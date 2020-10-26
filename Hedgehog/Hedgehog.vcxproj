@@ -154,9 +154,11 @@
     <ClInclude Include="Include\Application\Application.h" />
     <ClInclude Include="Include\Message\KeyMessage.h" />
     <ClInclude Include="Include\Message\Message.h" />
+    <ClInclude Include="Include\Renderer\Renderer.h" />
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
     <ClCompile Include="Source\Window\Window.cpp" />

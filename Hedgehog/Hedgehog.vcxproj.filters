@@ -25,6 +25,12 @@
     <Filter Include="Include\Application">
       <UniqueIdentifier>{bcd0717c-bf9f-461b-b2b2-de9716d9ef19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Renderer">
+      <UniqueIdentifier>{a7858b78-5c4c-4230-8de3-be9fca758dc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer">
+      <UniqueIdentifier>{86b40a6b-646e-41e6-8481-4fb3e72032fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -39,6 +45,9 @@
     <ClInclude Include="Include\Application\Application.h">
       <Filter>Include\Application</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Renderer.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -49,6 +58,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Application.cpp">
       <Filter>Source\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\Renderer\Renderer.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
