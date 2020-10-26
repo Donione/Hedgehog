@@ -106,12 +106,12 @@ void Application::Run()
 		// Rendering
 		ImGui::Render();
 
-		// Test, draw a trinagle on top of the ImGui
 		glViewport(0, 0, 1280, 720);
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+		// Test, draw a trinagle on top of the ImGui
 		glBegin(GL_TRIANGLES);
 
 		glColor3f(1.0f, 0.0f, 0.0f);
@@ -215,5 +215,9 @@ void Application::OnMessage(Message& message)
 
 Application::~Application()
 {
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	renderContext->Delete();
 }
