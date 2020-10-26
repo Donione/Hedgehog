@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Window/Window.h>
+#include <Renderer/RenderContext.h>
 
 #include <assert.h>
 
@@ -36,7 +37,7 @@ private:
 	HINSTANCE hInstance = nullptr;
 	Window window;
 
-	HGLRC context = NULL;
+	RenderContext* renderContext;
 
 	// Our state
 	int counter = 1;
