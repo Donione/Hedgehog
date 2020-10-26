@@ -48,6 +48,12 @@
     <ClInclude Include="Include\Renderer\Renderer.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\RenderContext.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\OpenGLContext.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -59,7 +65,10 @@
     <ClCompile Include="Source\Application\Application.cpp">
       <Filter>Source\Application</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Renderer\Renderer.cpp">
+    <ClCompile Include="Source\Renderer\OpenGLContext.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
