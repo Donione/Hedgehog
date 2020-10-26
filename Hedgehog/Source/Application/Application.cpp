@@ -55,92 +55,114 @@
 
 void Application::Run()
 {
-    // Main loop
-    MSG msg;
-    ZeroMemory(&msg, sizeof(msg));
-    while (msg.message != WM_QUIT)
-    {
-        // Poll and handle messages (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-            continue;
-        }
+	// Main loop
+	MSG msg;
+	ZeroMemory(&msg, sizeof(msg));
+	while (msg.message != WM_QUIT)
+	{
+		// Poll and handle messages (inputs, window resize, etc.)
+		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			continue;
+		}
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+		if (GetKeyState(0x44) < 0)
+		{
+			xOffset++;
+		}
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-        {
-            static float f = 0.0f;
+		if (GetKeyState(0x41) < 0)
+		{
+			xOffset--;
+		}
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+		if (GetKeyState(0x57) < 0)
+		{
+			yOffset++;
+		}
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
+		if (GetKeyState(0x53) < 0)
+		{
+			yOffset--;
+		}
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-            if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            if (ImGui::Button("-"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter--;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
+		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+		if (show_demo_window)
+			ImGui::ShowDemoWindow(&show_demo_window);
 
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		{
+			static float f = 0.0f;
 
-        // Rendering
-        ImGui::Render();
+			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-        // Test, draw a trinagle on top of the ImGui
-        glViewport(0, 0, 1280, 720);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			ImGui::Checkbox("Another Window", &show_another_window);
 
-        glBegin(GL_TRIANGLES);
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex2f(0.0f + 0.01f * counter, 0.5);
+			if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			if (ImGui::Button("-"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter--;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
 
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex2f(-0.5f + 0.01f * counter, -0.5);
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
 
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex2f(0.5f + 0.01f * counter, -0.5);
+		// 3. Show another simple window.
+		if (show_another_window)
+		{
+			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			ImGui::Text("Hello from another window!");
+			if (ImGui::Button("Close Me"))
+				show_another_window = false;
+			ImGui::End();
+		}
 
-        glEnd();
+		// Rendering
+		ImGui::Render();
 
-        //wglMakeCurrent(GetDC(window.GetHandle()), context);
-        SwapBuffers(GetDC(window.GetHandle()));
-    }
+		// Test, draw a trinagle on top of the ImGui
+		glViewport(0, 0, 1280, 720);
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		glBegin(GL_TRIANGLES);
+
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex2f(0.0f + 0.01f * xOffset, 0.5 + 0.01 * yOffset);
+
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex2f(-0.5f + 0.01f * xOffset, -0.5 + 0.01 * yOffset);
+
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex2f(0.5f + 0.01f * xOffset, -0.5 + 0.01 * yOffset);
+
+		glEnd();
+
+		//wglMakeCurrent(GetDC(window.GetHandle()), context);
+		SwapBuffers(GetDC(window.GetHandle()));
+	}
 }
 
 HWND Application::GetWindowHandle(void)
@@ -156,48 +178,48 @@ void Application::Init()
 	//window.SetMessageCallback(&OnMessage); // can't do that
 	//window.SetMessageCallback([this] (Message& message) { this->OnMessage(message); }); // this works too
 
-    // Create OpenGL context
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-        sizeof(PIXELFORMATDESCRIPTOR),
-        1,
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    // Flags
-        PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
-        32,                   // Colordepth of the framebuffer.
-        0, 0, 0, 0, 0, 0,
-        0,
-        0,
-        0,
-        0, 0, 0, 0,
-        24,                   // Number of bits for the depthbuffer
-        8,                    // Number of bits for the stencilbuffer
-        0,                    // Number of Aux buffers in the framebuffer.
-        PFD_MAIN_PLANE,
-        0,
-        0, 0, 0
-    };
+	// Create OpenGL context
+	PIXELFORMATDESCRIPTOR pfd =
+	{
+		sizeof(PIXELFORMATDESCRIPTOR),
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    // Flags
+		PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+		32,                   // Colordepth of the framebuffer.
+		0, 0, 0, 0, 0, 0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0,
+		24,                   // Number of bits for the depthbuffer
+		8,                    // Number of bits for the stencilbuffer
+		0,                    // Number of Aux buffers in the framebuffer.
+		PFD_MAIN_PLANE,
+		0,
+		0, 0, 0
+	};
 
-    int pf = ChoosePixelFormat(GetDC(window.GetHandle()), &pfd);
-    SetPixelFormat(GetDC(window.GetHandle()), pf, &pfd);
+	int pf = ChoosePixelFormat(GetDC(window.GetHandle()), &pfd);
+	SetPixelFormat(GetDC(window.GetHandle()), pf, &pfd);
 
-    context = wglCreateContext(GetDC(window.GetHandle()));
-    wglMakeCurrent(GetDC(window.GetHandle()), context);
+	context = wglCreateContext(GetDC(window.GetHandle()));
+	wglMakeCurrent(GetDC(window.GetHandle()), context);
 
 
-    // Load GL using GLAD's default loader
-    if (!gladLoadGL())
-    {
-        printf("Error gladLoadGL()\n");
-    }
+	// Load GL using GLAD's default loader
+	if (!gladLoadGL())
+	{
+		printf("Error gladLoadGL()\n");
+	}
 
-    // Load WGL using GLAD's default loader
-    if (!gladLoadWGL(GetDC(window.GetHandle())))
-    {
-        printf("Error gladLoadWGL()\n");
-    }
+	// Load WGL using GLAD's default loader
+	if (!gladLoadWGL(GetDC(window.GetHandle())))
+	{
+		printf("Error gladLoadWGL()\n");
+	}
 
-    // Setup VSYNC
-    wglSwapIntervalEXT(1);
+	// Setup VSYNC
+	wglSwapIntervalEXT(1);
 
 	// Show the window
 	window.Show();
@@ -214,9 +236,9 @@ void Application::Init()
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
-    // Setup Platform/Renderer bindings
+	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(window.GetHandle());
-    ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init("#version 460");
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -238,24 +260,34 @@ void Application::OnMessage(Message& message)
 {
 	std::cout << message.ToString() << std::endl;
 
-    if (message.GetMessageType() == MessageType::KeyPressed)
-    {
-        KeyPressedMessage& keyPressedMessage = dynamic_cast<KeyPressedMessage&>(message);
+	if (message.GetMessageType() == MessageType::KeyPressed)
+	{
+		KeyPressedMessage& keyPressedMessage = dynamic_cast<KeyPressedMessage&>(message);
 
-        if (keyPressedMessage.GetKeyCode() == 0x6B)
-        {
-            counter++;
-        }
+		switch (keyPressedMessage.GetKeyCode())
+		{
+		//case 0x44: // 'D'
+		//	xOffset++; break;
 
-        if (keyPressedMessage.GetKeyCode() == 0x6D)
-        {
-            counter--;
-        }
-    }
+		//case 0x41: // 'A'
+		//	xOffset--; break;
+
+		//case 0x57: // 'W'
+		//	yOffset++; break;
+
+		//case 0x53: // 'S'
+		//	yOffset--; break;
+
+		case VK_ESCAPE:
+			::PostMessage(window.GetHandle(), WM_CLOSE, 0, 0); break;
+
+		default: break;
+		}
+	}
 }
 
 Application::~Application()
 {
-    wglDeleteContext(context);
-    DeleteDC(GetDC(window.GetHandle()));
+	wglDeleteContext(context);
+	DeleteDC(GetDC(window.GetHandle()));
 }
