@@ -31,6 +31,12 @@
     <Filter Include="Source\Renderer">
       <UniqueIdentifier>{86b40a6b-646e-41e6-8481-4fb3e72032fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Layer">
+      <UniqueIdentifier>{bb78420e-ff28-4e74-a897-34e45daba8c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Layer">
+      <UniqueIdentifier>{e3159557-0bc2-4da5-aa67-9e48bc0b6aa4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -54,6 +60,12 @@
     <ClInclude Include="Include\Renderer\OpenGLContext.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Layer\Layer.h">
+      <Filter>Include\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Layer\LayerStack.h">
+      <Filter>Include\Layer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -70,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="Source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Layer\LayerStack.cpp">
+      <Filter>Source\Layer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
