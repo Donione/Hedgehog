@@ -3,9 +3,59 @@
 // TODECIDE: Should the main function/entry point be a part of the engine or should it be up to the application (as it is here)?
 #include <Application/Application.h>
 
+#include <Layer/Layer.h>
+
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
 //#include "spdlog/sinks/stdout_color_sinks.h"
+
+#include <iostream>
+
+
+class ExampleLayer : public Layer
+{
+public:
+	ExampleLayer() : Layer("Example Layer") { }
+
+	void OnUpdate() override
+	{
+		//printf("Example Layer: OnUpdate called\n");
+	}
+
+	void OnMessage(const Message& message) override
+	{
+		printf("Example layer: OnMessage called\n");
+		std::cout << message.ToString() << std::endl;
+	}
+};
+
+class ExampleOverlay : public Layer
+{
+public:
+	ExampleOverlay() : Layer("Example Overlay") {}
+
+	void OnUpdate() override
+	{
+		//printf("Example overlay: OnUpdate called\n");
+	}
+
+	void OnMessage(const Message& message) override
+	{
+		printf("Example overlay: OnMessage called\n");
+		std::cout << message.ToString() << std::endl;
+	}
+};
+
+class Sandbox : public Application
+{
+public:
+	Sandbox(HINSTANCE hInstance) : Application(hInstance)
+	{
+		ExampleLayer* layer1 = new ExampleLayer();
+		layers.Push(layer1);
+		layers.PushOverlay(new ExampleOverlay());
+	}
+};
 
 
 
@@ -13,8 +63,10 @@
 int main(int argc, char* argv[])
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	Application app(hInstance);
+	//Application app(hInstance);
+	//app.Run();
 
+	Sandbox app(hInstance);
 	app.Run();
 
 	return 0;
