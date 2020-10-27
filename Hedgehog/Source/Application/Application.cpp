@@ -25,6 +25,8 @@ void Application::Run()
 	ZeroMemory(&msg, sizeof(msg));
 	while (msg.message != WM_QUIT)
 	{
+		//printf("Application core: Run loop (OnUpdate) called\n");
+
 		// Poll and handle messages (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
 		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -35,6 +37,13 @@ void Application::Run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 			continue;
+		}
+
+
+		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
+		for (auto layer : layers)
+		{
+			layer->OnUpdate();
 		}
 
 
@@ -185,6 +194,14 @@ void Application::Init()
 
 void Application::OnMessage(Message& message)
 {
+	// Fire OnMessage functions in reverse order, first overlays, layers after
+	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
+	{
+		(*rit)->OnMessage(message);
+	}
+
+
+	printf("Application core: OnMessage called\n");
 	std::cout << message.ToString() << std::endl;
 
 	if (message.GetMessageType() == MessageType::KeyPressed)

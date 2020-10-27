@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Window/Window.h>
+#include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
 
 #include <assert.h>
@@ -30,6 +31,9 @@ public:
 private:
 	void Init();
 	void OnMessage(Message& message);
+
+protected:
+	LayerStack layers;
 
 private:
 	inline static Application* instance;
