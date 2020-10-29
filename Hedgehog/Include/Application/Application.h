@@ -11,6 +11,9 @@
 class Application
 {
 public:
+	void Run();
+
+protected:
 	Application(HINSTANCE hInstance)
 	{
 		// There is supposed to be only one application
@@ -23,8 +26,6 @@ public:
 	}
 
 	~Application();
-
-	void Run();
 
 	HWND GetWindowHandle(void);
 

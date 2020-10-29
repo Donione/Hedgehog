@@ -63,9 +63,6 @@ public:
 int main(int argc, char* argv[])
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	//Application app(hInstance);
-	//app.Run();
-
 	Sandbox app(hInstance);
 	app.Run();
 
