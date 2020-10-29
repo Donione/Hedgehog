@@ -35,5 +35,11 @@ public:
 private:
 	// Maybe a std::list would be better
 	std::vector<Layer*> layers;
-	std::vector<Layer*>::iterator overlayStart;
+
+	// Turns out that keeping an iterator to index something is not the best idea,
+	// the iterator is invalidated if there is a re-allocation for the collection
+	// So instead of this:
+	//    std::vector<Layer*>::iterator overlayStart;
+	// it's better to use an index and iterator arithmetics
+	unsigned int overlayStart;
 };
