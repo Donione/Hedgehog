@@ -7,8 +7,9 @@
 
 class Layer
 {
+protected:
+	Layer(const std::string& name = "Hedgehog Layer", bool enabled = true) : name(name), enabled(enabled) {}
 public:
-	Layer(const std::string& name = "Hedgehog Layer") : name(name) {}
 	//Virtual destructors are useful when you might potentially delete an instance of a derived class
 	// through a pointer to base class
 	// https://stackoverflow.com/questions/461203/when-to-use-virtual-destructors
@@ -20,9 +21,11 @@ public:
 	virtual void OnMessage(const Message& message) {}
 
 	const std::string& GetName() const { return name; }
+	void Enable() { enabled = true; }
+	void Disable() { enabled = false; }
+	bool IsEnabled() { return enabled; }
 
 protected:
-	std::string name;
-
-	bool enabled = true;
+	const std::string name;
+	bool enabled;
 };

@@ -43,7 +43,10 @@ void Application::Run()
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 		for (auto layer : layers)
 		{
-			layer->OnUpdate();
+			if (layer->IsEnabled())
+			{
+				layer->OnUpdate();
+			}
 		}
 
 
@@ -197,9 +200,11 @@ void Application::OnMessage(Message& message)
 	// Fire OnMessage functions in reverse order, first overlays, layers after
 	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
 	{
-		(*rit)->OnMessage(message);
+		if ((*rit)->IsEnabled())
+		{
+			(*rit)->OnMessage(message);
+		}
 	}
-
 
 	printf("Application core: OnMessage called\n");
 	std::cout << message.ToString() << std::endl;

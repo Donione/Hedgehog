@@ -16,7 +16,7 @@
 class ExampleLayer : public Layer
 {
 public:
-	ExampleLayer(std::string name) : Layer(name) { }
+	ExampleLayer(const std::string& name, bool enable = true) : Layer(name, enable) { }
 
 	void OnUpdate() override
 	{
@@ -38,6 +38,7 @@ public:
 		layers.Push(new ExampleLayer("1st Example Layer"));
 		layers.PushOverlay(new ExampleLayer("1st Example Overlay"));
 		layers.Push(new ExampleLayer("2nd Example Layer"));
+		layers.Push(new ExampleLayer("3rd Example Layer", false));
 	}
 
 	~Sandbox()
