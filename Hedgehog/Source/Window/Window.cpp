@@ -6,8 +6,6 @@
 #include <Message/KeyMessage.h>
 
 #include "imgui.h"
-#include "imgui_impl_win32.h"
-#include <imgui_impl_opengl3.h>
 
 
 // Forward declare message handler from imgui_impl_win32.cpp
