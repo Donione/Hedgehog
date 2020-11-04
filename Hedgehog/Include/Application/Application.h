@@ -3,6 +3,7 @@
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
+#include <ImGui/ImGuiComponent.h>
 
 #include <assert.h>
 
@@ -43,6 +44,10 @@ private:
 	Window window;
 
 	RenderContext* renderContext;
+
+	// ImGuiComponent is an integral part of the application.
+	// It is supposed to handle all Gui rendering, which is submitted by layers.
+	ImGuiComponent* imGuiComponent;
 
 	// Our state
 	int counter = 1;
