@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Application\Application.h" />
+    <ClInclude Include="Include\ImGui\ImGuiComponent.h" />
     <ClInclude Include="Include\Layer\Layer.h" />
     <ClInclude Include="Include\Layer\LayerStack.h" />
     <ClInclude Include="Include\Message\KeyMessage.h" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\ImGui\ImGuiComponent.cpp" />
     <ClCompile Include="Source\Layer\LayerStack.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />

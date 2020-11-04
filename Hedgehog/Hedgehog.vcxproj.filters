@@ -37,6 +37,12 @@
     <Filter Include="Source\Layer">
       <UniqueIdentifier>{e3159557-0bc2-4da5-aa67-9e48bc0b6aa4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\ImGui">
+      <UniqueIdentifier>{9213cb6f-7267-4538-a964-b1a76ee8487f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ImGui">
+      <UniqueIdentifier>{2394a51f-0d03-4c01-8ab9-fb3e99e17f49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -66,6 +72,9 @@
     <ClInclude Include="Include\Layer\LayerStack.h">
       <Filter>Include\Layer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ImGui\ImGuiComponent.h">
+      <Filter>Include\ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -85,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="Source\Layer\LayerStack.cpp">
       <Filter>Source\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\ImGuiComponent.cpp">
+      <Filter>Source\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
