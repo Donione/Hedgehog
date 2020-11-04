@@ -18,6 +18,7 @@ public:
 	virtual void OnPush() {}
 	virtual void OnPop() {}
 	virtual void OnUpdate() {}
+	virtual void OnGuiUpdate() {}
 	virtual void OnMessage(const Message& message) {}
 
 	const std::string& GetName() const { return name; }
