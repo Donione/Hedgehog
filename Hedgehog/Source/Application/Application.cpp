@@ -71,10 +71,7 @@ void Application::Run()
 		}
 
 
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		imGuiComponent->BeginFrame();
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
@@ -115,27 +112,27 @@ void Application::Run()
 			ImGui::End();
 		}
 
-		// Rendering
-		ImGui::Render();
+		// Note that all of these windows are actually rendered by calling ImGui::Render() and ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData())
+		// which are called in ImGui->EndFrame()
+		// So on creen the following immediate GL rendering will be behind the ImGui
 
-		glViewport(0, 0, 1280, 720);
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// Triangle
+		{
+			glBegin(GL_TRIANGLES);
 
-		// Test, draw a trinagle on top of the ImGui
-		glBegin(GL_TRIANGLES);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
 
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
 
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
 
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+			glEnd();
+		}
 
-		glEnd();
+		imGuiComponent->EndFrame();
 
 		renderContext->SwapBuffers();
 	}
@@ -164,35 +161,7 @@ void Application::Init()
 	window.Show();
 	window.Update();
 
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	////io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	////io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
-
-	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(window.GetHandle());
-	ImGui_ImplOpenGL3_Init("#version 460");
-
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-	// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-	// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(font != NULL);
+	imGuiComponent = new ImGuiComponent(window.GetHandle());
 }
 
 void Application::OnMessage(Message& message)
@@ -237,9 +206,7 @@ void Application::OnMessage(Message& message)
 
 Application::~Application()
 {
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-
 	renderContext->Delete();
+	delete renderContext;
+	delete imGuiComponent;
 }
