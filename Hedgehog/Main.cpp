@@ -12,16 +12,16 @@
 
 #include <iostream>
 
+#include <glad/glad.h>
+
+
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 
 class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(const std::string& name, bool enable = true) : Layer(name, enable) { }
-
-	void OnUpdate() override
-	{
-		//printf("%s: OnUpdate called\n", name.c_str());
-	}
 
 	void OnMessage(const Message& message) override
 	{
@@ -30,15 +30,67 @@ public:
 	}
 };
 
+class ExampleTrinagleLayer : public Layer
+{
+public:
+	ExampleTrinagleLayer(bool enable = true) : Layer("Example Triangle Layer", enable) { }
+
+	void OnUpdate() override
+	{
+		// Poll WASD input
+		if (GetKeyState(0x44) < 0) // 'D'
+		{
+			xOffset++;
+		}
+
+		if (GetKeyState(0x41) < 0) // 'A'
+		{
+			xOffset--;
+		}
+
+		if (GetKeyState(0x57) < 0) // 'W'
+		{
+			yOffset++;
+		}
+
+		if (GetKeyState(0x53) < 0) // 'S'
+		{
+			yOffset--;
+		}
+
+		// TODO this should be in some RenderBegin function or before first OnUpdate
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glBegin(GL_TRIANGLES);
+
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
+
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+
+		glEnd();
+	}
+
+	void OnMessage(const Message& message) override
+	{
+		printf("%s: OnMessage called\n", name.c_str());
+		std::cout << message.ToString() << std::endl;
+	}
+
+private:
+	int xOffset = 0;
+	int yOffset = 0;
+};
+
 class ExampleOverlay : public Layer
 {
 public:
 	ExampleOverlay(const std::string& name, bool enable = true) : Layer(name, enable) { }
-
-	void OnUpdate() override
-	{
-		//printf("%s: OnUpdate called\n", name.c_str());
-	}
 
 	void OnGuiUpdate() override
 	{
@@ -95,7 +147,6 @@ private:
 	int yOffset = 0;
 	bool show_demo_window = false;
 	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 };
 
 class Sandbox : public Application
@@ -107,6 +158,7 @@ public:
 		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
 		layers.Push(new ExampleLayer("2nd Example Layer"));
 		layers.Push(new ExampleLayer("3rd Example Layer", false));
+		layers.Push(new ExampleTrinagleLayer());
 	}
 
 	~Sandbox()

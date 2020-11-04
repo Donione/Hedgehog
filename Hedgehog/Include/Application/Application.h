@@ -48,8 +48,4 @@ private:
 	// ImGuiComponent is an integral part of the application.
 	// It is supposed to handle all Gui rendering, which is submitted by layers.
 	ImGuiComponent* imGuiComponent;
-
-	// Our state
-	int xOffset = 0;
-	int yOffset = 0;
 };

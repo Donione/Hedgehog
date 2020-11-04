@@ -49,31 +49,7 @@ void Application::Run()
 			}
 		}
 
-
-		// Poll WASD input
-		if (GetKeyState(0x44) < 0) // 'D'
-		{
-			xOffset++;
-		}
-
-		if (GetKeyState(0x41) < 0) // 'A'
-		{
-			xOffset--;
-		}
-
-		if (GetKeyState(0x57) < 0) // 'W'
-		{
-			yOffset++;
-		}
-
-		if (GetKeyState(0x53) < 0) // 'S'
-		{
-			yOffset--;
-		}
-
-
 		imGuiComponent->BeginFrame();
-
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
 		for (auto layer : layers)
 		{
@@ -82,27 +58,6 @@ void Application::Run()
 				layer->OnGuiUpdate();
 			}
 		}
-
-		// Note that all of these OnGuiUpdates are actually rendered by calling ImGui::Render() and ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData())
-		// which are called in ImGui->EndFrame()
-		// So on creen the following immediate GL rendering will be behind the ImGui
-
-		// Triangle
-		{
-			glBegin(GL_TRIANGLES);
-
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
-
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
-
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
-
-			glEnd();
-		}
-
 		imGuiComponent->EndFrame();
 
 		renderContext->SwapBuffers();
