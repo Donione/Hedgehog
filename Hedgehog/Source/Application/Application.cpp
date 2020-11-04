@@ -49,89 +49,15 @@ void Application::Run()
 			}
 		}
 
-
-		if (GetKeyState(0x44) < 0)
-		{
-			xOffset++;
-		}
-
-		if (GetKeyState(0x41) < 0)
-		{
-			xOffset--;
-		}
-
-		if (GetKeyState(0x57) < 0)
-		{
-			yOffset++;
-		}
-
-		if (GetKeyState(0x53) < 0)
-		{
-			yOffset--;
-		}
-
-
 		imGuiComponent->BeginFrame();
-
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		// Fire OnGuiUpdate functions in order, first layers, overlays after
+		for (auto layer : layers)
 		{
-			static float f = 0.0f;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			if (ImGui::Button("-"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter--;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
+			if (layer->IsEnabled())
+			{
+				layer->OnGuiUpdate();
+			}
 		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
-
-		// Note that all of these windows are actually rendered by calling ImGui::Render() and ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData())
-		// which are called in ImGui->EndFrame()
-		// So on creen the following immediate GL rendering will be behind the ImGui
-
-		// Triangle
-		{
-			glBegin(GL_TRIANGLES);
-
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
-
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
-
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
-
-			glEnd();
-		}
-
 		imGuiComponent->EndFrame();
 
 		renderContext->SwapBuffers();
@@ -184,18 +110,6 @@ void Application::OnMessage(Message& message)
 
 		switch (keyPressedMessage.GetKeyCode())
 		{
-		//case 0x44: // 'D'
-		//	xOffset++; break;
-
-		//case 0x41: // 'A'
-		//	xOffset--; break;
-
-		//case 0x57: // 'W'
-		//	yOffset++; break;
-
-		//case 0x53: // 'S'
-		//	yOffset--; break;
-
 		case VK_ESCAPE:
 			::PostMessage(window.GetHandle(), WM_CLOSE, 0, 0); break;
 
