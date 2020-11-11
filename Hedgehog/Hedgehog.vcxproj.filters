@@ -75,6 +75,9 @@
     <ClInclude Include="Include\ImGui\ImGuiComponent.h">
       <Filter>Include\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Shader.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -97,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="Source\ImGui\ImGuiComponent.cpp">
       <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Shader.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

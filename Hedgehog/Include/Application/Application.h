@@ -3,6 +3,7 @@
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
+#include <Renderer/Shader.h>
 #include <ImGui/ImGuiComponent.h>
 
 #include <assert.h>
@@ -40,6 +41,7 @@ protected:
 	unsigned int vertexArray;
 	unsigned int vertexBuffer;
 	unsigned int indexBuffer;
+	std::unique_ptr<Shader> shader;
 
 private:
 	inline static Application* instance = nullptr;

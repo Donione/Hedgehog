@@ -1,5 +1,6 @@
 #include <Application/Application.h>
 #include <Renderer/OpenGLContext.h>
+#include <Renderer/Shader.h>
 
 #include <Message/KeyMessage.h>
 
@@ -50,8 +51,10 @@ void Application::Run()
 			}
 		}
 
+		shader->Bind();
 		glBindVertexArray(vertexArray);
 		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+		shader->Unbind();
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
@@ -118,6 +121,38 @@ void Application::Init()
 	unsigned int indices[3] = { 0, 1, 2 };
 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	std::string vertexSrc = 
+		R"(
+			#version 460 core
+
+			layout(location = 0) in vec3 position;
+
+			out vec3 v_position;
+
+			void main()
+			{
+				gl_Position = vec4(position, 1.0);
+
+				v_position = position;
+			}
+		)";
+
+	std::string fragmentSrc =
+		R"(
+			#version 460 core
+
+			layout(location = 0) out vec4 color;
+
+			in vec3 v_position;
+
+			void main()
+			{
+				color = vec4(v_position * 0.5 + 0.5, 1.0);
+			}
+		)";
+
+	shader.reset(new Shader(vertexSrc, fragmentSrc));
 }
 
 void Application::OnMessage(Message& message)
