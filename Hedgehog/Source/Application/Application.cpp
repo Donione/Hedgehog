@@ -39,6 +39,7 @@ void Application::Run()
 			continue;
 		}
 
+		// TODO maybe put Clear (glClear) here
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 		for (auto layer : layers)
@@ -48,6 +49,9 @@ void Application::Run()
 				layer->OnUpdate();
 			}
 		}
+
+		glBindVertexArray(vertexArray);
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
@@ -88,6 +92,32 @@ void Application::Init()
 	window.Update();
 
 	imGuiComponent = new ImGuiComponent(window.GetHandle());
+
+	// Vertex Buffer
+	glGenVertexArrays(1, &vertexArray);
+	glBindVertexArray(vertexArray);
+
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	float vertices[3 * 3] =
+	{
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f,
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+	// Index Buffer
+	glGenBuffers(1, &indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+	unsigned int indices[3] = { 0, 1, 2 };
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 void Application::OnMessage(Message& message)

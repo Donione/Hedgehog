@@ -37,8 +37,12 @@ private:
 protected:
 	LayerStack layers;
 
+	unsigned int vertexArray;
+	unsigned int vertexBuffer;
+	unsigned int indexBuffer;
+
 private:
-	inline static Application* instance;
+	inline static Application* instance = nullptr;
 
 	HINSTANCE hInstance = nullptr;
 	Window window;
