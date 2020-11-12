@@ -158,6 +158,7 @@
     <ClInclude Include="Include\Message\KeyMessage.h" />
     <ClInclude Include="Include\Message\Message.h" />
     <ClInclude Include="Include\Renderer\Buffer.h" />
+    <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
     <ClInclude Include="Include\Renderer\RenderContext.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="Source\Layer\LayerStack.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
+    <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Renderer\Shader.cpp" />

@@ -81,6 +81,9 @@
     <ClInclude Include="Include\Renderer\Buffer.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\OpenGLBuffer.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -108,6 +111,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\Buffer.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
