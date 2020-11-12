@@ -78,6 +78,9 @@
     <ClInclude Include="Include\Renderer\Shader.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Buffer.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -102,6 +105,9 @@
       <Filter>Source\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\Shader.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Buffer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
