@@ -1,5 +1,6 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/Buffer.h>
+#include <Renderer/OpenGLBuffer.h>
 
 
 VertexBuffer* VertexBuffer::Create(const float* vertices, unsigned int size)
@@ -7,7 +8,7 @@ VertexBuffer* VertexBuffer::Create(const float* vertices, unsigned int size)
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::OpenGL:
-		return nullptr;
+		return new OpenGLVertexBuffer(vertices, size);
 
 	case RendererAPI::None:
 		return nullptr;
@@ -22,7 +23,7 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::OpenGL:
-		return nullptr;
+		return new OpenGLIndexBuffer(indices, count);
 
 	case RendererAPI::None:
 		return nullptr;

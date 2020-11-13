@@ -13,7 +13,7 @@ public:
 	virtual void Unbind() const override;
 
 private:
-	unsigned int rendererID;
+	unsigned int rendererID = 0;
 };
 
 
