@@ -1,5 +1,6 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/VertexArray.h>
+#include <Renderer/OpenGLVertexArray.h>
 
 
 VertexArray* VertexArray::Create()
@@ -7,7 +8,7 @@ VertexArray* VertexArray::Create()
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::OpenGL:
-		return nullptr;
+		return new OpenGLVertexArray();
 
 	case RendererAPI::None:
 		return nullptr;

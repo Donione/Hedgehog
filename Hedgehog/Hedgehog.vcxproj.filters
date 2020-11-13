@@ -87,6 +87,9 @@
     <ClInclude Include="Include\Renderer\VertexArray.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\OpenGLVertexArray.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -120,6 +123,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\VertexArray.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
