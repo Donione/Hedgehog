@@ -3,6 +3,8 @@
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
+#include <Renderer/Buffer.h>
+#include <Renderer/VertexArray.h>
 #include <Renderer/Shader.h>
 #include <ImGui/ImGuiComponent.h>
 
@@ -38,9 +40,9 @@ private:
 protected:
 	LayerStack layers;
 
-	unsigned int vertexArray;
-	unsigned int vertexBuffer;
-	unsigned int indexBuffer;
+	std::unique_ptr<VertexArray> vertexArray;
+	std::unique_ptr<VertexBuffer> vertexBuffer;
+	std::unique_ptr<IndexBuffer> indexBuffer;
 	std::unique_ptr<Shader> shader;
 
 private:
