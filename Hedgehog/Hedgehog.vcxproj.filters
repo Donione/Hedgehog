@@ -43,6 +43,12 @@
     <Filter Include="Source\ImGui">
       <UniqueIdentifier>{2394a51f-0d03-4c01-8ab9-fb3e99e17f49}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{dd9e9600-0842-4b3c-9334-85380bc9b535}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shader">
+      <UniqueIdentifier>{9fb87e21-836d-446b-ad2e-6e7f402fbfc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -90,6 +96,9 @@
     <ClInclude Include="Include\Renderer\OpenGLVertexArray.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\OpenGLShader.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -128,5 +137,16 @@
     <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\OpenGLShader.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

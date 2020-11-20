@@ -160,6 +160,7 @@
     <ClInclude Include="Include\Renderer\Buffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
+    <ClInclude Include="Include\Renderer\OpenGLShader.h" />
     <ClInclude Include="Include\Renderer\OpenGLVertexArray.h" />
     <ClInclude Include="Include\Renderer\RenderContext.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
+    <ClCompile Include="Source\Renderer\OpenGLShader.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Renderer\Shader.cpp" />
@@ -188,6 +190,10 @@
     <ProjectReference Include="..\ImGui\ImGui.vcxproj">
       <Project>{47a6cc51-ae71-4b7d-9dcf-41eddc8676aa}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl" />
+    <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

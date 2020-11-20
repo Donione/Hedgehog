@@ -117,37 +117,11 @@ void Application::Init()
 	unsigned int indices[3] = { 0, 1, 2 };
 	indexBuffer.reset(IndexBuffer::Create(indices, 3));
 
-	std::string vertexSrc = 
-		R"(
-			#version 460 core
 
-			layout(location = 0) in vec3 position;
+	std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+	std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 
-			out vec3 v_position;
-
-			void main()
-			{
-				gl_Position = vec4(position, 1.0);
-
-				v_position = position;
-			}
-		)";
-
-	std::string fragmentSrc =
-		R"(
-			#version 460 core
-
-			layout(location = 0) out vec4 color;
-
-			in vec3 v_position;
-
-			void main()
-			{
-				color = vec4(v_position * 0.5 + 0.5, 1.0);
-			}
-		)";
-
-	shader.reset(new Shader(vertexSrc, fragmentSrc));
+	shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 }
 
 void Application::OnMessage(Message& message)
