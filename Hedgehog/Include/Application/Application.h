@@ -41,8 +41,8 @@ protected:
 	LayerStack layers;
 
 	std::unique_ptr<VertexArray> vertexArray;
-	std::unique_ptr<VertexBuffer> vertexBuffer;
-	std::unique_ptr<IndexBuffer> indexBuffer;
+	std::shared_ptr<VertexBuffer> vertexBuffer;
+	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::unique_ptr<Shader> shader;
 
 private:

@@ -100,23 +100,29 @@ void Application::Init()
 	vertexArray->Bind();
 
 	// Vertex Buffer
-	float vertices[3 * 3] =
+	BufferLayout vertexBufferLayout =
 	{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f,
+		{ ShaderDataType::Float3, "a_position" },
+		{ ShaderDataType::Float4, "a_color" }
+	};
+
+	float vertices[] =
+	{
+		-0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f,
+		0.5f, -0.5f, 0.0f,	0.1f, 0.8f, 0.1f, 1.0f,
+		0.0f, 0.5f, 0.0f,	0.1f, 0.1f, 0.8f, 1.0f,
 	};
 
 	vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+	vertexBuffer->SetLayout(vertexBufferLayout);
 
-	// TODO this needs to be abstracted into the vertex array
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	vertexArray->AddVertexBuffer(vertexBuffer);
 
 	// Index Buffer
 	unsigned int indices[3] = { 0, 1, 2 };
 	indexBuffer.reset(IndexBuffer::Create(indices, 3));
 
+	vertexArray->AddIndexBuffer(indexBuffer);
 
 	std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
 	std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
