@@ -1,5 +1,91 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
+
+// TODO matrices
+enum class ShaderDataType
+{
+	None = 0,
+	Float,
+	Float2,
+	Float3,
+	Float4,
+	Int,
+	Int2,
+	Int3,
+	Int4,
+	Bool
+};
+
+struct ShaderDataTypeAttributes
+{
+	unsigned int size;
+	unsigned int count;
+};
+
+// TODECIDE we kinda have redundant information here, size is just count * sizeof(basetype)
+// Also it gets fuzzy when we add matrices, especially if we want to support non square matrices
+static const ShaderDataTypeAttributes shaderDataTypeAttributes[] =
+{
+	{ 0, 0 }, // None
+	{ 4, 1 }, // Float
+	{ 4 * 2, 2 }, // Float2
+	{ 4 * 3, 3 }, // Float3
+	{ 4 * 4, 4 }, // Float4
+	{ 4, 1 }, // Int
+	{ 4 * 2, 2 }, // Int2
+	{ 4 * 3, 3 }, // Int3
+	{ 4 * 4, 4 }, // Int4
+	{ 1, 1 }, // Bool
+};
+
+static unsigned int GetShaderDataTypeSize(ShaderDataType type) { return shaderDataTypeAttributes[(int)type].size; }
+static unsigned int GetShaderDataTypeCount(ShaderDataType type) { return shaderDataTypeAttributes[(int)type].count; }
+
+struct BufferElement
+{
+	BufferElement() = default;
+	BufferElement(ShaderDataType type, const std::string& name, bool normalized = false)
+		: type(type), name(name), normalized(normalized), size(GetShaderDataTypeSize(type)), offset(0) {}
+
+	ShaderDataType type;
+	std::string name;
+	unsigned int size;
+	bool normalized;
+	// For OpenGL, the offset is later used via casting it to void*
+	// having 'unsigned int offset' is a problem on 64-bit since void* is larger
+	size_t offset;
+};
+
+class BufferLayout
+{
+public:
+	BufferLayout() = default;
+	BufferLayout(const std::initializer_list<BufferElement>& elements)
+		: elements(elements)
+	{
+		CalculateOffsetsAndStride();
+	}
+
+	const std::vector<BufferElement>& getElements() const { return elements; }
+	unsigned int GetStride() const { return stride; }
+
+	std::vector<BufferElement>::iterator begin() { return elements.begin(); }
+	std::vector<BufferElement>::iterator end() { return elements.end(); }
+	std::vector<BufferElement>::const_iterator begin() const { return elements.begin(); }
+	std::vector<BufferElement>::const_iterator end() const { return elements.end(); }
+
+private:
+	void CalculateOffsetsAndStride();
+
+
+private:
+	std::vector<BufferElement> elements;
+	unsigned int stride;
+};
+
 class VertexBuffer
 {
 public:
@@ -7,6 +93,9 @@ public:
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
+
+	virtual void SetLayout(const BufferLayout& layout) = 0;
+	virtual const BufferLayout& GetLayout() const = 0;
 
 	static VertexBuffer* Create(const float* vertices, unsigned int size);
 };

@@ -32,3 +32,18 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 		return nullptr;
 	}
 }
+
+void BufferLayout::CalculateOffsetsAndStride()
+{
+	unsigned int offset = 0;
+	for (auto& element : elements)
+	{
+		// Element is offset by the sum of all previous elements' size
+		element.offset = offset;
+
+		offset += element.size;
+	}
+
+	// Stride is the sum of all elements' size
+	stride = offset;
+}
