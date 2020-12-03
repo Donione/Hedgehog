@@ -2,6 +2,10 @@
 
 #include <Renderer/Shader.h>
 
+#include <glad/glad.h>
+#include <vector>
+
+
 class OpenGLShader : public Shader
 {
 public:
@@ -13,6 +17,8 @@ public:
 
 private:
 	std::string ReadFile(const std::string& filePath);
+
+	std::vector<GLchar> getShaderInfoLog(GLint id);
 
 private:
 	unsigned int rendererID = 0;

@@ -1,8 +1,5 @@
 #include <Renderer/OpenGLShader.h>
 
-#include <glad/glad.h>
-
-#include <vector>
 #include <fstream>
 
 
@@ -24,15 +21,7 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
 	if (isCompiled == GL_FALSE)
 	{
-		GLint maxLength = 0;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
-
-		// The maxLength includes the NULL character
-		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &infoLog[0]);
-
-		// We don't need the shader anymore.
-		glDeleteShader(vertexShader);
+		std::vector<GLchar> infoLog = getShaderInfoLog(vertexShader);
 
 		// Use the infoLog as you see fit.
 		printf("Vertex shader compilation error.\n");
@@ -57,16 +46,9 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
 	if (isCompiled == GL_FALSE)
 	{
-		GLint maxLength = 0;
-		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> infoLog = getShaderInfoLog(vertexShader);
 
-		// The maxLength includes the NULL character
-		std::vector<GLchar> infoLog(maxLength);
-		glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &infoLog[0]);
-
-		// We don't need the shader anymore.
-		glDeleteShader(fragmentShader);
-		// Either of them. Don't leak shaders.
+		// We don't need the shader anymore. Don't leak shaders.
 		glDeleteShader(vertexShader);
 
 		// Use the infoLog as you see fit.
@@ -157,4 +139,19 @@ std::string OpenGLShader::ReadFile(const std::string& filePath)
 	}
 
 	return content;
+}
+
+std::vector<GLchar> OpenGLShader::getShaderInfoLog(GLint id)
+{
+	GLint maxLength = 0;
+	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
+
+	// The maxLength includes the NULL character
+	std::vector<GLchar> infoLog(maxLength);
+	glGetShaderInfoLog(id, maxLength, &maxLength, &infoLog[0]);
+
+	// We don't need the shader anymore.
+	glDeleteShader(id);
+
+	return infoLog;
 }
