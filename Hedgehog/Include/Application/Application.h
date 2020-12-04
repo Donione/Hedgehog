@@ -3,14 +3,11 @@
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
-#include <Renderer/Buffer.h>
-#include <Renderer/VertexArray.h>
-#include <Renderer/Shader.h>
+#include <Renderer/Renderer.h>
 #include <ImGui/ImGuiComponent.h>
 
 #include <assert.h>
 
-#include <imgui.h>
 
 class Application
 {
@@ -39,11 +36,6 @@ private:
 
 protected:
 	LayerStack layers;
-
-	std::unique_ptr<VertexArray> vertexArray;
-	std::shared_ptr<VertexBuffer> vertexBuffer;
-	std::shared_ptr<IndexBuffer> indexBuffer;
-	std::unique_ptr<Shader> shader;
 
 private:
 	inline static Application* instance = nullptr;

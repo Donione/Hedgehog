@@ -7,10 +7,10 @@ Shader* Shader::Create(const std::string& vertexFilePath, const std::string& pix
 {
 	switch (Renderer::GetAPI())
 	{
-	case RendererAPI::OpenGL:
+	case RendererAPI::API::OpenGL:
 		return new OpenGLShader(vertexFilePath, pixelFilePath);
 
-	case RendererAPI::None:
+	case RendererAPI::API::None:
 		return nullptr;
 
 	default:

@@ -1,22 +1,10 @@
 #include <Application/Application.h>
-#include <Renderer/OpenGLContext.h>
-#include <Renderer/Shader.h>
 
 #include <Message/KeyMessage.h>
 
+#include <Renderer/OpenGLContext.h>
 
 #include <iostream>
-
-
-// GLAD completely replaces GL.h
-// If there is something missing it means that the glad files were not generated properly,
-// for example glBegin, glColor3f, glEnd are in the compatibility profile and not in the core
-#include <glad/glad.h>
-
-
-#include <imgui.h>
-#include "imgui_impl_win32.h"
-#include <imgui_impl_opengl3.h>
 
 
 void Application::Run()
@@ -40,7 +28,7 @@ void Application::Run()
 			continue;
 		}
 
-		// TODO maybe put Clear (glClear) here
+		RenderCommand::Clear();
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 		for (auto layer : layers)
@@ -50,11 +38,6 @@ void Application::Run()
 				layer->OnUpdate();
 			}
 		}
-
-		shader->Bind();
-		vertexArray->Bind();
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
-		shader->Unbind();
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
@@ -95,39 +78,6 @@ void Application::Init()
 	window.Update();
 
 	imGuiComponent = new ImGuiComponent(window.GetHandle());
-
-	vertexArray.reset(VertexArray::Create());
-	vertexArray->Bind();
-
-	// Vertex Buffer
-	BufferLayout vertexBufferLayout =
-	{
-		{ ShaderDataType::Float3, "a_position" },
-		{ ShaderDataType::Float4, "a_color" }
-	};
-
-	float vertices[] =
-	{
-		-0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f,
-		0.5f, -0.5f, 0.0f,	0.1f, 0.8f, 0.1f, 1.0f,
-		0.0f, 0.5f, 0.0f,	0.1f, 0.1f, 0.8f, 1.0f,
-	};
-
-	vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-	vertexBuffer->SetLayout(vertexBufferLayout);
-
-	vertexArray->AddVertexBuffer(vertexBuffer);
-
-	// Index Buffer
-	unsigned int indices[3] = { 0, 1, 2 };
-	indexBuffer.reset(IndexBuffer::Create(indices, 3));
-
-	vertexArray->AddIndexBuffer(indexBuffer);
-
-	std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-	std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-
-	shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 }
 
 void Application::OnMessage(Message& message)

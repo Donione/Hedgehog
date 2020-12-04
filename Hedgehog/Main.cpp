@@ -1,21 +1,15 @@
 
 // TODO: Applications using the Hedgehog engine should just include some Hedgehog.h header
 //       and then create a concrete application class inheriting from the Hedgehog Application class
+//       altough so far everything needed is in the Application anyway
 // TODECIDE: Should the main function/entry point be a part of the engine or should it be up to the application (as it is here)?
 #include <Application/Application.h>
-
-#include <Layer/Layer.h>
 
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
 //#include "spdlog/sinks/stdout_color_sinks.h"
 
 #include <iostream>
-
-#include <glad/glad.h>
-
-
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
 class ExampleLayer : public Layer
@@ -58,24 +52,51 @@ public:
 			yOffset--;
 		}
 
-		// TODO this should be in some RenderBegin function or before first OnUpdate
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
+		// TODO just a tempporary example to use the Renderer API, creating and uploading the data with each frame is not the way
+		std::shared_ptr<VertexArray> vertexArray;
+		vertexArray.reset(VertexArray::Create());
+		vertexArray->Bind();
 
+		// Vertex Buffer
+		BufferLayout vertexBufferLayout =
 		{
-			glBegin(GL_TRIANGLES);
+			{ ShaderDataType::Float3, "a_position" },
+			{ ShaderDataType::Float4, "a_color" }
+		};
 
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex2f(0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset);
+		float vertices[] =
+		{
+			0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset, 0.0f,	0.0f, 1.0f, 0.0f, 1.0f,
+			0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset, 0.0f,	0.0f, 0.0f, 1.0f, 1.0f,
+		};
 
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex2f(-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertexBuffer->SetLayout(vertexBufferLayout);
 
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex2f(0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset);
+		vertexArray->AddVertexBuffer(vertexBuffer);
 
-			glEnd();
+		// Index Buffer
+		unsigned int indices[3] = { 0, 1, 2 };
+		std::shared_ptr<IndexBuffer> indexBuffer;
+		indexBuffer.reset(IndexBuffer::Create(indices, 3));
+
+		vertexArray->AddIndexBuffer(indexBuffer);
+
+		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+
+		std::unique_ptr<Shader> shader;
+		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
+
+		Renderer::BeginScene();
+		{
+			shader->Bind();
+			Renderer::Submit(vertexArray);
+			//shader->Unbind();
 		}
+		Renderer::EndScene();
 	}
 
 	void OnMessage(const Message& message) override
@@ -112,6 +133,7 @@ public:
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			RenderCommand::SetClearColor({ clear_color.x, clear_color.y, clear_color.z, 1.0f });
 
 			if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 				counter++;
@@ -144,6 +166,7 @@ public:
 
 private:
 	// Our state
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	int counter = 1;
 	int xOffset = 0;
 	int yOffset = 0;

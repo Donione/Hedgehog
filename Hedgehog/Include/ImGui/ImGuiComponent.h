@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+#include <imgui.h>
+
 // ImGuiComponent is a wrapper class over ImGui core functions for initialization and rendering
 class ImGuiComponent
 {
