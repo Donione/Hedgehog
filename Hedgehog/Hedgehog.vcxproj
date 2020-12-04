@@ -160,6 +160,7 @@
     <ClInclude Include="Include\Renderer\Buffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
+    <ClInclude Include="Include\Renderer\OpenGLRendererAPI.h" />
     <ClInclude Include="Include\Renderer\OpenGLShader.h" />
     <ClInclude Include="Include\Renderer\OpenGLVertexArray.h" />
     <ClInclude Include="Include\Renderer\RenderContext.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
+    <ClCompile Include="Source\Renderer\OpenGLRendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLShader.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
