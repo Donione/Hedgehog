@@ -1,22 +1,10 @@
 #include <Application/Application.h>
-#include <Renderer/OpenGLContext.h>
-#include <Renderer/Shader.h>
 
 #include <Message/KeyMessage.h>
 
+#include <Renderer/OpenGLContext.h>
 
 #include <iostream>
-
-
-// GLAD completely replaces GL.h
-// If there is something missing it means that the glad files were not generated properly,
-// for example glBegin, glColor3f, glEnd are in the compatibility profile and not in the core
-#include <glad/glad.h>
-
-
-#include <imgui.h>
-#include "imgui_impl_win32.h"
-#include <imgui_impl_opengl3.h>
 
 
 void Application::Run()
@@ -40,7 +28,7 @@ void Application::Run()
 			continue;
 		}
 
-		// TODO maybe put Clear (glClear) here
+		RenderCommand::Clear();
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 		for (auto layer : layers)
@@ -51,10 +39,13 @@ void Application::Run()
 			}
 		}
 
+		Renderer::BeginScene();
+
 		shader->Bind();
-		vertexArray->Bind();
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+		Renderer::Submit(vertexArray);
 		shader->Unbind();
+
+		Renderer::EndScene();
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
