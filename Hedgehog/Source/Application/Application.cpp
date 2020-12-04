@@ -39,14 +39,6 @@ void Application::Run()
 			}
 		}
 
-		Renderer::BeginScene();
-
-		shader->Bind();
-		Renderer::Submit(vertexArray);
-		shader->Unbind();
-
-		Renderer::EndScene();
-
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
 		for (auto layer : layers)
@@ -86,39 +78,6 @@ void Application::Init()
 	window.Update();
 
 	imGuiComponent = new ImGuiComponent(window.GetHandle());
-
-	vertexArray.reset(VertexArray::Create());
-	vertexArray->Bind();
-
-	// Vertex Buffer
-	BufferLayout vertexBufferLayout =
-	{
-		{ ShaderDataType::Float3, "a_position" },
-		{ ShaderDataType::Float4, "a_color" }
-	};
-
-	float vertices[] =
-	{
-		-0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f,
-		0.5f, -0.5f, 0.0f,	0.1f, 0.8f, 0.1f, 1.0f,
-		0.0f, 0.5f, 0.0f,	0.1f, 0.1f, 0.8f, 1.0f,
-	};
-
-	vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-	vertexBuffer->SetLayout(vertexBufferLayout);
-
-	vertexArray->AddVertexBuffer(vertexBuffer);
-
-	// Index Buffer
-	unsigned int indices[3] = { 0, 1, 2 };
-	indexBuffer.reset(IndexBuffer::Create(indices, 3));
-
-	vertexArray->AddIndexBuffer(indexBuffer);
-
-	std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-	std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-
-	shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 }
 
 void Application::OnMessage(Message& message)

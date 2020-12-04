@@ -37,11 +37,6 @@ private:
 protected:
 	LayerStack layers;
 
-	std::shared_ptr<VertexArray> vertexArray;
-	std::shared_ptr<VertexBuffer> vertexBuffer;
-	std::shared_ptr<IndexBuffer> indexBuffer;
-	std::unique_ptr<Shader> shader;
-
 private:
 	inline static Application* instance = nullptr;
 
