@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;$(SolutionDir)..\imgui-master;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)..\imgui-master;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

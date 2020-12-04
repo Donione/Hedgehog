@@ -164,6 +164,7 @@
     <ClInclude Include="Include\Renderer\OpenGLVertexArray.h" />
     <ClInclude Include="Include\Renderer\RenderContext.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
+    <ClInclude Include="Include\Renderer\RendererAPI.h" />
     <ClInclude Include="Include\Renderer\Shader.h" />
     <ClInclude Include="Include\Renderer\VertexArray.h" />
     <ClInclude Include="Include\Window\Window.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="Source\Renderer\OpenGLShader.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
+    <ClCompile Include="Source\Renderer\RendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\Shader.cpp" />
     <ClCompile Include="Source\Renderer\VertexArray.cpp" />
     <ClCompile Include="Source\Window\Window.cpp" />

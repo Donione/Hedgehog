@@ -7,10 +7,10 @@ VertexBuffer* VertexBuffer::Create(const float* vertices, unsigned int size)
 {
 	switch (Renderer::GetAPI())
 	{
-	case RendererAPI::OpenGL:
+	case RendererAPI::API::OpenGL:
 		return new OpenGLVertexBuffer(vertices, size);
 
-	case RendererAPI::None:
+	case RendererAPI::API::None:
 		return nullptr;
 
 	default:
@@ -22,10 +22,10 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 {
 	switch (Renderer::GetAPI())
 	{
-	case RendererAPI::OpenGL:
+	case RendererAPI::API::OpenGL:
 		return new OpenGLIndexBuffer(indices, count);
 
-	case RendererAPI::None:
+	case RendererAPI::API::None:
 		return nullptr;
 
 	default:
