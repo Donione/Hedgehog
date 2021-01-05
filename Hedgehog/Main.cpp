@@ -27,7 +27,13 @@ public:
 class ExampleTrinagleLayer : public Layer
 {
 public:
-	ExampleTrinagleLayer(bool enable = true) : Layer("Example Triangle Layer", enable) { }
+	ExampleTrinagleLayer(bool enable = true) :
+		Layer("Example Triangle Layer", enable),
+		camera(45.0f, aspectRatio, 0.01f, 25.0f)
+	{
+		camera.SetPosition({ 1.0f, 1.0f, 3.0f });
+		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
+	}
 
 	void OnUpdate() override
 	{
@@ -55,20 +61,27 @@ public:
 		// TODO just a tempporary example to use the Renderer API, creating and uploading the data with each frame is not the way
 		std::shared_ptr<VertexArray> vertexArray;
 		vertexArray.reset(VertexArray::Create());
-		vertexArray->Bind();
 
 		// Vertex Buffer
 		BufferLayout vertexBufferLayout =
 		{
-			{ ShaderDataType::Float3, "a_position" },
+			{ ShaderDataType::Float4, "a_position" },
 			{ ShaderDataType::Float4, "a_color" }
 		};
 
 		float vertices[] =
 		{
-			0.0f + 0.01f * xOffset, 0.5f + 0.01f * yOffset, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			-0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset, 0.0f,	0.0f, 1.0f, 0.0f, 1.0f,
-			0.5f + 0.01f * xOffset, -0.5f + 0.01f * yOffset, 0.0f,	0.0f, 0.0f, 1.0f, 1.0f,
+			// 1x1x1 cube centered around the origin (0, 0, 0)
+			// front face - white with some red on the bottom
+			-0.5f,  0.5f,  0.5f, 1.0f,	1.0f, 1.0f, 1.0f, 1.0f, // top left
+			 0.5f,  0.5f,  0.5f, 1.0f,	1.0f, 1.0f, 1.0f, 1.0f, // top right
+			-0.5f, -0.5f,  0.5f, 1.0f,	1.0f, 0.8f, 0.8f, 1.0f, // bottom left
+			 0.5f, -0.5f,  0.5f, 1.0f,	1.0f, 0.8f, 0.8f, 1.0f, // bottom right
+			 // back face - black with some red on the bottom
+			-0.5f,  0.5f, -0.5f, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f, // top left
+			 0.5f,  0.5f, -0.5f, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f, // top right
+			-0.5f, -0.5f, -0.5f, 1.0f,	0.2f, 0.0f, 0.0f, 1.0f, // bottom left
+			 0.5f, -0.5f, -0.5f, 1.0f,	0.2f, 0.0f, 0.0f, 1.0f, // bottom right
 		};
 
 		std::shared_ptr<VertexBuffer> vertexBuffer;
@@ -78,23 +91,21 @@ public:
 		vertexArray->AddVertexBuffer(vertexBuffer);
 
 		// Index Buffer
-		unsigned int indices[3] = { 0, 1, 2 };
+		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
 		std::shared_ptr<IndexBuffer> indexBuffer;
-		indexBuffer.reset(IndexBuffer::Create(indices, 3));
+		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
 
 		vertexArray->AddIndexBuffer(indexBuffer);
 
 		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
 		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 
-		std::unique_ptr<Shader> shader;
+		std::shared_ptr<Shader> shader;
 		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 
-		Renderer::BeginScene();
+		Renderer::BeginScene(camera);
 		{
-			shader->Bind();
-			Renderer::Submit(vertexArray);
-			//shader->Unbind();
+			Renderer::Submit(shader, vertexArray);
 		}
 		Renderer::EndScene();
 	}
@@ -106,6 +117,8 @@ public:
 	}
 
 private:
+	float aspectRatio = 1264.0f / 681.0f;
+	PerspectiveCamera camera;
 	int xOffset = 0;
 	int yOffset = 0;
 };
@@ -168,8 +181,6 @@ private:
 	// Our state
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	int counter = 1;
-	int xOffset = 0;
-	int yOffset = 0;
 	bool show_demo_window = false;
 	bool show_another_window = false;
 };
