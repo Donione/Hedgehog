@@ -1,9 +1,11 @@
 #include <Window/Window.h>
 
 #include <Windows.h>
+#include <windowsx.h>
 #include <cstdio>
 
 #include <Message/KeyMessage.h>
+#include <Message/MouseMessage.h>
 
 #include "imgui.h"
 
@@ -68,10 +70,28 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	case WM_MOUSEMOVE:
+	{
+		MouseMoveMessage message(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (MessageCallback) MessageCallback(message);
+		return 0;
+
 		break;
+	}
 
 	case WM_LBUTTONDBLCLK:
 		break;
+
+	case WM_MOUSEWHEEL:
+	{
+		//short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+		MouseScrollMessage message(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
+		if (MessageCallback) MessageCallback(message);
+		return 0;
+
+		//printf("Scrolled %d\n", zDelta / WHEEL_DELTA);
+		//break;
+	}
 
 	case WM_PAINT:
 		break;
