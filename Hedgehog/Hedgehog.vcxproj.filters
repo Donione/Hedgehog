@@ -108,6 +108,8 @@
     <ClInclude Include="Include\Renderer\RenderCommand.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Message\MouseMessage.h">
+      <Filter>Include\Message</Filter>
     <ClInclude Include="Include\Renderer\Camera.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>

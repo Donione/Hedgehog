@@ -10,12 +10,14 @@ enum class MessageCategory
 {
 	Undefined = 0,
 	Key,
+	Mouse,
 };
 
 enum class MessageType
 {
 	Undefined = 0,
 	KeyPressed, KeyReleased,
+	MouseMoved, MouseScrolled,
 };
 
 // Base Message Class

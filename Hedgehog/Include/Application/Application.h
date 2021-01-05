@@ -5,6 +5,8 @@
 #include <Renderer/RenderContext.h>
 #include <Renderer/Renderer.h>
 #include <ImGui/ImGuiComponent.h>
+#include <Message/KeyMessage.h>
+#include <Message/MouseMessage.h>
 
 #include <assert.h>
 
