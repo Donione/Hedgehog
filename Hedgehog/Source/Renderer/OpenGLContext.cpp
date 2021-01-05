@@ -92,6 +92,9 @@ void OpenGLContext::Init()
 	{
 		printf("Error gladLoadWGL()\n");
 	}
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_CULL_FACE); // default is CCW
 }
 
 void OpenGLContext::SetSwapInterval(int interval)
