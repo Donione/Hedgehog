@@ -108,6 +108,9 @@
     <ClInclude Include="Include\Renderer\RenderCommand.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Camera.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\OpenGLRendererAPI.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Camera.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
