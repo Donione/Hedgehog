@@ -31,8 +31,8 @@ public:
 		Layer("Example Triangle Layer", enable),
 		camera(45.0f, aspectRatio, 0.01f, 25.0f)
 	{
-		camera.SetPosition({ 0.0f, 0.0f, 3.0f });
-		camera.SetRotation({ 0.0f, 0.0f, 0.0f });
+		camera.SetPosition({ 1.0f, 1.0f, 3.0f });
+		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
 	}
 
 	void OnUpdate() override
