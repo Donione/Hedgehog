@@ -15,11 +15,13 @@ public:
 	virtual void Bind() const override;
 	virtual void Unbind() const override;
 
+	virtual void UploadUniform(const std::string& name, glm::mat4x4 uniform) const override;
+
 private:
 	std::string ReadFile(const std::string& filePath);
 
 	std::vector<GLchar> getShaderInfoLog(GLint id);
 
 private:
-	unsigned int rendererID = 0;
+	unsigned int shaderID = 0;
 };
