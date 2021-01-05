@@ -1,6 +1,7 @@
 #include <Renderer/OpenGLShader.h>
 
 #include <fstream>
+#include <glm/gtc/type_ptr.hpp>
 
 
 OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string& pixelFilePath)
@@ -62,29 +63,29 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	// Vertex and fragment shaders are successfully compiled.
 	// Now time to link them together into a program.
 	// Get a program object.
-	rendererID = glCreateProgram();
+	shaderID = glCreateProgram();
 
 	// Attach our shaders to our program
-	glAttachShader(rendererID, vertexShader);
-	glAttachShader(rendererID, fragmentShader);
+	glAttachShader(shaderID, vertexShader);
+	glAttachShader(shaderID, fragmentShader);
 
 	// Link our program
-	glLinkProgram(rendererID);
+	glLinkProgram(shaderID);
 
 	// Note the different functions here: glGetProgram* instead of glGetShader*.
 	GLint isLinked = 0;
-	glGetProgramiv(rendererID, GL_LINK_STATUS, (int*)&isLinked);
+	glGetProgramiv(shaderID, GL_LINK_STATUS, (int*)&isLinked);
 	if (isLinked == GL_FALSE)
 	{
 		GLint maxLength = 0;
-		glGetProgramiv(rendererID, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetProgramiv(shaderID, GL_INFO_LOG_LENGTH, &maxLength);
 
 		// The maxLength includes the NULL character
 		std::vector<GLchar> infoLog(maxLength);
-		glGetProgramInfoLog(rendererID, maxLength, &maxLength, &infoLog[0]);
+		glGetProgramInfoLog(shaderID, maxLength, &maxLength, &infoLog[0]);
 
 		// We don't need the program anymore.
-		glDeleteProgram(rendererID);
+		glDeleteProgram(shaderID);
 		// Don't leak shaders either.
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
@@ -98,23 +99,35 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	}
 
 	// Always detach shaders after a successful link.
-	glDetachShader(rendererID, vertexShader);
-	glDetachShader(rendererID, fragmentShader);
+	glDetachShader(shaderID, vertexShader);
+	glDetachShader(shaderID, fragmentShader);
 }
 
 OpenGLShader::~OpenGLShader()
 {
-	glDeleteProgram(rendererID);
+	glDeleteProgram(shaderID);
 }
 
 void OpenGLShader::Bind() const
 {
-	glUseProgram(rendererID);
+	glUseProgram(shaderID);
 }
 
 void OpenGLShader::Unbind() const
 {
 	glUseProgram(0);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	// the program must be bound first to the context with glUseProgram
+	// value_ptr() returns a direct pointer to the matrix data in column-major order, making it useful for uploading data to OpenGL
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
+
+	// If using OpenGL 4.1 or ARB_separate_shader_objects, you may use the glProgramUniform* functions to set uniforms directly on a program,
+	// without having to bind the program first
+	//glProgramUniformMatrix4fv(shaderID, uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
 std::string OpenGLShader::ReadFile(const std::string& filePath)
