@@ -1,8 +1,12 @@
 #include <Renderer/Renderer.h>
 
 
-void Renderer::BeginScene()
+// static private member needs definition if not using C++17's inline static
+//Camera Renderer::sceneCamera;
+
+void Renderer::BeginScene(const Camera& camera)
 {
+	sceneCamera = camera;
 }
 
 void Renderer::EndScene()
