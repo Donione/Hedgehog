@@ -29,9 +29,9 @@ class ExampleTrinagleLayer : public Layer
 public:
 	ExampleTrinagleLayer(bool enable = true) :
 		Layer("Example Triangle Layer", enable),
-		camera(45.0f, aspectRatio, 0.01f, 25.0f)
+		camera(45.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
 	{
-		camera.SetPosition({ 1.0f, 1.0f, 3.0f });
+		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
 	}
 
@@ -50,13 +50,50 @@ public:
 
 		if (GetKeyState(0x57) < 0) // 'W'
 		{
-			yOffset++;
+			zOffset--;
 		}
 
 		if (GetKeyState(0x53) < 0) // 'S'
 		{
-			yOffset--;
+			zOffset++;
 		}
+
+		if (GetKeyState(0x6B) < 0) // '+'
+		{
+			zRotation++;
+		}
+
+		if (GetKeyState(0x6D) < 0) // '-'
+		{
+			zRotation--;
+		}
+
+		if (GetKeyState(0x45) < 0) // 'E'
+		{
+			zRotation--;
+		}
+
+		if (GetKeyState(0x51) < 0) // 'Q'
+		{
+			zRotation++;
+		}
+
+		if (GetKeyState(VK_SPACE) < 0)
+		{
+			camera.SetPosition({ 0.0f, 0.0f, 3.0f });
+			camera.SetRotation({ 0.0f, 0.0f, 0.0f });
+		}
+
+		camera.Move(0.05f * glm::vec3(xOffset, yOffset, zOffset));
+		camera.Rotate(glm::vec3(xRotation, yRotation, zRotation));
+
+		xOffset = 0;
+		yOffset = 0;
+		zOffset = 0;
+
+		xRotation = 0;
+		yRotation = 0;
+		zRotation = 0;
 
 		// TODO just a tempporary example to use the Renderer API, creating and uploading the data with each frame is not the way
 		std::shared_ptr<VertexArray> vertexArray;
@@ -110,17 +147,64 @@ public:
 		Renderer::EndScene();
 	}
 
+	void OnGuiUpdate() override
+	{
+		ImGui::Begin("Camera");
+
+		glm::vec3 position = camera.GetPosition();
+		glm::vec3 rotation = camera.GetRotation();
+		ImGui::Text("Position: %f %f %f", position.x, position.y, position.z);
+		ImGui::Text("Rotation: %f %f %f", rotation.x, rotation.y, rotation.z);
+
+		ImGui::End();
+	}
+
 	void OnMessage(const Message& message) override
 	{
 		printf("%s: OnMessage called\n", name.c_str());
 		std::cout << message.ToString() << std::endl;
+
+		if (message.GetMessageType() == MessageType::MouseScrolled)
+		{
+			const MouseScrollMessage& mouseScrollMessage = dynamic_cast<const MouseScrollMessage&>(message);
+
+			yOffset += mouseScrollMessage.GetDistance() * 5;
+		}
+
+		if (message.GetMessageType() == MessageType::MouseMoved)
+		{
+			const MouseMoveMessage& mouseMoveMessage = dynamic_cast<const MouseMoveMessage&>(message);
+
+			if (lastX == 0 && lastY == 0)
+			{
+				lastX = mouseMoveMessage.GetX();
+				lastY = mouseMoveMessage.GetY();
+			}
+			else
+			{
+				yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX) / 5.0f;
+				xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY) / 5.0f;
+
+				lastX = mouseMoveMessage.GetX();
+				lastY = mouseMoveMessage.GetY();
+			}
+		}
 	}
 
 private:
 	float aspectRatio = 1264.0f / 681.0f;
 	PerspectiveCamera camera;
+
+	int lastX = 0;
+	int lastY = 0;
+
 	int xOffset = 0;
 	int yOffset = 0;
+	int zOffset = 0;
+
+	float xRotation = 0;
+	float yRotation = 0;
+	float zRotation = 0;
 };
 
 class ExampleOverlay : public Layer
