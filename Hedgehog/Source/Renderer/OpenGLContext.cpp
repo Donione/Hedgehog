@@ -93,7 +93,11 @@ void OpenGLContext::Init()
 		printf("Error gladLoadWGL()\n");
 	}
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_CULL_FACE); // default is CCW
 }
 

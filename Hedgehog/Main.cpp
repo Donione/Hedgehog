@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 
 class ExampleLayer : public Layer
 {
@@ -123,6 +125,18 @@ public:
 
 		vertexArray->AddIndexBuffer(indexBuffer);
 
+		glm::mat4x4 transform2(1.0f);
+		transform2 = glm::translate(transform2, glm::vec3(3.0f, 0.25f, 0.5f));
+		transform2 = glm::rotate(transform2, glm::radians(-20.0f), glm::vec3(0.0, 1.0, 0.0));
+		transform2 = glm::rotate(transform2, glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0));
+		transform2 = glm::scale(transform2, glm::vec3(1.5f, 1.5f, 1.5f));
+
+		glm::mat4x4 transform3(1.0f);
+		transform3 = glm::translate(transform3, glm::vec3(1.5f, 2.00f, -0.5f));
+		transform3 = glm::rotate(transform3, glm::radians(-10.0f), glm::vec3(0.0, 1.0, 0.0));
+		transform3 = glm::rotate(transform3, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
+		transform3 = glm::scale(transform3, glm::vec3(0.5f, 1.0f, 0.5f));
+
 		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
 		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 
@@ -132,6 +146,8 @@ public:
 		Renderer::BeginScene(camera);
 		{
 			Renderer::Submit(shader, vertexArray);
+			Renderer::Submit(shader, vertexArray, transform2);
+			Renderer::Submit(shader, vertexArray, transform3);
 		}
 		Renderer::EndScene();
 	}
