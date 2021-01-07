@@ -16,17 +16,9 @@ void Application::Run()
 	{
 		//printf("Application core: Run loop (OnUpdate) called\n");
 
-		// Poll and handle messages (inputs, window resize, etc.)
-		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
+		auto& previousFrameDuration = frameDuration.GetDuration();
+
+		frameDuration.Start();
 
 		RenderCommand::Clear();
 
@@ -35,7 +27,7 @@ void Application::Run()
 		{
 			if (layer->IsEnabled())
 			{
-				layer->OnUpdate();
+				layer->OnUpdate(previousFrameDuration);
 			}
 		}
 
@@ -51,6 +43,20 @@ void Application::Run()
 		imGuiComponent->EndFrame();
 
 		renderContext->SwapBuffers();
+
+		// Poll and handle messages (inputs, window resize, etc.)
+		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			continue;
+		}
+
+		frameDuration.Stop();
 	}
 }
 
@@ -71,7 +77,7 @@ void Application::Init()
 	renderContext->Init();
 
 	// Setup VSYNC
-	renderContext->SetSwapInterval(1);
+	renderContext->SetSwapInterval(0);
 
 	// Show the window
 	window.Show();

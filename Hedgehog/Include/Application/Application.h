@@ -7,6 +7,7 @@
 #include <ImGui/ImGuiComponent.h>
 #include <Message/KeyMessage.h>
 #include <Message/MouseMessage.h>
+#include <Utilities/Stopwatch.h>
 
 #include <assert.h>
 
@@ -50,4 +51,6 @@ private:
 	// ImGuiComponent is an integral part of the application.
 	// It is supposed to handle all Gui rendering, which is submitted by layers.
 	ImGuiComponent* imGuiComponent;
+
+	Stopwatch frameDuration;
 };
