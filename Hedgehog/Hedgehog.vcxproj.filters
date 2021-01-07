@@ -49,6 +49,9 @@
     <Filter Include="Assets\Shader">
       <UniqueIdentifier>{9fb87e21-836d-446b-ad2e-6e7f402fbfc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Utilities">
+      <UniqueIdentifier>{34d47b66-1874-4368-92f4-a871714933a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="Include\Renderer\Camera.h">
       <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Utilities\Stopwatch.h">
+      <Filter>Include\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
