@@ -15,27 +15,16 @@
 class ExampleLayer : public Layer
 {
 public:
-	ExampleLayer(const std::string& name, bool enable = true) : Layer(name, enable) { }
-
-	void OnMessage(const Message& message) override
-	{
-		printf("%s: OnMessage called\n", name.c_str());
-		std::cout << message.ToString() << std::endl;
-	}
-};
-
-class ExampleTrinagleLayer : public Layer
-{
-public:
-	ExampleTrinagleLayer(bool enable = true) :
+	ExampleLayer(bool enable = true) :
 		Layer("Example Triangle Layer", enable),
-		camera(45.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
+		camera(56.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
+		//camera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
 	{
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
 	}
 
-	void OnUpdate() override
+	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
 	{
 		// Poll WASD input
 		if (GetKeyState(0x44) < 0) // 'D'
@@ -84,8 +73,8 @@ public:
 			camera.SetRotation({ 0.0f, 0.0f, 0.0f });
 		}
 
-		camera.Move(0.05f * glm::vec3(xOffset, yOffset, zOffset));
-		camera.Rotate(glm::vec3(xRotation, yRotation, zRotation));
+		camera.Move(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+		camera.Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
 
 		xOffset = 0;
 		yOffset = 0;
@@ -168,7 +157,7 @@ public:
 		{
 			const MouseScrollMessage& mouseScrollMessage = dynamic_cast<const MouseScrollMessage&>(message);
 
-			yOffset += mouseScrollMessage.GetDistance() * 5;
+			yOffset += mouseScrollMessage.GetDistance();
 		}
 
 		if (message.GetMessageType() == MessageType::MouseMoved)
@@ -182,8 +171,8 @@ public:
 			}
 			else
 			{
-				yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX) / 5.0f;
-				xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY) / 5.0f;
+				yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX);
+				xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY);
 
 				lastX = mouseMoveMessage.GetX();
 				lastY = mouseMoveMessage.GetY();
@@ -194,17 +183,23 @@ public:
 private:
 	float aspectRatio = 1264.0f / 681.0f;
 	PerspectiveCamera camera;
+	//OrthographicCamera camera;
 
 	int lastX = 0;
 	int lastY = 0;
 
-	int xOffset = 0;
-	int yOffset = 0;
-	int zOffset = 0;
+	float xOffset = 0;
+	float yOffset = 0;
+	float zOffset = 0;
 
 	float xRotation = 0;
 	float yRotation = 0;
 	float zRotation = 0;
+
+	float movementSpeed = 5.0f / 1000.0f; // units/ms
+	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
+	float mouseSpeed = 135.0f / 681.0f; // deg/px
+	float scrollSpeed = 0.25; // units/mousestep
 };
 
 class ExampleOverlay : public Layer
@@ -274,11 +269,8 @@ class Sandbox : public Application
 public:
 	Sandbox(HINSTANCE hInstance) : Application(hInstance)
 	{
-		layers.Push(new ExampleLayer("1st Example Layer"));
 		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
-		layers.Push(new ExampleLayer("2nd Example Layer"));
-		layers.Push(new ExampleLayer("3rd Example Layer", false));
-		layers.Push(new ExampleTrinagleLayer());
+		layers.Push(new ExampleLayer());
 	}
 
 	~Sandbox()

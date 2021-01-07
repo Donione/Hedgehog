@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <chrono>
 
 #include <Message/Message.h>
 
@@ -17,7 +18,7 @@ public:
 
 	virtual void OnPush() {}
 	virtual void OnPop() {}
-	virtual void OnUpdate() {}
+	virtual void OnUpdate(const std::chrono::duration<double, std::milli>& duration) {}
 	virtual void OnGuiUpdate() {}
 	virtual void OnMessage(const Message& message) {}
 
