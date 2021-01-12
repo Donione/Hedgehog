@@ -120,6 +120,9 @@
     <ClInclude Include="Include\Utilities\Stopwatch.h">
       <Filter>Include\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Texture.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
