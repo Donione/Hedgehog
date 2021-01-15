@@ -199,5 +199,11 @@
     <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
+    <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
