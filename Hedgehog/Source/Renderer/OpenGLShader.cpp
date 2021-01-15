@@ -47,7 +47,7 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
 	if (isCompiled == GL_FALSE)
 	{
-		std::vector<GLchar> infoLog = getShaderInfoLog(vertexShader);
+		std::vector<GLchar> infoLog = getShaderInfoLog(fragmentShader);
 
 		// We don't need the shader anymore. Don't leak shaders.
 		glDeleteShader(vertexShader);
@@ -105,6 +105,7 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 
 OpenGLShader::~OpenGLShader()
 {
+	glUseProgram(0);
 	glDeleteProgram(shaderID);
 }
 
