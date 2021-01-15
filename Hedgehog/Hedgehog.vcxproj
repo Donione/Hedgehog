@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -164,12 +164,14 @@
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
     <ClInclude Include="Include\Renderer\OpenGLRendererAPI.h" />
     <ClInclude Include="Include\Renderer\OpenGLShader.h" />
+    <ClInclude Include="Include\Renderer\OpenGLTexture.h" />
     <ClInclude Include="Include\Renderer\OpenGLVertexArray.h" />
     <ClInclude Include="Include\Renderer\RenderCommand.h" />
     <ClInclude Include="Include\Renderer\RenderContext.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
     <ClInclude Include="Include\Renderer\RendererAPI.h" />
     <ClInclude Include="Include\Renderer\Shader.h" />
+    <ClInclude Include="Include\Renderer\Texture.h" />
     <ClInclude Include="Include\Renderer\VertexArray.h" />
     <ClInclude Include="Include\Utilities\Stopwatch.h" />
     <ClInclude Include="Include\Window\Window.h" />
@@ -185,12 +187,15 @@
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLRendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLShader.cpp" />
+    <ClCompile Include="Source\Renderer\OpenGLTexture.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLVertexArray.cpp" />
     <ClCompile Include="Source\Renderer\RenderCommand.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Renderer\RendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\Shader.cpp" />
+    <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Renderer\VertexArray.cpp" />
+    <ClCompile Include="Source\Utilities\stb_image_implementation.cpp" />
     <ClCompile Include="Source\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -204,6 +209,8 @@
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl" />
+    <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl" />
+    <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

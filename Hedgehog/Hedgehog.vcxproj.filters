@@ -52,6 +52,9 @@
     <Filter Include="Include\Utilities">
       <UniqueIdentifier>{34d47b66-1874-4368-92f4-a871714933a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utilities">
+      <UniqueIdentifier>{a7521b8b-89f0-4389-8746-e94668ba3fb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -120,6 +123,12 @@
     <ClInclude Include="Include\Utilities\Stopwatch.h">
       <Filter>Include\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\Texture.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\OpenGLTexture.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -173,12 +182,27 @@
     <ClCompile Include="Source\Renderer\Camera.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\Texture.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\OpenGLTexture.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utilities\stb_image_implementation.cpp">
+      <Filter>Source\Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
     <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
   </ItemGroup>

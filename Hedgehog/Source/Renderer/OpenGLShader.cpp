@@ -47,7 +47,7 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
 	if (isCompiled == GL_FALSE)
 	{
-		std::vector<GLchar> infoLog = getShaderInfoLog(vertexShader);
+		std::vector<GLchar> infoLog = getShaderInfoLog(fragmentShader);
 
 		// We don't need the shader anymore. Don't leak shaders.
 		glDeleteShader(vertexShader);
@@ -105,6 +105,7 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 
 OpenGLShader::~OpenGLShader()
 {
+	glUseProgram(0);
 	glDeleteProgram(shaderID);
 }
 
@@ -118,6 +119,36 @@ void OpenGLShader::Unbind() const
 	glUseProgram(0);
 }
 
+void OpenGLShader::UploadUniform(const std::string& name, float uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniform1f(uniformLocation, uniform);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec2 uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniform2f(uniformLocation, uniform[0], uniform[1]);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec3 uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniform3f(uniformLocation, uniform[0], uniform[1], uniform[2]);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec4 uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniform4f(uniformLocation, uniform[0], uniform[1], uniform[2], uniform[3]);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, glm::mat3x3 uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
+}
+
 void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform) const
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
@@ -128,6 +159,12 @@ void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform) c
 	// If using OpenGL 4.1 or ARB_separate_shader_objects, you may use the glProgramUniform* functions to set uniforms directly on a program,
 	// without having to bind the program first
 	//glProgramUniformMatrix4fv(shaderID, uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, int uniform) const
+{
+	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
+	glUniform1i(uniformLocation, uniform);
 }
 
 std::string OpenGLShader::ReadFile(const std::string& filePath)

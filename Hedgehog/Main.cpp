@@ -18,12 +18,52 @@ class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Triangle Layer", enable),
+		Layer("Example Layer", enable),
 		camera(56.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
 		//camera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
 	{
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
+		
+		BufferLayout vertexBufferLayout =
+		{
+			{ ShaderDataType::Float4, "a_position" },
+			{ ShaderDataType::Float4, "a_color" },
+			{ ShaderDataType::Float2, "a_textureCoordinates"}
+		};
+
+		float vertices[] =
+		{
+			// 1x1x1 cube centered around the origin (0, 0, 0)
+			// front face - white with some red on the bottom
+			-0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f, // top left
+			 0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f, // top right
+			-0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f, // bottom left
+			 0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f, // bottom right
+			 // back face - black with some red on the bottom
+			-0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f, // top left
+			 0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f, // top right
+			-0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f, // bottom left
+			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, // bottom right
+		};
+
+		vertexArraySquare.reset(VertexArray::Create());
+
+		vertexBufferSquare.reset(VertexBuffer::Create(vertices, sizeof(vertices) / 2));
+		vertexBufferSquare->SetLayout(vertexBufferLayout);
+		vertexArraySquare->AddVertexBuffer(vertexBufferSquare);
+
+		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
+		indexBufferSquare.reset(IndexBuffer::Create(indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int)));
+		vertexArraySquare->AddIndexBuffer(indexBufferSquare);
+
+		std::string vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
+		std::string fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
+		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
+		textureShader->UploadUniform("u_texture", 0);
+
+		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
+		texture.reset(Texture2D::Create(textureFilename));
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -148,6 +188,9 @@ public:
 			Renderer::Submit(shader, vertexArray);
 			Renderer::Submit(shader, vertexArray, transform2);
 			Renderer::Submit(shader, vertexArray, transform3);
+
+			texture->Bind();
+			Renderer::Submit(textureShader, vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
 		}
 		Renderer::EndScene();
 	}
@@ -201,6 +244,12 @@ private:
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
+	std::shared_ptr<VertexArray> vertexArraySquare;
+	std::shared_ptr<VertexBuffer> vertexBufferSquare;
+	std::shared_ptr<IndexBuffer> indexBufferSquare;
+
+	std::shared_ptr<Shader> textureShader;
+
 	int lastX = 0;
 	int lastY = 0;
 
@@ -216,6 +265,8 @@ private:
 	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep
+
+	std::shared_ptr<Texture> texture;
 };
 
 class ExampleOverlay : public Layer
