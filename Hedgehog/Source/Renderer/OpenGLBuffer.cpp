@@ -12,6 +12,7 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, unsigned int size)
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
 {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &rendererID);
 }
 
@@ -37,6 +38,7 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(const unsigned int* indices, unsigned int c
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
 {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &rendererID);
 }
 

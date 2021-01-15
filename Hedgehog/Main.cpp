@@ -47,23 +47,55 @@ public:
 			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, // bottom right
 		};
 
+		// Vertex Arrays
+		vertexArray.reset(VertexArray::Create());
+
 		vertexArraySquare.reset(VertexArray::Create());
+
+		// Vertex Buffers
+		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertexBuffer->SetLayout(vertexBufferLayout);
+		vertexArray->AddVertexBuffer(vertexBuffer);
 
 		vertexBufferSquare.reset(VertexBuffer::Create(vertices, sizeof(vertices) / 2));
 		vertexBufferSquare->SetLayout(vertexBufferLayout);
 		vertexArraySquare->AddVertexBuffer(vertexBufferSquare);
 
+		// Index Buffers
+		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
+		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
+		vertexArray->AddIndexBuffer(indexBuffer);
+
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 		indexBufferSquare.reset(IndexBuffer::Create(indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int)));
 		vertexArraySquare->AddIndexBuffer(indexBufferSquare);
+
+		// Shaders
+		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 
 		std::string vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
 		std::string fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
 		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
 		textureShader->UploadUniform("u_texture", 0);
 
+		// Textures
 		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
 		texture.reset(Texture2D::Create(textureFilename));
+
+		// Transforms
+		transform2 = glm::mat4x4(1.0f);
+		transform2 = glm::translate(transform2, glm::vec3(3.0f, 0.25f, 0.5f));
+		transform2 = glm::rotate(transform2, glm::radians(-20.0f), glm::vec3(0.0, 1.0, 0.0));
+		transform2 = glm::rotate(transform2, glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0));
+		transform2 = glm::scale(transform2, glm::vec3(1.5f, 1.5f, 1.5f));
+
+		transform3 = glm::mat4x4(1.0f);
+		transform3 = glm::translate(transform3, glm::vec3(1.5f, 2.0f, -0.5f));
+		transform3 = glm::rotate(transform3, glm::radians(-10.0f), glm::vec3(0.0, 1.0, 0.0));
+		transform3 = glm::rotate(transform3, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
+		transform3 = glm::scale(transform3, glm::vec3(0.5f, 1.0f, 0.5f));
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -126,63 +158,6 @@ public:
 		yRotation = 0;
 		zRotation = 0;
 
-		// TODO just a tempporary example to use the Renderer API, creating and uploading the data with each frame is not the way
-		std::shared_ptr<VertexArray> vertexArray;
-		vertexArray.reset(VertexArray::Create());
-
-		// Vertex Buffer
-		BufferLayout vertexBufferLayout =
-		{
-			{ ShaderDataType::Float4, "a_position" },
-			{ ShaderDataType::Float4, "a_color" }
-		};
-
-		float vertices[] =
-		{
-			// 1x1x1 cube centered around the origin (0, 0, 0)
-			// front face - white with some red on the bottom
-			-0.5f,  0.5f,  0.5f, 1.0f,	1.0f, 1.0f, 1.0f, 1.0f, // top left
-			 0.5f,  0.5f,  0.5f, 1.0f,	1.0f, 1.0f, 1.0f, 1.0f, // top right
-			-0.5f, -0.5f,  0.5f, 1.0f,	1.0f, 0.8f, 0.8f, 1.0f, // bottom left
-			 0.5f, -0.5f,  0.5f, 1.0f,	1.0f, 0.8f, 0.8f, 1.0f, // bottom right
-			 // back face - black with some red on the bottom
-			-0.5f,  0.5f, -0.5f, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f, // top left
-			 0.5f,  0.5f, -0.5f, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f, // top right
-			-0.5f, -0.5f, -0.5f, 1.0f,	0.2f, 0.0f, 0.0f, 1.0f, // bottom left
-			 0.5f, -0.5f, -0.5f, 1.0f,	0.2f, 0.0f, 0.0f, 1.0f, // bottom right
-		};
-
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-		vertexBuffer->SetLayout(vertexBufferLayout);
-
-		vertexArray->AddVertexBuffer(vertexBuffer);
-
-		// Index Buffer
-		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-		std::shared_ptr<IndexBuffer> indexBuffer;
-		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
-
-		vertexArray->AddIndexBuffer(indexBuffer);
-
-		glm::mat4x4 transform2(1.0f);
-		transform2 = glm::translate(transform2, glm::vec3(3.0f, 0.25f, 0.5f));
-		transform2 = glm::rotate(transform2, glm::radians(-20.0f), glm::vec3(0.0, 1.0, 0.0));
-		transform2 = glm::rotate(transform2, glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0));
-		transform2 = glm::scale(transform2, glm::vec3(1.5f, 1.5f, 1.5f));
-
-		glm::mat4x4 transform3(1.0f);
-		transform3 = glm::translate(transform3, glm::vec3(1.5f, 2.00f, -0.5f));
-		transform3 = glm::rotate(transform3, glm::radians(-10.0f), glm::vec3(0.0, 1.0, 0.0));
-		transform3 = glm::rotate(transform3, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-		transform3 = glm::scale(transform3, glm::vec3(0.5f, 1.0f, 0.5f));
-
-		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-
-		std::shared_ptr<Shader> shader;
-		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
-
 		Renderer::BeginScene(camera);
 		{
 			Renderer::Submit(shader, vertexArray);
@@ -244,11 +219,18 @@ private:
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
+	std::shared_ptr<VertexArray> vertexArray;
 	std::shared_ptr<VertexArray> vertexArraySquare;
+	std::shared_ptr<VertexBuffer> vertexBuffer;
 	std::shared_ptr<VertexBuffer> vertexBufferSquare;
+	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::shared_ptr<IndexBuffer> indexBufferSquare;
 
+	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> textureShader;
+
+	glm::mat4x4 transform2;
+	glm::mat4x4 transform3;
 
 	int lastX = 0;
 	int lastY = 0;

@@ -5,10 +5,13 @@
 OpenGLVertexArray::OpenGLVertexArray()
 {
 	glCreateVertexArrays(1, &rendererID);
+	// Unbind the vertex array so if a vertex of index buffer intended for a different VA isn't bound to this one upon creation.
+	glBindVertexArray(0);
 }
 
 OpenGLVertexArray::~OpenGLVertexArray()
 {
+	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &rendererID);
 }
 
@@ -43,6 +46,8 @@ void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& ver
 
 		index++;
 	}
+
+	this->Unbind();
 }
 
 void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
@@ -50,4 +55,5 @@ void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 	this->Bind();
 	indexBuffer->Bind();
 	indexBuffers.push_back(indexBuffer);
+	this->Unbind();
 }

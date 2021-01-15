@@ -20,9 +20,8 @@ void Renderer::Submit(const std::shared_ptr<Shader>& shader,
 	shader->Bind();
 	shader->UploadUniform("u_ViewProjection", sceneCamera.GetProjectionView());
 	shader->UploadUniform("u_Transform", transform);
-	vertexArray->Bind();
+
 	RenderCommand::DrawIndexed(vertexArray);
 
-	vertexArray->Unbind();
 	shader->Unbind();
 }
