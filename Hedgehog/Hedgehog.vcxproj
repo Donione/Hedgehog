@@ -209,6 +209,8 @@
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl" />
+    <None Include="Asset\Shader\OpenGLModelPixelShader.glsl" />
+    <None Include="Asset\Shader\OpenGLModelVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl" />
   </ItemGroup>
