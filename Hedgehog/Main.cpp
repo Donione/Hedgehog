@@ -184,9 +184,6 @@ public:
 
 	void OnMessage(const Message& message) override
 	{
-		printf("%s: OnMessage called\n", name.c_str());
-		std::cout << message.ToString() << std::endl;
-
 		if (message.GetMessageType() == MessageType::MouseScrolled)
 		{
 			const MouseScrollMessage& mouseScrollMessage = dynamic_cast<const MouseScrollMessage&>(message);
@@ -301,8 +298,6 @@ public:
 
 	void OnMessage(const Message& message) override
 	{
-		printf("%s: OnMessage called\n", name.c_str());
-		std::cout << message.ToString() << std::endl;
 	}
 
 private:

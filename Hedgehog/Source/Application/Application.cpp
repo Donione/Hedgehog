@@ -114,9 +114,6 @@ void Application::OnMessage(Message& message)
 		}
 	}
 
-	printf("Application core: OnMessage called\n");
-	std::cout << message.ToString() << std::endl;
-
 	if (message.GetMessageType() == MessageType::KeyPressed)
 	{
 		KeyPressedMessage& keyPressedMessage = dynamic_cast<KeyPressedMessage&>(message);

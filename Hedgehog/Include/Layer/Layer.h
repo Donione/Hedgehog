@@ -10,6 +10,7 @@ class Layer
 {
 protected:
 	Layer(const std::string& name = "Hedgehog Layer", bool enabled = true) : name(name), enabled(enabled) {}
+
 public:
 	//Virtual destructors are useful when you might potentially delete an instance of a derived class
 	// through a pointer to base class
