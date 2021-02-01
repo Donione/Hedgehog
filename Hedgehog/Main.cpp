@@ -75,6 +75,31 @@ public:
 	{
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
+
+		long long int numberOfVertices;
+		long long int numberOfIndices;
+		float* modelVertices = NULL;
+		unsigned int* modelIndices = NULL;
+		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
+		loadModel(modelFilename, numberOfVertices, modelVertices, numberOfIndices, modelIndices);
+
+		BufferLayout modelVertexBufferArrayLayout =
+		{
+			{ ShaderDataType::Float3, "a_position" },
+			{ ShaderDataType::Float3, "a_normal" },
+		};
+		
+		modelVertexArray.reset(VertexArray::Create());
+		modelVertexBuffer.reset(VertexBuffer::Create(modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
+		modelVertexBuffer->SetLayout(modelVertexBufferArrayLayout);
+		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
+		modelIndexBuffer.reset(IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
+		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
+		std::string modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
+		std::string modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
+		modelShader.reset(Shader::Create(modelVertexSrc, modelFragmentSrc));
+
+
 		
 		BufferLayout vertexBufferLayout =
 		{
@@ -209,14 +234,46 @@ public:
 		yRotation = 0;
 		zRotation = 0;
 
+
 		Renderer::BeginScene(camera);
 		{
-			Renderer::Submit(shader, vertexArray);
-			Renderer::Submit(shader, vertexArray, transform2);
-			Renderer::Submit(shader, vertexArray, transform3);
+			if (showAxes)
+			{
+				float axesVertices[] =
+				{
+					0.0f, 0.0f, 0.0f, 1.0f,		 1.0f, 0.0f, 0.0f, 1.0f,
+					10.0f, 0.0f, 0.0f, 1.0f,		 1.0f, 0.0f, 0.0f, 1.0f,
+					0.0f, 0.0f, 0.0f, 1.0f,		 0.0f, 1.0f, 0.0f, 1.0f,
+					0.0f, 10.0f, 0.0f, 1.0f,		 0.0f, 1.0f, 0.0f, 1.0f,
+					0.0f, 0.0f, 0.0f, 1.0f,		 0.0f, 0.0f, 1.0f, 1.0f,
+					0.0f, 0.0f, 10.0f, 1.0f,		 0.0f, 0.0f, 1.0f, 1.0f,
+				};
 
-			texture->Bind();
-			Renderer::Submit(textureShader, vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
+				unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
+
+				VertexBuffer* axesVB = VertexBuffer::Create(axesVertices, sizeof(axesVertices));
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 32, 0);
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 32, (const void*)16);
+
+				IndexBuffer* axesIB = IndexBuffer::Create(axesIndices, sizeof(axesIndices) / sizeof(unsigned int));
+
+				shader->Bind();
+				shader->UploadUniform("u_ViewProjection", camera.GetProjectionView());
+				shader->UploadUniform("u_Transform", glm::mat4x4(1.0f));
+				glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
+				shader->Unbind();
+			}
+
+			//Renderer::Submit(shader, vertexArray);
+			//Renderer::Submit(shader, vertexArray, transform3);
+			//Renderer::Submit(shader, vertexArray, transform2);
+
+			//texture->Bind();
+			//Renderer::Submit(textureShader, vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
+
+			Renderer::Submit(modelShader, modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 		}
 		Renderer::EndScene();
 	}
@@ -276,6 +333,11 @@ private:
 
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> textureShader;
+
+	std::shared_ptr<VertexArray> modelVertexArray;
+	std::shared_ptr<VertexBuffer> modelVertexBuffer;
+	std::shared_ptr<IndexBuffer> modelIndexBuffer;
+	std::shared_ptr<Shader> modelShader;
 
 	glm::mat4x4 transform2;
 	glm::mat4x4 transform3;
