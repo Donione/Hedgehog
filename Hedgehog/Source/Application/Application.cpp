@@ -73,11 +73,28 @@ void Application::Init()
 	//window.SetMessageCallback(&OnMessage); // can't do that
 	//window.SetMessageCallback([this] (Message& message) { this->OnMessage(message); }); // this works too
 
-	renderContext = new OpenGLContext(window.GetHandle());
-	renderContext->Init();
+	switch (Renderer::GetAPI())
+	{
+	case RendererAPI::API::OpenGL:
+		renderContext = new OpenGLContext(window.GetHandle());
+		break;
+
+	case RendererAPI::API::None:
+		renderContext = nullptr;
+		break;
+
+	default:
+		renderContext = nullptr;
+		break;
+	}
 
 	// Setup VSYNC
 	renderContext->SetSwapInterval(0);
+
+	Renderer::SetWireframeMode(false);
+	Renderer::SetDepthTest(true);
+	Renderer::SetFaceCulling(true);
+	Renderer::SetBlending(true);
 
 	// Show the window
 	window.Show();
@@ -116,7 +133,6 @@ void Application::OnMessage(Message& message)
 
 Application::~Application()
 {
-	renderContext->Delete();
 	delete renderContext;
 	delete imGuiComponent;
 }

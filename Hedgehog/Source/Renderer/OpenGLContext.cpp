@@ -47,10 +47,7 @@
 OpenGLContext::OpenGLContext(HWND windowHandle)
 {
 	this->windowHandle = windowHandle;
-}
 
-void OpenGLContext::Init()
-{
 	deviceContext = GetDC(windowHandle);
 
 	// Create OpenGL context
@@ -92,13 +89,12 @@ void OpenGLContext::Init()
 	{
 		printf("Error gladLoadWGL()\n");
 	}
+}
 
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glEnable(GL_CULL_FACE); // default is CCW
+OpenGLContext::~OpenGLContext()
+{
+	wglDeleteContext(context);
+	DeleteDC(deviceContext);
 }
 
 void OpenGLContext::SetSwapInterval(int interval)
@@ -110,10 +106,4 @@ void OpenGLContext::SwapBuffers()
 {
 	//wglMakeCurrent(deviceContext, context);
 	::SwapBuffers(deviceContext);
-}
-
-void OpenGLContext::Delete()
-{
-	wglDeleteContext(context);
-	DeleteDC(deviceContext);
 }
