@@ -9,13 +9,10 @@ class OpenGLContext : public RenderContext
 {
 public:
 	OpenGLContext(HWND windowHandle);
+	virtual ~OpenGLContext() override;
 
-	void Init() override;
 	void SetSwapInterval(int interval) override;
-
 	void SwapBuffers() override;
-
-	void Delete() override;
 
 
 private:

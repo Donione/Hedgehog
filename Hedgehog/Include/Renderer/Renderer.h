@@ -13,6 +13,11 @@
 class Renderer
 {
 public:
+	static void SetWireframeMode(bool enable);
+	static void SetDepthTest(bool enable);
+	static void SetFaceCulling(bool enable);
+	static void SetBlending(bool enable);
+
 	static void BeginScene(const Camera& camera);
 	static void EndScene();
 
