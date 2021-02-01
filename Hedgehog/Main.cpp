@@ -10,8 +10,59 @@
 //#include "spdlog/sinks/stdout_color_sinks.h"
 
 #include <iostream>
+#include <fstream>
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <glad/glad.h>
+
+
+void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
+{
+	std::ifstream in(filename);
+	char buffer[256];
+
+	// header, just discard
+	in.getline(buffer, 256);
+
+	// number of vertices
+	std::string text;
+	in >> text >> numberOfVertices;
+	in >> text >> numberOfIndices;
+
+	vertices = new float[numberOfVertices * 3 * 2];
+	indices = new unsigned int[numberOfIndices * 3];
+
+	for (int vertex = 0; vertex < numberOfVertices; vertex++)
+	{
+		in >> vertices[vertex * 6 + 0] >> vertices[vertex * 6 + 1] >> vertices[vertex * 6 + 2];
+		vertices[vertex * 6 + 3] = vertices[vertex * 6 + 4] = vertices[vertex * 6 + 5] = 0.0;
+	}
+
+	for (int index = 0; index < numberOfIndices; index++)
+	{
+		in >> indices[index * 3 + 0] >> indices[index * 3 + 1] >> indices[index * 3 + 2];
+
+		// get the triangle normal
+		glm::vec3 v0(vertices[indices[index * 3 + 0] * 6 + 0], vertices[indices[index * 3 + 0] * 6 + 1], vertices[indices[index * 3 + 0] * 6 + 2]);
+		glm::vec3 v1(vertices[indices[index * 3 + 1] * 6 + 0], vertices[indices[index * 3 + 1] * 6 + 1], vertices[indices[index * 3 + 1] * 6 + 2]);
+		glm::vec3 v2(vertices[indices[index * 3 + 2] * 6 + 0], vertices[indices[index * 3 + 2] * 6 + 1], vertices[indices[index * 3 + 2] * 6 + 2]);
+
+		glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+		vertices[indices[index * 3 + 0] * 6 + 3] += normal.x;
+		vertices[indices[index * 3 + 0] * 6 + 4] += normal.y;
+		vertices[indices[index * 3 + 0] * 6 + 5] += normal.z;
+
+		vertices[indices[index * 3 + 1] * 6 + 3] += normal.x;
+		vertices[indices[index * 3 + 1] * 6 + 4] += normal.y;
+		vertices[indices[index * 3 + 1] * 6 + 5] += normal.z;
+
+		vertices[indices[index * 3 + 2] * 6 + 3] += normal.x;
+		vertices[indices[index * 3 + 2] * 6 + 4] += normal.y;
+		vertices[indices[index * 3 + 2] * 6 + 5] += normal.z;
+	}
+}
 
 
 class ExampleLayer : public Layer
