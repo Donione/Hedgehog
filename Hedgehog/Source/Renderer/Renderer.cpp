@@ -4,6 +4,26 @@
 // static private member needs definition if not using C++17's inline static
 //Camera Renderer::sceneCamera;
 
+void Renderer::SetWireframeMode(bool enable)
+{
+	RenderCommand::SetWireframeMode(enable);
+}
+
+void Renderer::SetDepthTest(bool enable)
+{
+	RenderCommand::SetDepthTest(enable);
+}
+
+void Renderer::SetFaceCulling(bool enable)
+{
+	RenderCommand::SetFaceCulling(enable);
+}
+
+void Renderer::SetBlending(bool enable)
+{
+	RenderCommand::SetBlending(enable);
+}
+
 void Renderer::BeginScene(const Camera& camera)
 {
 	sceneCamera = camera;
