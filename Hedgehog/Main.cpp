@@ -176,6 +176,11 @@ public:
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
 	{
+		Renderer::SetWireframeMode(wireframeMode);
+		Renderer::SetDepthTest(depthTest);
+		Renderer::SetFaceCulling(faceCulling);
+		Renderer::SetBlending(blending);
+
 		// Poll WASD input
 		if (GetKeyState(0x44) < 0) // 'D'
 		{
@@ -199,12 +204,10 @@ public:
 
 		if (GetKeyState(0x6B) < 0) // '+'
 		{
-			zRotation++;
 		}
 
 		if (GetKeyState(0x6D) < 0) // '-'
 		{
-			zRotation--;
 		}
 
 		if (GetKeyState(0x45) < 0) // 'E'
@@ -281,12 +284,21 @@ public:
 	void OnGuiUpdate() override
 	{
 		ImGui::Begin("Camera");
-
 		glm::vec3 position = camera.GetPosition();
 		glm::vec3 rotation = camera.GetRotation();
 		ImGui::Text("Position: %f %f %f", position.x, position.y, position.z);
 		ImGui::Text("Rotation: %f %f %f", rotation.x, rotation.y, rotation.z);
+		ImGui::End();
 
+		ImGui::Begin("Rendering Settings");
+		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
+		ImGui::Checkbox("Depth Test", &depthTest);
+		ImGui::Checkbox("Face Culling", &faceCulling);
+		ImGui::Checkbox("Blending", &blending);
+		ImGui::End();
+
+		ImGui::Begin("Scene");
+		ImGui::Checkbox("Show Axes", &showAxes);
 		ImGui::End();
 	}
 
@@ -323,6 +335,13 @@ private:
 	float aspectRatio = 1264.0f / 681.0f;
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
+
+	bool wireframeMode = false;
+	bool depthTest = true;
+	bool faceCulling = true;
+	bool blending = true;
+
+	bool showAxes = true;
 
 	std::shared_ptr<VertexArray> vertexArray;
 	std::shared_ptr<VertexArray> vertexArraySquare;
