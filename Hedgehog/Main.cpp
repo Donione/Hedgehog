@@ -331,8 +331,12 @@ public:
 			}
 			else
 			{
-				yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX);
-				xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY);
+				// Rotate camera only if the right mouse button is pressed
+				if (GetKeyState(VK_RBUTTON) < 0)
+				{
+					yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX);
+					xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY);
+				}
 
 				lastX = mouseMoveMessage.GetX();
 				lastY = mouseMoveMessage.GetY();
