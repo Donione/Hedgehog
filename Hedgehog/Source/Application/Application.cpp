@@ -14,8 +14,6 @@ void Application::Run()
 	ZeroMemory(&msg, sizeof(msg));
 	while (running)
 	{
-		printf("Application core: Run loop (OnUpdate) called\n");
-
 		auto& previousFrameDuration = frameDuration.GetDuration();
 
 		frameDuration.Start();
