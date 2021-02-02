@@ -6,6 +6,7 @@
 
 #include <Message/KeyMessage.h>
 #include <Message/MouseMessage.h>
+#include <Message/WindowMessage.h>
 
 #include "imgui.h"
 
@@ -27,7 +28,13 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		printf("%s: Window created.\n", title.c_str());
 		break;
 
-	//case WM_SIZE:
+	case WM_SIZE:
+	{
+		WindowSizeMessage message(LOWORD(lParam), HIWORD(lParam));
+
+		if (MessageCallback) MessageCallback(message);
+		return 0;
+	}
 
 	case WM_KEYDOWN:
 	{
