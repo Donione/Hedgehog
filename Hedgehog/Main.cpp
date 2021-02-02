@@ -269,6 +269,9 @@ public:
 				shader->UploadUniform("u_Transform", glm::mat4x4(1.0f));
 				glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
 				shader->Unbind();
+
+				delete axesVB;
+				delete axesIB;
 			}
 
 			//Renderer::Submit(shader, vertexArray);
