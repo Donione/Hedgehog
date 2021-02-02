@@ -43,6 +43,14 @@ void Camera::Rotate(const glm::vec3& rotationOffset)
 	CalculateView();
 }
 
+void Camera::SetAspectRatio(float aspectRatio)
+{
+	frustum.aspectRatio = aspectRatio;
+
+	projection = glm::perspective(glm::radians(frustum.fov), aspectRatio, frustum.nearClip, frustum.farClip);
+	CalculateView();
+}
+
 void Camera::CalculateView()
 {
 	glm::mat4x4 translation = glm::translate(glm::mat4x4(1.0f), position);
