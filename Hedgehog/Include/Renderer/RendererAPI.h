@@ -21,6 +21,8 @@ public:
 	virtual void SetFaceCulling(bool enable) = 0;
 	virtual void SetBlending(bool enable) = 0;
 
+	virtual void SetViewport(int width, int height) = 0;
+
 	virtual void SetClearColor(const glm::vec4& color) = 0;
 	virtual void Clear() = 0;
 

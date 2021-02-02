@@ -26,6 +26,13 @@ public:
 		rendererAPI->SetBlending(enable);
 	}
 
+
+	static void SetViewport(int width, int height)
+	{
+		rendererAPI->SetViewport(width, height);
+	}
+
+
 	static void SetClearColor(const glm::vec4& color)
 	{
 		rendererAPI->SetClearColor(color);
@@ -35,6 +42,7 @@ public:
 	{
 		rendererAPI->Clear();
 	}
+
 
 	static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
 	{
