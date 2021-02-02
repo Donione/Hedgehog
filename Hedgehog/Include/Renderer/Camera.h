@@ -61,6 +61,7 @@ protected:
 class OrthographicCamera : public Camera
 {
 public:
+	OrthographicCamera() = default;
 	OrthographicCamera(float left, float right, float bottom, float top);
 	OrthographicCamera(float left, float right, float bottom, float top, float frustumNear, float frustumFar);
 };
@@ -69,5 +70,6 @@ public:
 class PerspectiveCamera : public Camera
 {
 public:
+	PerspectiveCamera() = default;
 	PerspectiveCamera(float fov, float aspectRatio, float frustumNear, float frustumFar);
 };

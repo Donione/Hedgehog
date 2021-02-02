@@ -69,10 +69,12 @@ class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable),
-		camera(56.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
-		//camera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
+		Layer("Example Layer", enable)
 	{
+		aspectRatio = (float)Application::GetInstance().GetWindow().GetWidth() / (float)Application::GetInstance().GetWindow().GetHeight();
+		camera = PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
+		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
+
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
 
@@ -344,7 +346,7 @@ public:
 	}
 
 private:
-	float aspectRatio = 1264.0f / 681.0f;
+	float aspectRatio;
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
