@@ -283,6 +283,10 @@ public:
 
 	void OnGuiUpdate() override
 	{
+		ImGui::Begin("Window");
+		ImGui::Text("Client Area Size: %u %u", Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
+		ImGui::End();
+
 		ImGui::Begin("Camera");
 		glm::vec3 position = camera.GetPosition();
 		glm::vec3 rotation = camera.GetRotation();
