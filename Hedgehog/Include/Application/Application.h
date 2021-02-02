@@ -18,6 +18,10 @@ class Application
 public:
 	void Run();
 
+	static Application& GetInstance() { return *instance; }
+
+	Window& GetWindow() { return window; }
+
 protected:
 	Application(HINSTANCE hInstance)
 	{
