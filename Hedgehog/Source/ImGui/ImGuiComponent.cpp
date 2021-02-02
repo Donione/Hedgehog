@@ -47,11 +47,6 @@ void ImGuiComponent::BeginFrame()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-
-
-	ImGuiIO& io = ImGui::GetIO();
-	// TODO this should be in some OnResize handler
-	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
 }
 
 void ImGuiComponent::EndFrame()

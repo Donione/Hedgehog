@@ -105,13 +105,11 @@ void Application::Init()
 
 void Application::OnMessage(Message& message)
 {
-	// Fire OnMessage functions in reverse order, first overlays, layers after
-	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
+	if (message.GetMessageType() == MessageType::WindowSize)
 	{
-		if ((*rit)->IsEnabled())
-		{
-			(*rit)->OnMessage(message);
-		}
+		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
+		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 	}
 
 	if (message.GetMessageType() == MessageType::KeyPressed)
@@ -124,6 +122,15 @@ void Application::OnMessage(Message& message)
 			::PostMessage(window.GetHandle(), WM_CLOSE, 0, 0); break;
 
 		default: break;
+		}
+	}
+
+	// Fire OnMessage functions in reverse order, first overlays, layers after
+	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
+	{
+		if ((*rit)->IsEnabled())
+		{
+			(*rit)->OnMessage(message);
 		}
 	}
 }
