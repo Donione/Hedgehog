@@ -11,6 +11,7 @@ enum class MessageCategory
 	Undefined = 0,
 	Key,
 	Mouse,
+	Window,
 };
 
 enum class MessageType
@@ -18,6 +19,7 @@ enum class MessageType
 	Undefined = 0,
 	KeyPressed, KeyReleased,
 	MouseMoved, MouseScrolled,
+	WindowSize, WindowPosition,
 };
 
 // Base Message Class

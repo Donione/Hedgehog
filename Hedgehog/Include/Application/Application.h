@@ -7,6 +7,7 @@
 #include <ImGui/ImGuiComponent.h>
 #include <Message/KeyMessage.h>
 #include <Message/MouseMessage.h>
+#include <Message/WindowMessage.h>
 #include <Utilities/Stopwatch.h>
 
 #include <assert.h>
