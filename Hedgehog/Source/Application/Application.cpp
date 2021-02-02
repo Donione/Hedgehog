@@ -12,9 +12,9 @@ void Application::Run()
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT)
+	while (running)
 	{
-		//printf("Application core: Run loop (OnUpdate) called\n");
+		printf("Application core: Run loop (OnUpdate) called\n");
 
 		auto& previousFrameDuration = frameDuration.GetDuration();
 
@@ -49,11 +49,16 @@ void Application::Run()
 		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
 		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
 		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
 		{
+			if (msg.message == WM_QUIT)
+			{
+				running = false;
+				break;
+			}
+
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-			continue;
 		}
 
 		frameDuration.Stop();
@@ -96,21 +101,51 @@ void Application::Init()
 	Renderer::SetFaceCulling(true);
 	Renderer::SetBlending(true);
 
+	imGuiComponent = new ImGuiComponent(window.GetHandle());
+
 	// Show the window
 	window.Show();
 	window.Update();
-
-	imGuiComponent = new ImGuiComponent(window.GetHandle());
 }
 
 void Application::OnMessage(Message& message)
 {
-	// Fire OnMessage functions in reverse order, first overlays, layers after
-	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
+	if (message.GetMessageType() == MessageType::WindowSize)
 	{
-		if ((*rit)->IsEnabled())
+		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
+		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+
+		// TODO for continuously update the window while it's being resized (mouse button is down and dragging)
+		// we need to put the updates calls into the WM_SIZE handler because it doesn't return to the main message loop until it's
+		// done resizing (mouse button up)
+		// The application is effectively stopped during resizing so we don't need to worry about delta time
+		// For now just copy paste most of the main application run loop
+		if (true)
 		{
-			(*rit)->OnMessage(message);
+			RenderCommand::Clear();
+
+			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
+			for (auto layer : layers)
+			{
+				if (layer->IsEnabled())
+				{
+					layer->OnUpdate(std::chrono::duration<double, std::milli>(0.0));
+				}
+			}
+
+			imGuiComponent->BeginFrame();
+			// Fire OnGuiUpdate functions in order, first layers, overlays after
+			for (auto layer : layers)
+			{
+				if (layer->IsEnabled())
+				{
+					layer->OnGuiUpdate();
+				}
+			}
+			imGuiComponent->EndFrame();
+
+			renderContext->SwapBuffers();
 		}
 	}
 
@@ -124,6 +159,15 @@ void Application::OnMessage(Message& message)
 			::PostMessage(window.GetHandle(), WM_CLOSE, 0, 0); break;
 
 		default: break;
+		}
+	}
+
+	// Fire OnMessage functions in reverse order, first overlays, layers after
+	for (auto rit = layers.rbegin(); rit != layers.rend(); ++rit)
+	{
+		if ((*rit)->IsEnabled())
+		{
+			(*rit)->OnMessage(message);
 		}
 	}
 }

@@ -6,6 +6,7 @@
 
 #include <Message/KeyMessage.h>
 #include <Message/MouseMessage.h>
+#include <Message/WindowMessage.h>
 
 #include "imgui.h"
 
@@ -27,7 +28,13 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		printf("%s: Window created.\n", title.c_str());
 		break;
 
-	//case WM_SIZE:
+	case WM_SIZE:
+	{
+		WindowSizeMessage message(LOWORD(lParam), HIWORD(lParam));
+
+		if (MessageCallback) MessageCallback(message);
+		return 0;
+	}
 
 	case WM_KEYDOWN:
 	{
@@ -83,14 +90,9 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_MOUSEWHEEL:
 	{
-		//short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-
 		MouseScrollMessage message(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
 		if (MessageCallback) MessageCallback(message);
 		return 0;
-
-		//printf("Scrolled %d\n", zDelta / WHEEL_DELTA);
-		//break;
 	}
 
 	case WM_PAINT:
@@ -161,6 +163,14 @@ void Window::Create(HINSTANCE hInstance, const WindowProperties windowProperties
 	// Register the window class with the operating system
 	RegisterClass(&wc);
 
+	// Window size specified in the call bellow includes borders, headers, menus, etc: the non-client area.
+	// We want to set the size of the area that is usable for us: the client area. Following function does that for us.
+	RECT clientArea = { 0, 0, (LONG)windowProperties.width, (LONG)windowProperties.height };
+	AdjustWindowRectEx(&clientArea,
+					   WS_OVERLAPPEDWINDOW,
+					   false,
+					   0);
+
 	hwnd = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
@@ -170,8 +180,8 @@ void Window::Create(HINSTANCE hInstance, const WindowProperties windowProperties
 		// Size and position
 		CW_USEDEFAULT, // X 
 		CW_USEDEFAULT, // Y
-		windowProperties.width, // Width
-		windowProperties.height, // Height
+		clientArea.right - clientArea.left, //windowProperties.width, // Width
+		clientArea.bottom - clientArea.top, //windowProperties.height, // Height
 
 		NULL,       // Parent window    
 		NULL,       // Menu
@@ -199,6 +209,12 @@ void Window::Update(void)
 	{
 		UpdateWindow(hwnd);
 	}
+}
+
+void Window::SetSize(unsigned int width, unsigned int height)
+{
+	this->width = width;
+	this->height = height;
 }
 
 HWND Window::GetHandle(void)

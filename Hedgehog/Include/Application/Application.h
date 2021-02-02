@@ -7,6 +7,7 @@
 #include <ImGui/ImGuiComponent.h>
 #include <Message/KeyMessage.h>
 #include <Message/MouseMessage.h>
+#include <Message/WindowMessage.h>
 #include <Utilities/Stopwatch.h>
 
 #include <assert.h>
@@ -16,6 +17,10 @@ class Application
 {
 public:
 	void Run();
+
+	static Application& GetInstance() { return *instance; }
+
+	Window& GetWindow() { return window; }
 
 protected:
 	Application(HINSTANCE hInstance)
@@ -42,6 +47,8 @@ protected:
 
 private:
 	inline static Application* instance = nullptr;
+
+	bool running = true;
 
 	HINSTANCE hInstance = nullptr;
 	Window window;

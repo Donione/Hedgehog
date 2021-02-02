@@ -11,6 +11,8 @@ public:
 	virtual void SetFaceCulling(bool enable) override;
 	virtual void SetBlending(bool enable) override;
 
+	virtual void SetViewport(int width, int height) override;
+
 	virtual void SetClearColor(const glm::vec4& color) override;
 	virtual void Clear() override ;
 

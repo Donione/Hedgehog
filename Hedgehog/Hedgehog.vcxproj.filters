@@ -129,6 +129,9 @@
     <ClInclude Include="Include\Renderer\OpenGLTexture.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Message\WindowMessage.h">
+      <Filter>Include\Message</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">

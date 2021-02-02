@@ -75,6 +75,11 @@ void OpenGLRendererAPI::SetBlending(bool enable)
 	}
 }
 
+void OpenGLRendererAPI::SetViewport(int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
 {
 	glClearColor(color.r, color.g, color.b, color.a);

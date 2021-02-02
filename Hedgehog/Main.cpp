@@ -69,10 +69,12 @@ class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable),
-		camera(56.0f, aspectRatio, 0.01f, 25.0f) // camera space, +z goes into the screen
-		//camera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
+		Layer("Example Layer", enable)
 	{
+		aspectRatio = (float)Application::GetInstance().GetWindow().GetWidth() / (float)Application::GetInstance().GetWindow().GetHeight();
+		camera = PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
+		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
+
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
 		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
 
@@ -283,6 +285,10 @@ public:
 
 	void OnGuiUpdate() override
 	{
+		ImGui::Begin("Window");
+		ImGui::Text("Client Area Size: %u %u", Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
+		ImGui::End();
+
 		ImGui::Begin("Camera");
 		glm::vec3 position = camera.GetPosition();
 		glm::vec3 rotation = camera.GetRotation();
@@ -329,10 +335,18 @@ public:
 				lastY = mouseMoveMessage.GetY();
 			}
 		}
+
+		if (message.GetMessageType() == MessageType::WindowSize)
+		{
+			const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
+
+			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
+			camera.SetAspectRatio(aspectRatio);
+		}
 	}
 
 private:
-	float aspectRatio = 1264.0f / 681.0f;
+	float aspectRatio;
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
