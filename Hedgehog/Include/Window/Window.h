@@ -35,6 +35,11 @@ public:
 	void Show(int nShowCmd = SW_SHOW);
 	void Update(void);
 
+	unsigned int GetWidth() const { return width; }
+	unsigned int GetHeight() const { return height; }
+
+	void SetSize(unsigned int width, unsigned int height);
+
 	HWND GetHandle(void);
 
 private:
