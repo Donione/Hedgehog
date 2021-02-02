@@ -12,9 +12,9 @@ void Application::Run()
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT)
+	while (running)
 	{
-		//printf("Application core: Run loop (OnUpdate) called\n");
+		printf("Application core: Run loop (OnUpdate) called\n");
 
 		auto& previousFrameDuration = frameDuration.GetDuration();
 
@@ -49,11 +49,16 @@ void Application::Run()
 		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
 		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
 		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
 		{
+			if (msg.message == WM_QUIT)
+			{
+				running = false;
+				break;
+			}
+
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-			continue;
 		}
 
 		frameDuration.Stop();

@@ -48,6 +48,8 @@ protected:
 private:
 	inline static Application* instance = nullptr;
 
+	bool running = true;
+
 	HINSTANCE hInstance = nullptr;
 	Window window;
 
