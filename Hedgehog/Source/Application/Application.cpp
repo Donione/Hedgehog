@@ -101,11 +101,11 @@ void Application::Init()
 	Renderer::SetFaceCulling(true);
 	Renderer::SetBlending(true);
 
+	imGuiComponent = new ImGuiComponent(window.GetHandle());
+
 	// Show the window
 	window.Show();
 	window.Update();
-
-	imGuiComponent = new ImGuiComponent(window.GetHandle());
 }
 
 void Application::OnMessage(Message& message)
@@ -115,6 +115,38 @@ void Application::OnMessage(Message& message)
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
 		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+
+		// TODO for continuously update the window while it's being resized (mouse button is down and dragging)
+		// we need to put the updates calls into the WM_SIZE handler because it doesn't return to the main message loop until it's
+		// done resizing (mouse button up)
+		// The application is effectively stopped during resizing so we don't need to worry about delta time
+		// For now just copy paste most of the main application run loop
+		if (true)
+		{
+			RenderCommand::Clear();
+
+			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
+			for (auto layer : layers)
+			{
+				if (layer->IsEnabled())
+				{
+					layer->OnUpdate(std::chrono::duration<double, std::milli>(0.0));
+				}
+			}
+
+			imGuiComponent->BeginFrame();
+			// Fire OnGuiUpdate functions in order, first layers, overlays after
+			for (auto layer : layers)
+			{
+				if (layer->IsEnabled())
+				{
+					layer->OnGuiUpdate();
+				}
+			}
+			imGuiComponent->EndFrame();
+
+			renderContext->SwapBuffers();
+		}
 	}
 
 	if (message.GetMessageType() == MessageType::KeyPressed)
