@@ -333,6 +333,14 @@ public:
 				lastY = mouseMoveMessage.GetY();
 			}
 		}
+
+		if (message.GetMessageType() == MessageType::WindowSize)
+		{
+			const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
+
+			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
+			camera.SetAspectRatio(aspectRatio);
+		}
 	}
 
 private:
