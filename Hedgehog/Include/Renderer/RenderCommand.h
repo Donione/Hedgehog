@@ -55,5 +55,5 @@ public:
 	}
 
 private:
-	static RendererAPI* rendererAPI;
+	inline static RendererAPI* rendererAPI;
 };
