@@ -162,6 +162,7 @@
     <ClInclude Include="Include\Renderer\Buffer.h" />
     <ClInclude Include="Include\Renderer\Camera.h" />
     <ClInclude Include="Include\Renderer\DirectX12Context.h" />
+    <ClInclude Include="Include\Renderer\DirectX12RendererAPI.h" />
     <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
     <ClInclude Include="Include\Renderer\OpenGLRendererAPI.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
     <ClCompile Include="Source\Renderer\Camera.cpp" />
     <ClCompile Include="Source\Renderer\DirectX12Context.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12RendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLRendererAPI.cpp" />

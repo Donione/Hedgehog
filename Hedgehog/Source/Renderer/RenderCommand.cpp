@@ -2,6 +2,7 @@
 
 #include <Renderer/Renderer.h>
 #include <Renderer/OpenGLRendererAPI.h>
+#include <Renderer/DirectX12RendererAPI.h>
 
 
 void RenderCommand::Init(RenderContext* renderContext)
@@ -11,6 +12,11 @@ void RenderCommand::Init(RenderContext* renderContext)
 	case RendererAPI::API::OpenGL:
 		rendererAPI = new OpenGLRendererAPI();
 		break;
+
+	case RendererAPI::API::DirectX12:
+		rendererAPI = new DirectX12RendererAPI();
+		break;
+
 	case RendererAPI::API::None:
 		rendererAPI = nullptr;
 		break;
