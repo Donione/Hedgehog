@@ -3,6 +3,7 @@
 #include <Message/KeyMessage.h>
 
 #include <Renderer/OpenGLContext.h>
+#include <Renderer/DirectX12Context.h>
 
 #include <iostream>
 
@@ -82,6 +83,10 @@ void Application::Init()
 		renderContext = new OpenGLContext(window.GetHandle());
 		break;
 
+	case RendererAPI::API::DirectX12:
+		renderContext = new DirectX12Context(window.GetHandle());;
+		break;
+
 	case RendererAPI::API::None:
 		renderContext = nullptr;
 		break;
@@ -103,7 +108,7 @@ void Application::Init()
 	Renderer::SetFaceCulling(true);
 	Renderer::SetBlending(true);
 
-	imGuiComponent = new ImGuiComponent(window.GetHandle());
+	imGuiComponent = new ImGuiComponent(window.GetHandle(), renderContext);
 
 	// Show the window
 	window.Show();

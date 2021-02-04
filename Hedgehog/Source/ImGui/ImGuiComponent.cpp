@@ -5,10 +5,15 @@
 #include <imgui.h>
 #include "imgui_impl_win32.h"
 #include <imgui_impl_opengl3.h>
+#include <imgui_impl_dx12.h>
+
+#include <Renderer/Renderer.h>
+#include <Renderer/DirectX12Context.h>
 
 #include <cstdio>
 
-ImGuiComponent::ImGuiComponent(HWND hwnd)
+ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
+	: renderContext(renderContext)
 {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -23,7 +28,31 @@ ImGuiComponent::ImGuiComponent(HWND hwnd)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplOpenGL3_Init("#version 460");
+
+	switch (Renderer::GetAPI())
+	{
+	case RendererAPI::API::OpenGL:
+		ImGui_ImplOpenGL3_Init("#version 460");
+		break;
+
+	case RendererAPI::API::DirectX12:
+	{
+		DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
+		ImGui_ImplDX12_Init(dx12renderContext->g_pd3dDevice,
+							dx12renderContext->NUM_FRAMES_IN_FLIGHT,
+							DXGI_FORMAT_R8G8B8A8_UNORM,
+							dx12renderContext->g_pd3dSrvDescHeap,
+							dx12renderContext->g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+							dx12renderContext->g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
+		break;
+	}
+
+	case RendererAPI::API::None:
+		break;
+
+	default:
+		break;
+	}
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -44,7 +73,19 @@ ImGuiComponent::ImGuiComponent(HWND hwnd)
 void ImGuiComponent::BeginFrame()
 {
 	// Start the Dear ImGui frame
-	ImGui_ImplOpenGL3_NewFrame();
+	switch (Renderer::GetAPI())
+	{
+	case RendererAPI::API::OpenGL:
+		ImGui_ImplOpenGL3_NewFrame(); break;
+
+	case RendererAPI::API::DirectX12:
+		ImGui_ImplDX12_NewFrame(); break;
+
+	case RendererAPI::API::None:
+	default:
+		break;
+	}
+
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 }
@@ -53,12 +94,42 @@ void ImGuiComponent::EndFrame()
 {
 	// Rendering ImGui
 	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	switch (Renderer::GetAPI())
+	{
+	case RendererAPI::API::OpenGL:
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		break;
+
+	case RendererAPI::API::DirectX12:
+	{
+		DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12renderContext->g_pd3dCommandList);
+		break;
+	}
+
+	case RendererAPI::API::None:
+	default:
+		break;
+	}
+
 }
 
 ImGuiComponent::~ImGuiComponent()
 {
-	ImGui_ImplOpenGL3_Shutdown();
+	switch (Renderer::GetAPI())
+	{
+	case RendererAPI::API::OpenGL:
+		ImGui_ImplOpenGL3_Shutdown(); break;
+
+	case RendererAPI::API::DirectX12:
+		ImGui_ImplDX12_Shutdown(); break;
+
+	case RendererAPI::API::None:
+	default:
+		break;
+	}
+
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 }
