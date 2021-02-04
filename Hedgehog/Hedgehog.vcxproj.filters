@@ -132,6 +132,9 @@
     <ClInclude Include="Include\Message\WindowMessage.h">
       <Filter>Include\Message</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\DirectX12Context.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -193,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="Source\Utilities\stb_image_implementation.cpp">
       <Filter>Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\DirectX12Context.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
