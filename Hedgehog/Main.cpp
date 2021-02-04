@@ -467,7 +467,7 @@ public:
 	Sandbox(HINSTANCE hInstance) : Application(hInstance)
 	{
 		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
-		layers.Push(new ExampleLayer());
+		//layers.Push(new ExampleLayer());
 	}
 
 	~Sandbox()
