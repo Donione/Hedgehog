@@ -18,7 +18,7 @@ void Application::Run()
 
 		frameDuration.Start();
 
-		RenderCommand::Clear();
+		RenderCommand::BeginFrame();
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 		for (auto layer : layers)
@@ -40,7 +40,7 @@ void Application::Run()
 		}
 		imGuiComponent->EndFrame();
 
-		renderContext->SwapBuffers();
+		RenderCommand::EndFrame();
 
 		// Poll and handle messages (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -125,7 +125,7 @@ void Application::OnMessage(Message& message)
 		// For now just copy paste most of the main application run loop
 		if (true)
 		{
-			RenderCommand::Clear();
+			RenderCommand::BeginFrame();
 
 			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
 			for (auto layer : layers)
@@ -147,7 +147,7 @@ void Application::OnMessage(Message& message)
 			}
 			imGuiComponent->EndFrame();
 
-			renderContext->SwapBuffers();
+			RenderCommand::EndFrame();
 		}
 	}
 

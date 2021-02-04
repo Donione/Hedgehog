@@ -43,9 +43,14 @@ public:
 		rendererAPI->SetClearColor(color);
 	}
 
-	static void Clear()
+	static void BeginFrame()
 	{
-		rendererAPI->Clear();
+		rendererAPI->BeginFrame();
+	}
+
+	static void EndFrame()
+	{
+		rendererAPI->EndFrame();
 	}
 
 
