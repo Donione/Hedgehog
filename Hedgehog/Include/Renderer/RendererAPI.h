@@ -3,6 +3,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include <Renderer/RenderContext.h>
 #include <Renderer/VertexArray.h>
 
 
@@ -17,6 +18,8 @@ public:
 	};
 
 public:
+	virtual void Init(RenderContext* renderContext) = 0;
+
 	virtual void SetWireframeMode(bool enable) = 0;
 	virtual void SetDepthTest(bool enable) = 0;
 	virtual void SetFaceCulling(bool enable) = 0;

@@ -1,11 +1,14 @@
 #pragma once
 
 #include <Renderer/RendererAPI.h>
+#include <Renderer/OpenGLContext.h>
 
 
 class OpenGLRendererAPI : public RendererAPI
 {
 public:
+	virtual void Init(RenderContext* renderContext) override;
+
 	virtual void SetWireframeMode(bool enable) override;
 	virtual void SetDepthTest(bool enable) override;
 	virtual void SetFaceCulling(bool enable) override;
@@ -19,6 +22,8 @@ public:
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
 
 private:
+	OpenGLContext* renderContext;
+
 	bool wireframeMode = false; // in OpenGL it is disabled by default
 	bool depthTest = false; // in OpenGL it is disabled by default
 	bool faceCulling = false; // in OpenGL it is disabled by default

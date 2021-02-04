@@ -94,6 +94,8 @@ void Application::Init()
 	// Setup VSYNC
 	renderContext->SetSwapInterval(0);
 
+	RenderCommand::Init(renderContext);
+
 	Renderer::SetWireframeMode(false);
 	Renderer::SetDepthTest(true);
 	Renderer::SetFaceCulling(true);

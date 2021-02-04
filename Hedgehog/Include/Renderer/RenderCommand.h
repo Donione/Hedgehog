@@ -1,11 +1,16 @@
 #pragma once
 
 #include <Renderer/RendererAPI.h>
+#include <Renderer/RenderContext.h>
 
 
 class RenderCommand
 {
 public:
+	// TODECIDE maybe insted of tying render context and rendererAPI together
+	// create a static render context instance getter
+	static void Init(RenderContext* renderContext);
+
 	static void SetWireframeMode(bool enable)
 	{
 		rendererAPI->SetWireframeMode(enable);

@@ -3,6 +3,11 @@
 #include <glad/glad.h>
 
 
+void OpenGLRendererAPI::Init(RenderContext* renderContext)
+{
+	this->renderContext = dynamic_cast<OpenGLContext*>(renderContext);
+}
+
 void OpenGLRendererAPI::SetWireframeMode(bool enable)
 {
 	if (enable != wireframeMode)
