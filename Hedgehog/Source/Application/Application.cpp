@@ -96,6 +96,8 @@ void Application::Init()
 
 	RenderCommand::Init(renderContext);
 
+	RenderCommand::SetClearColor(clear_color);
+
 	Renderer::SetWireframeMode(false);
 	Renderer::SetDepthTest(true);
 	Renderer::SetFaceCulling(true);

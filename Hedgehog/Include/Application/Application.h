@@ -55,6 +55,8 @@ private:
 
 	RenderContext* renderContext;
 
+	glm::vec4 clear_color = glm::vec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 	// ImGuiComponent is an integral part of the application.
 	// It is supposed to handle all Gui rendering, which is submitted by layers.
 	ImGuiComponent* imGuiComponent;
