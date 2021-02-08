@@ -20,6 +20,7 @@ public:
 
 	static Application& GetInstance() { return *instance; }
 
+	RenderContext* GetRenderContext() { return renderContext; }
 	Window& GetWindow() { return window; }
 
 protected:
