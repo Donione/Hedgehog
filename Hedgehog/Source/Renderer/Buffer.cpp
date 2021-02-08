@@ -4,12 +4,12 @@
 #include <Renderer/OpenGLBuffer.h>
 
 
-VertexBuffer* VertexBuffer::Create(const float* vertices, unsigned int size)
+VertexBuffer* VertexBuffer::Create(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexBuffer(vertices, size);
+		return new OpenGLVertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::None:
 		return nullptr;

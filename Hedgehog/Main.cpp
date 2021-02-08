@@ -92,8 +92,7 @@ public:
 		};
 		
 		modelVertexArray.reset(VertexArray::Create());
-		modelVertexBuffer.reset(VertexBuffer::Create(modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
-		modelVertexBuffer->SetLayout(modelVertexBufferArrayLayout);
+		modelVertexBuffer.reset(VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
 		modelIndexBuffer.reset(IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
@@ -131,12 +130,10 @@ public:
 		vertexArraySquare.reset(VertexArray::Create());
 
 		// Vertex Buffers
-		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-		vertexBuffer->SetLayout(vertexBufferLayout);
+		vertexBuffer.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices)));
 		vertexArray->AddVertexBuffer(vertexBuffer);
 
-		vertexBufferSquare.reset(VertexBuffer::Create(vertices, sizeof(vertices) / 2));
-		vertexBufferSquare->SetLayout(vertexBufferLayout);
+		vertexBufferSquare.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices) / 2));
 		vertexArraySquare->AddVertexBuffer(vertexBufferSquare);
 
 		// Index Buffers
@@ -244,6 +241,12 @@ public:
 		{
 			if (showAxes)
 			{
+				BufferLayout axesBL =
+				{
+					{ ShaderDataType::Float4, "a_position" },
+					{ ShaderDataType::Float4, "a_color" },
+				};
+
 				float axesVertices[] =
 				{
 					0.0f, 0.0f, 0.0f, 1.0f,		 1.0f, 0.0f, 0.0f, 1.0f,
@@ -256,7 +259,7 @@ public:
 
 				unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
 
-				VertexBuffer* axesVB = VertexBuffer::Create(axesVertices, sizeof(axesVertices));
+				VertexBuffer* axesVB = VertexBuffer::Create(axesBL, axesVertices, sizeof(axesVertices));
 				glEnableVertexAttribArray(0);
 				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 32, 0);
 				glEnableVertexAttribArray(1);
