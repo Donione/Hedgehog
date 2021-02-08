@@ -138,6 +138,9 @@
     <ClInclude Include="Include\Renderer\DirectX12RendererAPI.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\DirectX12Buffer.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -204,6 +207,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\DirectX12RendererAPI.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\DirectX12Buffer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
