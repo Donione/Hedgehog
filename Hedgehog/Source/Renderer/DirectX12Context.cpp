@@ -1,5 +1,7 @@
 #include <Renderer/DirectX12Context.h>
 
+#include <Application/Application.h>
+
 #include <assert.h>
 
 
@@ -12,8 +14,8 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 	{
 		ZeroMemory(&sd, sizeof(sd));
 		sd.BufferCount = NUM_BACK_BUFFERS;
-		sd.Width = 0;
-		sd.Height = 0;
+		sd.Width = Application::GetInstance().GetWindow().GetWidth(); // If set to 0, the width of current window is used by the runtime
+		sd.Height = Application::GetInstance().GetWindow().GetHeight(); // If set to 0, the height of current window is used by the runtime
 		sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
