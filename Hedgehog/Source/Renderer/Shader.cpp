@@ -3,6 +3,11 @@
 #include <Renderer/OpenGLShader.h>
 
 
+Shader* Shader::Create(const std::string& filePath)
+{
+	return Create(filePath, filePath);
+}
+
 Shader* Shader::Create(const std::string& vertexFilePath, const std::string& pixelFilePath)
 {
 	switch (Renderer::GetAPI())

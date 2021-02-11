@@ -23,5 +23,6 @@ public:
 
 	virtual void UploadUniform(const std::string& name, void* uniform, unsigned long long size) = 0;
 
+	static Shader* Create(const std::string& filePath);
 	static Shader* Create(const std::string& vertexFilePath, const std::string& pixelFilePath);
 };
