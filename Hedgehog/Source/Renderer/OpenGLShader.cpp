@@ -119,37 +119,37 @@ void OpenGLShader::Unbind() const
 	glUseProgram(0);
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, float uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, float uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform1f(uniformLocation, uniform);
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, glm::vec2 uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec2 uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform2f(uniformLocation, uniform[0], uniform[1]);
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, glm::vec3 uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec3 uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform3f(uniformLocation, uniform[0], uniform[1], uniform[2]);
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, glm::vec4 uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, glm::vec4 uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform4f(uniformLocation, uniform[0], uniform[1], uniform[2], uniform[3]);
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, glm::mat3x3 uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, glm::mat3x3 uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	// the program must be bound first to the context with glUseProgram
@@ -161,10 +161,15 @@ void OpenGLShader::UploadUniform(const std::string& name, glm::mat4x4 uniform) c
 	//glProgramUniformMatrix4fv(shaderID, uniformLocation, 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
-void OpenGLShader::UploadUniform(const std::string& name, int uniform) const
+void OpenGLShader::UploadUniform(const std::string& name, int uniform)
 {
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform1i(uniformLocation, uniform);
+}
+
+void OpenGLShader::UploadUniform(const std::string& name, void* uniform, unsigned long long size)
+{
+	assert(false);
 }
 
 std::string OpenGLShader::ReadFile(const std::string& filePath)
