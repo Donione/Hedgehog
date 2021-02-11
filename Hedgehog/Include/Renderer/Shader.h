@@ -2,6 +2,38 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include <vector>
+
+
+struct ConstantBufferDescriptionElement
+{
+	ConstantBufferDescriptionElement() = default;
+	ConstantBufferDescriptionElement(const std::string& name, unsigned long long size)
+		: name(name), size(size) {}
+
+	std::string name;
+	unsigned long long size;
+};
+
+class ConstantBufferDescription
+{
+public:
+	ConstantBufferDescription() = default;
+	ConstantBufferDescription(const std::initializer_list<ConstantBufferDescriptionElement>& elements)
+		: description(elements) {}
+
+	size_t Size() const { return description.size(); }
+	const std::vector<ConstantBufferDescriptionElement>& Get() const { return description; }
+
+	std::vector<ConstantBufferDescriptionElement>::iterator begin() { return description.begin(); }
+	std::vector<ConstantBufferDescriptionElement>::iterator end() { return description.end(); }
+	std::vector<ConstantBufferDescriptionElement>::const_iterator begin() const { return description.begin(); }
+	std::vector<ConstantBufferDescriptionElement>::const_iterator end() const { return description.end(); }
+
+private:
+	std::vector<ConstantBufferDescriptionElement> description;
+};
+
 
 class Shader
 {
@@ -10,6 +42,8 @@ public:
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
+
+	virtual void SetupConstantBuffers(ConstantBufferDescription constBufferDesc) = 0;
 
 	virtual void UploadConstant(const std::string& name, float constant) = 0;
 	virtual void UploadConstant(const std::string& name, glm::vec2 constant) = 0;

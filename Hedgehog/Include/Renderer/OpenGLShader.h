@@ -15,6 +15,7 @@ public:
 	virtual void Bind() const override;
 	virtual void Unbind() const override;
 
+	virtual void SetupConstantBuffers(ConstantBufferDescription constBufferDesc) override { /* do nothing */ }
 
 	virtual void UploadConstant(const std::string& name, float constant) override;
 	virtual void UploadConstant(const std::string& name, glm::vec2 constant) override;
