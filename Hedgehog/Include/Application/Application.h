@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma comment(lib, "D3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
+
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
