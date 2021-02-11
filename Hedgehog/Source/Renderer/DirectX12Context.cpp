@@ -4,6 +4,10 @@
 
 #include <assert.h>
 
+#if defined(_DEBUG)
+#include <dxgidebug.h>
+#endif
+
 
 DirectX12Context::DirectX12Context(HWND windowHandle)
 {
@@ -28,7 +32,7 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 	}
 
 	// [DEBUG] Enable debug interface
-	#ifdef DX12_ENABLE_DEBUG_LAYER
+	#if defined(_DEBUG)
 	ID3D12Debug* pdx12Debug = NULL;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pdx12Debug))))
 		pdx12Debug->EnableDebugLayer();
@@ -39,7 +43,7 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 	D3D12CreateDevice(NULL, featureLevel, IID_PPV_ARGS(&g_pd3dDevice));
 
 	// [DEBUG] Setup debug interface to break on any warnings/errors
-	#ifdef DX12_ENABLE_DEBUG_LAYER
+	#if defined(_DEBUG)
 	if (pdx12Debug != NULL)
 	{
 		ID3D12InfoQueue* pInfoQueue = NULL;
@@ -112,8 +116,6 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 
 DirectX12Context::~DirectX12Context()
 {
-	WaitForLastSubmittedFrame();
-
 	CleanupRenderTarget();
 	if (g_pSwapChain) { g_pSwapChain->Release(); g_pSwapChain = NULL; }
 	if (g_hSwapChainWaitableObject != NULL) { CloseHandle(g_hSwapChainWaitableObject); }
@@ -127,12 +129,12 @@ DirectX12Context::~DirectX12Context()
 	if (g_fenceEvent) { CloseHandle(g_fenceEvent); g_fenceEvent = NULL; }
 	if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 
-	#ifdef DX12_ENABLE_DEBUG_LAYER
-	IDXGIDebug1* pDebug = NULL;
-	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
+	#if defined(_DEBUG)
+	ComPtr<IDXGIDebug1> dxgiDebug;
+	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
 	{
-		pDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
-		pDebug->Release();
+		dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
+		dxgiDebug->Release();
 	}
 	#endif
 }
@@ -160,13 +162,10 @@ void DirectX12Context::CreateRenderTarget()
 
 void DirectX12Context::CleanupRenderTarget()
 {
+	WaitForLastSubmittedFrame();
+
 	for (UINT i = 0; i < NUM_BACK_BUFFERS; i++)
-	{
-		ID3D12Resource* pBackBuffer = NULL;
-		g_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
-		g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, g_mainRenderTargetDescriptor[i]);
-		g_mainRenderTargetResource[i] = pBackBuffer;
-	}
+		if (g_mainRenderTargetResource[i]) { g_mainRenderTargetResource[i]->Release(); g_mainRenderTargetResource[i] = NULL; }
 }
 
 void DirectX12Context::WaitForLastSubmittedFrame()
