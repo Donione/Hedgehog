@@ -239,4 +239,9 @@
       <Filter>Assets\Shader</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Asset\Shader\shaders.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>
