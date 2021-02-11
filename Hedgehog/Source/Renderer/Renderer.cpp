@@ -38,8 +38,8 @@ void Renderer::Submit(const std::shared_ptr<Shader>& shader,
 					  const glm::mat4x4& transform)
 {
 	shader->Bind();
-	shader->UploadUniform("u_ViewProjection", sceneCamera.GetProjectionView());
-	shader->UploadUniform("u_Transform", transform);
+	shader->UploadConstant("u_ViewProjection", sceneCamera.GetProjectionView());
+	shader->UploadConstant("u_Transform", transform);
 
 	RenderCommand::DrawIndexed(vertexArray);
 

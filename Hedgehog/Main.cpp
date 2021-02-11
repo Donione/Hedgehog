@@ -153,7 +153,7 @@ public:
 		std::string vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
 		std::string fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
 		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
-		textureShader->UploadUniform("u_texture", 0);
+		textureShader->UploadConstant("u_texture", 0);
 
 		// Textures
 		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
@@ -268,8 +268,8 @@ public:
 				IndexBuffer* axesIB = IndexBuffer::Create(axesIndices, sizeof(axesIndices) / sizeof(unsigned int));
 
 				shader->Bind();
-				shader->UploadUniform("u_ViewProjection", camera.GetProjectionView());
-				shader->UploadUniform("u_Transform", glm::mat4x4(1.0f));
+				shader->UploadConstant("u_ViewProjection", camera.GetProjectionView());
+				shader->UploadConstant("u_Transform", glm::mat4x4(1.0f));
 				glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
 				shader->Unbind();
 
