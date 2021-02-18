@@ -3,6 +3,8 @@
 #include <Renderer/RendererAPI.h>
 #include <Renderer/DirectX12Context.h>
 
+#include <d3dx12.h>
+
 
 class DirectX12RendererAPI : public RendererAPI
 {
@@ -14,7 +16,7 @@ public:
 	virtual void SetFaceCulling(bool enable) override { faceCulling = enable; }
 	virtual void SetBlending(bool enable) override { blending = enable; }
 
-	virtual void SetViewport(int width, int height) override {}
+	virtual void SetViewport(int width, int height) override;
 
 	virtual void SetClearColor(const glm::vec4& color) override { clearColor = color; }
 	virtual void BeginFrame() override;
@@ -31,6 +33,8 @@ private:
 	bool blending = false;
 
 	glm::vec4 clearColor;
+	CD3DX12_VIEWPORT viewport = {};
+	CD3DX12_RECT scissorRect = {};
 
 	DirectX12Context::FrameContext* frameCtxt;
 	UINT backBufferIdx;

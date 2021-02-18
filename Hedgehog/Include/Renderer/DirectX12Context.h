@@ -25,13 +25,11 @@ public:
 
 	void WaitForLastSubmittedFrame();
 	FrameContext* WaitForNextFrameResources();
-
-	void SwapBuffers() override;
-
-private:
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
-	void ResizeSwapChain(HWND hWnd, int width, int height);
+	void ResizeSwapChain(int width, int height);
+
+	void SwapBuffers() override;
 
 
 private:

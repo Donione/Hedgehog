@@ -3,6 +3,7 @@
 #include <Application/Application.h>
 
 #include <assert.h>
+#include <wrl.h>
 
 #if defined(_DEBUG)
 #include <dxgidebug.h>
@@ -121,11 +122,10 @@ DirectX12Context::~DirectX12Context()
 	if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 
 	#if defined(_DEBUG)
-	ComPtr<IDXGIDebug1> dxgiDebug;
+	Microsoft::WRL::ComPtr<IDXGIDebug1> dxgiDebug;
 	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
 	{
 		dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
-		dxgiDebug->Release();
 	}
 	#endif
 }
@@ -198,7 +198,7 @@ DirectX12Context::FrameContext* DirectX12Context::WaitForNextFrameResources()
 	return frameCtxt;
 }
 
-void DirectX12Context::ResizeSwapChain(HWND hWnd, int width, int height)
+void DirectX12Context::ResizeSwapChain(int width, int height)
 {
 	DXGI_SWAP_CHAIN_DESC1 sd;
 	g_pSwapChain->GetDesc1(&sd);
@@ -212,7 +212,7 @@ void DirectX12Context::ResizeSwapChain(HWND hWnd, int width, int height)
 	CloseHandle(g_hSwapChainWaitableObject);
 
 	IDXGISwapChain1* swapChain1 = NULL;
-	dxgiFactory->CreateSwapChainForHwnd(g_pd3dCommandQueue, hWnd, &sd, NULL, NULL, &swapChain1);
+	dxgiFactory->CreateSwapChainForHwnd(g_pd3dCommandQueue, windowHandle, &sd, NULL, NULL, &swapChain1);
 	swapChain1->QueryInterface(IID_PPV_ARGS(&g_pSwapChain));
 	swapChain1->Release();
 	dxgiFactory->Release();
