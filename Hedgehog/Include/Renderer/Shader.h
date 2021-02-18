@@ -5,6 +5,11 @@
 #include <vector>
 
 
+// TODO setup tiered approch for constatnt data
+// something like:
+//    something that need to be accessed very frequently/very fast -> root constant
+//    constant per draw call (like a transform matrix) -> root descriptor
+//    constant per frame (maybe a projection view matrix) -> descriptor table
 struct ConstantBufferDescriptionElement
 {
 	ConstantBufferDescriptionElement() = default;

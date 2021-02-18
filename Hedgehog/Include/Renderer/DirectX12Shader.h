@@ -4,7 +4,7 @@
 
 #include <d3d12.h>
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <wrl.h>
 
@@ -27,8 +27,8 @@ public:
 	}
 	virtual ~DirectX12Shader() override;
 
-	virtual void Bind() const override { /* do nothing */ }
-	virtual void Unbind() const override { /* do nothing */ }
+	virtual void Bind() override;
+	virtual void Unbind() override;
 
 	virtual void SetupConstantBuffers(ConstantBufferDescription constBufferDesc) override;
 
@@ -44,10 +44,9 @@ public:
 
 	virtual void UploadConstant(const std::string& name, void* constant, unsigned long long size) override;
 
+	const size_t GetConstBufferCount() const { return constantBuffers.size(); }
 	const D3D12_SHADER_BYTECODE GetVSBytecode() const;
 	const D3D12_SHADER_BYTECODE GetPSBytecode() const;
-
-	ID3D12DescriptorHeap* GetDescHeap() const { return CBVDescHeap; }
 
 private:
 	void Create(const std::wstring& VSFilePath,
@@ -57,12 +56,13 @@ private:
 
 	struct ConstantBuffer
 	{
+		unsigned int rootParamIndex;
 		Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
 		UINT8* mappedData = nullptr;
 		unsigned long long size = 0;
 	};
 
-	const DirectX12Shader::ConstantBuffer CreateConstantBuffer(const ConstantBufferDescriptionElement& description);
+	DirectX12Shader::ConstantBuffer CreateConstantBuffer(const ConstantBufferDescriptionElement& description);
 
 private:
 	ID3DBlob* vertexShader = nullptr;
@@ -70,5 +70,7 @@ private:
 
 	ConstantBufferDescription description;
 	ID3D12DescriptorHeap* CBVDescHeap = nullptr;
-	std::map<std::string, ConstantBuffer> constantBuffers;
+	std::unordered_map<std::string, ConstantBuffer> constantBuffers;
+
+	long long int objectNum = 0;
 };

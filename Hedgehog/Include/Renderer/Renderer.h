@@ -9,6 +9,8 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Texture.h>
 
+#include <set>
+
 
 class Renderer
 {
@@ -29,4 +31,6 @@ public:
 private:
 	// C++17 has inline static for static member definition
 	inline static Camera sceneCamera;
+
+	inline static std::set<std::shared_ptr<Shader>> usedShaders;
 };
