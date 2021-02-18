@@ -38,12 +38,13 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 	case RendererAPI::API::DirectX12:
 	{
 		DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
+		CreateSRVDescHeap();
 		ImGui_ImplDX12_Init(dx12renderContext->g_pd3dDevice,
 							dx12renderContext->NUM_FRAMES_IN_FLIGHT,
 							DXGI_FORMAT_R8G8B8A8_UNORM,
-							dx12renderContext->g_pd3dSrvDescHeap,
-							dx12renderContext->g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-							dx12renderContext->g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
+							SRVDescHeap,
+							SRVDescHeap->GetCPUDescriptorHandleForHeapStart(),
+							SRVDescHeap->GetGPUDescriptorHandleForHeapStart());
 		break;
 	}
 
@@ -104,6 +105,7 @@ void ImGuiComponent::EndFrame()
 	case RendererAPI::API::DirectX12:
 	{
 		DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
+		dx12renderContext->g_pd3dCommandList->SetDescriptorHeaps(1, &SRVDescHeap);
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12renderContext->g_pd3dCommandList);
 		break;
 	}
@@ -113,6 +115,16 @@ void ImGuiComponent::EndFrame()
 		break;
 	}
 
+}
+
+void ImGuiComponent::CreateSRVDescHeap()
+{
+	DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
+	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	desc.NumDescriptors = 1;
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	dx12renderContext->g_pd3dDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&SRVDescHeap));
 }
 
 ImGuiComponent::~ImGuiComponent()
@@ -132,4 +144,6 @@ ImGuiComponent::~ImGuiComponent()
 
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+
+	if (SRVDescHeap) { SRVDescHeap->Release(); SRVDescHeap = nullptr; }
 }

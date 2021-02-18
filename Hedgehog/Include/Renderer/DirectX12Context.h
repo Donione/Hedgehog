@@ -47,10 +47,10 @@ public:
 	FrameContext g_frameContext[NUM_FRAMES_IN_FLIGHT] = {};
 	UINT g_frameIndex = 0;
 
+	// TODO maybe use ComPtr
 	static int const NUM_BACK_BUFFERS = 3;
 	ID3D12Device* g_pd3dDevice = NULL;
 	ID3D12DescriptorHeap* g_pd3dRtvDescHeap = NULL;
-	ID3D12DescriptorHeap* g_pd3dSrvDescHeap = NULL;
 	ID3D12CommandQueue* g_pd3dCommandQueue = NULL;
 	ID3D12GraphicsCommandList* g_pd3dCommandList = NULL;
 	ID3D12Fence* g_fence = NULL;
