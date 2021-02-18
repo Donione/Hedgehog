@@ -3,8 +3,12 @@
 #include <memory>
 
 #include <Renderer/Buffer.h>
+#include <Renderer/Shader.h>
 
 
+// TODO
+// multiple vertex/index buffers rendering
+// maybe submit with name so it can be selected what will be rendered, defaulting to rendering everything in order
 class VertexArray
 {
 public:
@@ -18,6 +22,8 @@ public:
 
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const = 0;
 	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const = 0;
+	virtual const std::shared_ptr<Shader> GetShader() const = 0;
 
-	static VertexArray* Create();
+	static VertexArray* Create(const std::shared_ptr<Shader>& inputShader,
+							   const BufferLayout& inputLayout);
 };

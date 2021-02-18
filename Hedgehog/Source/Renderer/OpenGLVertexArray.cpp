@@ -1,9 +1,10 @@
 #include <Renderer/OpenGLVertexArray.h>
-#include <Renderer/Buffer.h>
 
 
-OpenGLVertexArray::OpenGLVertexArray()
+OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader)
 {
+	shader = std::dynamic_pointer_cast<OpenGLShader>(inputShader);
+
 	glCreateVertexArrays(1, &rendererID);
 	// Unbind the vertex array so if a vertex of index buffer intended for a different VA isn't bound to this one upon creation.
 	glBindVertexArray(0);

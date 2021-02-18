@@ -3,12 +3,13 @@
 #include <Renderer/OpenGLVertexArray.h>
 
 
-VertexArray* VertexArray::Create()
+VertexArray* VertexArray::Create(const std::shared_ptr<Shader>& inputShader,
+								 const BufferLayout& inputLayout)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexArray();
+		return new OpenGLVertexArray(inputShader);
 
 	case RendererAPI::API::None:
 		return nullptr;
