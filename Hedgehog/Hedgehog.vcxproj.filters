@@ -144,6 +144,9 @@
     <ClInclude Include="Include\Renderer\DirectX12Shader.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\DirectX12VertexArray.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -216,6 +219,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\DirectX12Shader.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\DirectX12VertexArray.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
