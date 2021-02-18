@@ -74,3 +74,9 @@ void DirectX12RendererAPI::EndFrame()
 	renderContext->g_fenceLastSignaledValue = fenceValue;
 	frameCtxt->FenceValue = fenceValue;
 }
+
+void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+{
+	vertexArray->Bind();
+	renderContext->g_pd3dCommandList->DrawIndexedInstanced(vertexArray->GetIndexBuffer().at(0)->GetCount(), 1, 0, 0, 0);
+}
