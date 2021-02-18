@@ -101,6 +101,7 @@ void Application::Init()
 
 	RenderCommand::Init(renderContext);
 
+	RenderCommand::SetViewport(window.GetWidth(), window.GetHeight());
 	RenderCommand::SetClearColor(clear_color);
 
 	Renderer::SetWireframeMode(false);
@@ -119,6 +120,7 @@ void Application::OnMessage(Message& message)
 {
 	if (message.GetMessageType() == MessageType::WindowSize)
 	{
+		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
 		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
@@ -181,6 +183,14 @@ void Application::OnMessage(Message& message)
 
 Application::~Application()
 {
-	delete renderContext;
 	delete imGuiComponent;
+
+	// you really shouldn't call ->Release on ComPtr objects as it releases automatically - it is a smart pointer, think std::shared_ptr
+	// to explicitly release resources through ComPtr, use the Reset() call
+	//m_rootSignature.Reset();
+	//m_pipelineState.Reset();
+
+	// I think everything touching the d3d12 device needs to be cleaned up before releasing the device itself
+	// So clean up everything else before deleting the context
+	delete renderContext;
 }
