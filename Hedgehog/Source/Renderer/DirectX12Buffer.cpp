@@ -39,6 +39,16 @@ DirectX12VertexBuffer::~DirectX12VertexBuffer()
 	vertexBufferView = {};
 }
 
+void DirectX12VertexBuffer::Bind() const
+{
+	assert(vertexBuffer);
+
+	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+
+	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // TODO add topology to constructor
+	dx12context->g_pd3dCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+}
+
 
 DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned int count)
 {
@@ -50,17 +60,17 @@ DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned
 
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	ThrowIfFailed(dx12context->g_pd3dDevice->CreateCommittedResource(
+	dx12context->g_pd3dDevice->CreateCommittedResource(
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&indexBuffer)));
+		IID_PPV_ARGS(&indexBuffer)); // TODO handle fail
 
 	UINT8* pIndexDataBegin;
 	CD3DX12_RANGE readRange(0, 0);
-	ThrowIfFailed(indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
+	indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)); // TODO handle fail
 	memcpy(pIndexDataBegin, indices, size);
 	indexBuffer->Unmap(0, nullptr);
 
@@ -74,4 +84,13 @@ DirectX12IndexBuffer::~DirectX12IndexBuffer()
 	if (indexBuffer) indexBuffer->Release();
 	indexBuffer = nullptr;
 	indexBufferView = {};
+}
+
+void DirectX12IndexBuffer::Bind() const
+{
+	assert(indexBuffer);
+
+	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+
+	dx12context->g_pd3dCommandList->IASetIndexBuffer(&indexBufferView);
 }

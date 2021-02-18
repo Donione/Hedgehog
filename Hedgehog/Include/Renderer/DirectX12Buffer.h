@@ -11,7 +11,7 @@ public:
 	DirectX12VertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size);
 	virtual ~DirectX12VertexBuffer() override;
 
-	virtual void Bind() const override { /* do nothing */ }
+	virtual void Bind() const override;
 	virtual void Unbind() const override { /* do nothing */ }
 
 	virtual const BufferLayout& GetLayout() const override { return layout; }
@@ -32,7 +32,7 @@ public:
 	DirectX12IndexBuffer(const unsigned int* indices, unsigned int count);
 	virtual ~DirectX12IndexBuffer() override;
 
-	virtual void Bind() const override { /* do nothing */ }
+	virtual void Bind() const override;
 	virtual void Unbind() const override { /* do nothing */ }
 
 	virtual unsigned int GetCount() const override { return count; };
