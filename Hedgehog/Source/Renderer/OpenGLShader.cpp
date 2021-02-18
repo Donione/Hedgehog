@@ -109,48 +109,54 @@ OpenGLShader::~OpenGLShader()
 	glDeleteProgram(shaderID);
 }
 
-void OpenGLShader::Bind() const
+void OpenGLShader::Bind()
 {
 	glUseProgram(shaderID);
 }
 
-void OpenGLShader::Unbind() const
+void OpenGLShader::Unbind()
 {
 	glUseProgram(0);
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, float constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform1f(uniformLocation, constant);
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, glm::vec2 constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform2f(uniformLocation, constant[0], constant[1]);
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, glm::vec3 constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform3f(uniformLocation, constant[0], constant[1], constant[2]);
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, glm::vec4 constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform4f(uniformLocation, constant[0], constant[1], constant[2], constant[3]);
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, glm::mat3x3 constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(constant));
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, glm::mat4x4 constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	// the program must be bound first to the context with glUseProgram
 	// value_ptr() returns a direct pointer to the matrix data in column-major order, making it useful for uploading data to OpenGL
@@ -163,6 +169,7 @@ void OpenGLShader::UploadConstant(const std::string& name, glm::mat4x4 constant)
 
 void OpenGLShader::UploadConstant(const std::string& name, int constant)
 {
+	Bind();
 	GLint uniformLocation = glGetUniformLocation(shaderID, name.c_str());
 	glUniform1i(uniformLocation, constant);
 }

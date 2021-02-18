@@ -33,15 +33,12 @@ void Renderer::EndScene()
 {
 }
 
-void Renderer::Submit(const std::shared_ptr<Shader>& shader,
-					  const std::shared_ptr<VertexArray>& vertexArray,
+void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 					  const glm::mat4x4& transform)
 {
-	shader->Bind();
-	shader->UploadConstant("u_ViewProjection", sceneCamera.GetProjectionView());
-	shader->UploadConstant("u_Transform", transform);
+
+	vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera.GetProjectionView());
+	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 
 	RenderCommand::DrawIndexed(vertexArray);
-
-	shader->Unbind();
 }

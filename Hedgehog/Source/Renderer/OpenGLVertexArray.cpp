@@ -19,11 +19,13 @@ OpenGLVertexArray::~OpenGLVertexArray()
 void OpenGLVertexArray::Bind() const
 {
 	glBindVertexArray(rendererID);
+	shader->Bind();
 }
 
 void OpenGLVertexArray::Unbind() const
 {
 	glBindVertexArray(0);
+	shader->Unbind();
 }
 
 void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)

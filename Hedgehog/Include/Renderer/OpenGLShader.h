@@ -12,8 +12,8 @@ public:
 	OpenGLShader(const std::string& vertexFilePath, const std::string& pixelFilePath);
 	virtual ~OpenGLShader() override;
 
-	virtual void Bind() const override;
-	virtual void Unbind() const override;
+	virtual void Bind() override;
+	virtual void Unbind() override;
 
 	virtual void SetupConstantBuffers(ConstantBufferDescription constBufferDesc) override { /* do nothing */ }
 
