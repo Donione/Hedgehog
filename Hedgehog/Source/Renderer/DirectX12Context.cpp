@@ -72,6 +72,45 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 			g_mainRenderTargetDescriptor[i] = rtvHandle;
 			rtvHandle.ptr += rtvDescriptorSize;
 		}
+
+		// Create depth/stencil descriptor heap
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		g_pd3dDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&dsDescriptorHeap));
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+		D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+		depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+		depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+		// Create the depth/stencil buffer
+		auto descHeap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT,
+													Application::GetInstance().GetWindow().GetWidth(),
+													Application::GetInstance().GetWindow().GetHeight(),
+													1,
+													1,
+													1,
+													0,
+													D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+		g_pd3dDevice->CreateCommittedResource(
+			&descHeap,
+			D3D12_HEAP_FLAG_NONE,
+			&resDesc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&depthOptimizedClearValue,
+			IID_PPV_ARGS(&depthStencilBuffer)
+		);
+
+		// Create the depth/stencil buffer view (which goes into the depth/stencil descriptor heap)
+		g_pd3dDevice->CreateDepthStencilView(depthStencilBuffer, &depthStencilDesc, dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	{
@@ -119,6 +158,8 @@ DirectX12Context::~DirectX12Context()
 	if (g_pd3dRtvDescHeap) { g_pd3dRtvDescHeap->Release(); g_pd3dRtvDescHeap = NULL; }
 	if (g_fence) { g_fence->Release(); g_fence = NULL; }
 	if (g_fenceEvent) { CloseHandle(g_fenceEvent); g_fenceEvent = NULL; }
+	if (depthStencilBuffer) { depthStencilBuffer->Release(); depthStencilBuffer = NULL; }
+	if (dsDescriptorHeap) { dsDescriptorHeap->Release(); dsDescriptorHeap = NULL; }
 	if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 
 	#if defined(_DEBUG)

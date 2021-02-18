@@ -62,6 +62,10 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		offset += input.size;
 	}
 
+	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	depthStencilDesc.DepthEnable = RenderCommand::GetDepthTest();
+	// TODO what is a stencil
+
 	// Describe and create the graphics pipeline state object (PSO).
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
@@ -72,14 +76,15 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	psoDesc.RasterizerState.CullMode = RenderCommand::GetFaceCulling() ? D3D12_CULL_MODE_FRONT : D3D12_CULL_MODE_NONE;
 	psoDesc.RasterizerState.FillMode = RenderCommand::GetWireframeMode() ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = FALSE;
-	psoDesc.DepthStencilState.StencilEnable = FALSE;
-	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.DepthStencilState = depthStencilDesc;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc.SampleMask = UINT_MAX; // sample mask has to do with multi-sampling. 0xFFFFFFFF (UINT_MAX) means point sampling is done
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc.SampleDesc.Count = 1;
-	dx12context->g_pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)); // handle fail
+	psoDesc.SampleDesc.Count = 1; // This must be the same as the SampleDesc for swap chain
+	psoDesc.SampleDesc.Quality = 0;
+	dx12context->g_pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)); // TODO handle fail
 
 	// smart pointers or vectors clean themselves up
 	//delete[] inputElementDescs;

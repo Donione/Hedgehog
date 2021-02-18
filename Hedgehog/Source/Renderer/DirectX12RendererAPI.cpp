@@ -1,5 +1,7 @@
 #include <Renderer/DirectX12RendererAPI.h>
 
+#include <Renderer/RenderCommand.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui_impl_dx12.h>
 
@@ -47,7 +49,22 @@ void DirectX12RendererAPI::BeginFrame()
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	renderContext->g_pd3dCommandList->ResourceBarrier(1, &barrier);
 
-	renderContext->g_pd3dCommandList->OMSetRenderTargets(1, &renderContext->g_mainRenderTargetDescriptor[backBufferIdx], FALSE, NULL);
+	if (RenderCommand::GetDepthTest())
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(renderContext->dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		renderContext->g_pd3dCommandList->OMSetRenderTargets(1, &renderContext->g_mainRenderTargetDescriptor[backBufferIdx], FALSE, &dsvHandle);
+		renderContext->g_pd3dCommandList->ClearDepthStencilView(renderContext->dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+																D3D12_CLEAR_FLAG_DEPTH,
+																1.0f,
+																0,
+																0,
+																nullptr);
+	}
+	else
+	{
+		renderContext->g_pd3dCommandList->OMSetRenderTargets(1, &renderContext->g_mainRenderTargetDescriptor[backBufferIdx], FALSE, nullptr);
+	}
+
 	renderContext->g_pd3dCommandList->ClearRenderTargetView(renderContext->g_mainRenderTargetDescriptor[backBufferIdx],
 															glm::value_ptr(clearColor),
 															0,

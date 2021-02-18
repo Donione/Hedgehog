@@ -58,4 +58,6 @@ public:
 	HANDLE g_hSwapChainWaitableObject = NULL;
 	ID3D12Resource* g_mainRenderTargetResource[NUM_BACK_BUFFERS] = {};
 	D3D12_CPU_DESCRIPTOR_HANDLE  g_mainRenderTargetDescriptor[NUM_BACK_BUFFERS] = {};
+	ID3D12DescriptorHeap* dsDescriptorHeap;
+	ID3D12Resource* depthStencilBuffer;
 };
