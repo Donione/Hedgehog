@@ -31,6 +31,11 @@ public:
 		rendererAPI->SetBlending(enable);
 	}
 
+	static bool GetWireframeMode() { return rendererAPI->GetWireframeMode(); }
+	static bool GetDepthTest() { return rendererAPI->GetDepthTest(); }
+	static bool GetFaceCulling() { return rendererAPI->GetFaceCulling(); }
+	static bool GetBlending() { return rendererAPI->GetBlending(); }
+
 
 	static void SetViewport(int width, int height)
 	{

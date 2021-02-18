@@ -25,6 +25,11 @@ public:
 	virtual void SetFaceCulling(bool enable) = 0;
 	virtual void SetBlending(bool enable) = 0;
 
+	virtual bool GetWireframeMode() const = 0;
+	virtual bool GetDepthTest() const = 0;
+	virtual bool GetFaceCulling() const = 0;
+	virtual bool GetBlending() const = 0;
+
 	virtual void SetViewport(int width, int height) = 0;
 
 	virtual void SetClearColor(const glm::vec4& color) = 0;

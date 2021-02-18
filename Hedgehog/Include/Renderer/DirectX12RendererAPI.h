@@ -16,6 +16,11 @@ public:
 	virtual void SetFaceCulling(bool enable) override { faceCulling = enable; }
 	virtual void SetBlending(bool enable) override { blending = enable; }
 
+	virtual bool GetWireframeMode() const override { return wireframeMode; }
+	virtual bool GetDepthTest() const override { return depthTest; }
+	virtual bool GetFaceCulling() const override { return faceCulling; }
+	virtual bool GetBlending() const override { return blending; }
+
 	virtual void SetViewport(int width, int height) override;
 
 	virtual void SetClearColor(const glm::vec4& color) override { clearColor = color; }
