@@ -250,4 +250,9 @@
       <Filter>Assets\Shader</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\Shader\DirectX12ModelShader.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

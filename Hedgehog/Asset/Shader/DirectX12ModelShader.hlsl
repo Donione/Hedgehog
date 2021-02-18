@@ -22,25 +22,30 @@ cbuffer SceneConstantBuffer2 : register(b1)
 struct PSInput
 {
     float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float3 color : COLOR;
 };
 
-PSInput VSMain(float4 position : a_position, float4 color : a_color, float2 texCoords : a_textureCoordinates)
+PSInput VSMain(float3 position : a_position, float3 normal : a_normal)
 {
     PSInput result;
 
-    //gl_Position = u_ViewProjection * u_Transform * a_position
-    matrix VPM = mul(u_ViewProjection, u_Transform);
-    result.position = mul(VPM, position);
+    result.position = mul(mul(u_ViewProjection, u_Transform), float4(position, 1.0f));
 
-    result.color = color;
+    float3 V = normalize(float3(3.0f, -3.0f, -5.0f) - position);
+    float3 ambient = float3(0.2f, 0.2f, 0.2f) * float3(0.8f, 0.2f, 0.2f);
+    ambient = float3(0.0f, 0.0f, 0.0f);
+    float diffuse = dot(normalize(normal), V);
+
+    if (diffuse > 0)
+    {
+        ambient = ambient + (diffuse * float3(0.56f, 0.14f, 0.14f));
+    }
+    result.color = min(float3(1.0f, 1.0f, 1.0f), ambient);
 
     return result;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    //float4 colour = {1.0f, 0.0f, 0.0f, 1.0f};
-    //return colour;
-    return input.color;
+    return float4( input.color, 1.0f );
 }
