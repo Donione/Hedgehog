@@ -67,4 +67,6 @@ private:
 	ImGuiComponent* imGuiComponent;
 
 	Stopwatch frameDuration;
+
+	bool initialized = false;
 };

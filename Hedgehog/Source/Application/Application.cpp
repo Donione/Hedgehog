@@ -10,6 +10,8 @@
 
 void Application::Run()
 {
+	RenderCommand::Begin();
+
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
@@ -22,7 +24,7 @@ void Application::Run()
 		RenderCommand::BeginFrame();
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
-		for (auto layer : layers)
+		for (auto& layer : layers)
 		{
 			if (layer->IsEnabled())
 			{
@@ -32,7 +34,7 @@ void Application::Run()
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
-		for (auto layer : layers)
+		for (auto& layer : layers)
 		{
 			if (layer->IsEnabled())
 			{
@@ -120,6 +122,12 @@ void Application::OnMessage(Message& message)
 {
 	if (message.GetMessageType() == MessageType::WindowSize)
 	{
+		if (!initialized)
+		{
+			initialized = true;
+			return;
+		}
+
 		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
 		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
@@ -135,7 +143,7 @@ void Application::OnMessage(Message& message)
 			RenderCommand::BeginFrame();
 
 			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
-			for (auto layer : layers)
+			for (auto& layer : layers)
 			{
 				if (layer->IsEnabled())
 				{
@@ -145,7 +153,7 @@ void Application::OnMessage(Message& message)
 
 			imGuiComponent->BeginFrame();
 			// Fire OnGuiUpdate functions in order, first layers, overlays after
-			for (auto layer : layers)
+			for (auto& layer : layers)
 			{
 				if (layer->IsEnabled())
 				{
