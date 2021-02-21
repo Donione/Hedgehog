@@ -5,15 +5,16 @@
 
 
 VertexArray* VertexArray::Create(const std::shared_ptr<Shader>& inputShader,
-								 const BufferLayout& inputLayout)
+								 const BufferLayout& inputLayout,
+								 const std::shared_ptr<Texture>& inputTexture)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexArray(inputShader);
+		return new OpenGLVertexArray(inputShader, inputTexture);
 
 	case RendererAPI::API::DirectX12:
-		return new DirectX12VertexArray(inputShader, inputLayout);
+		return new DirectX12VertexArray(inputShader, inputLayout, inputTexture);
 
 	case RendererAPI::API::None:
 		return nullptr;

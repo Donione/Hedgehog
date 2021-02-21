@@ -13,7 +13,8 @@ class DirectX12VertexArray : public VertexArray
 {
 public:
 	DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
-						 const BufferLayout& inputLayout);
+						 const BufferLayout& inputLayout,
+						 const std::shared_ptr<Texture>& inputTexture);
 	virtual ~DirectX12VertexArray() override;
 
 	virtual void Bind() const override;
@@ -26,6 +27,7 @@ public:
 	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
 	// TODO why doesn't returning a shared_ptr reference work when upcasting?
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
+	virtual const std::shared_ptr<Texture>& GetTexture() const override { return texture; }
 
 private:
 	DXGI_FORMAT GetDirectXFormat(ShaderDataType type) const { return DirectXFormats[(int)type]; }
@@ -35,6 +37,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
 
 	std::shared_ptr<DirectX12Shader> shader;
+	std::shared_ptr<Texture> texture;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
 

@@ -7,10 +7,12 @@
 
 
 DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
-										   const BufferLayout& inputLayout)
+										   const BufferLayout& inputLayout,
+										   const std::shared_ptr<Texture>& inputTexture)
 {
 	// TODO for fun, see how the ref count changes
 	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
+	texture = inputTexture;
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
@@ -100,6 +102,11 @@ void DirectX12VertexArray::Bind() const
 
 	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState.Get());
 	dx12context->g_pd3dCommandList->SetGraphicsRootSignature(m_rootSignature.Get());
+
+	if (texture)
+	{
+		texture->Bind();
+	}
 
 	shader->Bind();
 
