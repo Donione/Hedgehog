@@ -2,6 +2,7 @@
 
 #include <Application/Application.h>
 #include <Renderer/DirectX12Context.h>
+#include <Renderer/DirectX12Texture.h>
 
 #include <vector>
 
@@ -29,16 +30,49 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		rootParameters[i].InitAsConstantBufferView(i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 	}
 
+	std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
+	if (texture)
+	{
+		// The texture doesn't know which root parameter index it should use
+		// Set it just after the CBVs
+		unsigned int textureRootParamIndex = (unsigned int)rootParameters.size();
+		std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->SetRootParamIndex(textureRootParamIndex);
+
+		CD3DX12_DESCRIPTOR_RANGE ranges[1] = {};
+		ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+		CD3DX12_ROOT_PARAMETER param;
+		param.InitAsDescriptorTable(1, ranges, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters.push_back(param);
+
+		//std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
+		staticSamplers.resize(1);
+
+		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		staticSamplers[0].MipLODBias = 0;
+		staticSamplers[0].MaxAnisotropy = 0;
+		staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		staticSamplers[0].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+		staticSamplers[0].MinLOD = 0.0f;
+		staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;
+		staticSamplers[0].ShaderRegister = 0;
+		staticSamplers[0].RegisterSpace = 0;
+		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	}
+
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | // Only the input assembler stage needs access to the constant buffer.
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	//rootSignatureDesc.Init(1, &parameter, 0, nullptr, rootSignatureFlags);
-	rootSignatureDesc.Init((UINT)rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
+	rootSignatureDesc.Init((UINT)rootParameters.size(), rootParameters.data(),
+						   (UINT)staticSamplers.size(), staticSamplers.empty() ? nullptr : staticSamplers.data(),
+						   rootSignatureFlags);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> signature;
 	Microsoft::WRL::ComPtr<ID3DBlob> error;
