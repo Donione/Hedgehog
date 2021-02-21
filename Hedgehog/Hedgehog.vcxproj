@@ -175,6 +175,7 @@
     <ClInclude Include="Include\Renderer\DirectX12Context.h" />
     <ClInclude Include="Include\Renderer\DirectX12RendererAPI.h" />
     <ClInclude Include="Include\Renderer\DirectX12Shader.h" />
+    <ClInclude Include="Include\Renderer\DirectX12Texture.h" />
     <ClInclude Include="Include\Renderer\DirectX12VertexArray.h" />
     <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Source\Renderer\DirectX12Context.cpp" />
     <ClCompile Include="Source\Renderer\DirectX12RendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\DirectX12Shader.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12Texture.cpp" />
     <ClCompile Include="Source\Renderer\DirectX12VertexArray.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
