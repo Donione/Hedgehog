@@ -24,6 +24,7 @@ public:
 	virtual void SetViewport(int width, int height) override;
 
 	virtual void SetClearColor(const glm::vec4& color) override { clearColor = color; }
+	virtual void Begin() override;
 	virtual void BeginFrame() override;
 	virtual void EndFrame() override;
 

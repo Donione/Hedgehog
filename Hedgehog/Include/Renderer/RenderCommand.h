@@ -48,6 +48,11 @@ public:
 		rendererAPI->SetClearColor(color);
 	}
 
+	static void Begin()
+	{
+		rendererAPI->Begin();
+	}
+
 	static void BeginFrame()
 	{
 		rendererAPI->BeginFrame();

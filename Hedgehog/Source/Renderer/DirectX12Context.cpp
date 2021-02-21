@@ -125,7 +125,9 @@ DirectX12Context::DirectX12Context(HWND windowHandle)
 		g_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&g_frameContext[i].CommandAllocator));
 
 	g_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, g_frameContext[0].CommandAllocator, NULL, IID_PPV_ARGS(&g_pd3dCommandList));
-	g_pd3dCommandList->Close();
+	// Don't close  the command list here. Vertex arrays will copy data to the GPU
+	// and before the main loop starts the command list will be closed and executed 
+	//g_pd3dCommandList->Close();
 
 	g_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&g_fence));
 

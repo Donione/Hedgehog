@@ -31,6 +31,19 @@ void DirectX12RendererAPI::SetViewport(int width, int height)
 	scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 }
 
+void DirectX12RendererAPI::Begin()
+{
+	// Close the command list and execute it to begin the initial GPU setup.
+	renderContext->g_pd3dCommandList->Close();
+	ID3D12CommandList* ppCommandLists[] = { renderContext->g_pd3dCommandList };
+	renderContext->g_pd3dCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+	UINT64 fenceValue = renderContext->g_fenceLastSignaledValue + 1;
+	renderContext->g_pd3dCommandQueue->Signal(renderContext->g_fence, fenceValue);
+	renderContext->g_fenceLastSignaledValue = fenceValue;
+	renderContext->g_frameContext[0].FenceValue = fenceValue;
+}
+
 void DirectX12RendererAPI::BeginFrame()
 {
 	// TODO ensure that BeginFrame and EndFrame are always called in pairs and BeginFrame is called first.
