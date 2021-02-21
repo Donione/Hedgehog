@@ -28,6 +28,7 @@ public:
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
 	void ResizeSwapChain(int width, int height);
+	void ResizeDepthStencilBuffer(int width, int height);
 
 	void SwapBuffers() override;
 

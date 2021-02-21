@@ -263,3 +263,40 @@ void DirectX12Context::ResizeSwapChain(int width, int height)
 	g_hSwapChainWaitableObject = g_pSwapChain->GetFrameLatencyWaitableObject();
 	assert(g_hSwapChainWaitableObject != NULL);
 }
+
+void DirectX12Context::ResizeDepthStencilBuffer(int width, int height)
+{
+	depthStencilBuffer->Release();
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+	// Create the depth/stencil buffer
+	auto descHeap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT,
+												width,
+												height,
+												1,
+												1,
+												1,
+												0,
+												D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+	g_pd3dDevice->CreateCommittedResource(
+		&descHeap,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&depthStencilBuffer)
+	);
+
+	// Create the depth/stencil buffer view (which goes into the depth/stencil descriptor heap)
+	g_pd3dDevice->CreateDepthStencilView(depthStencilBuffer, &depthStencilDesc, dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+}

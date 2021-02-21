@@ -23,6 +23,7 @@ void DirectX12RendererAPI::SetViewport(int width, int height)
 	ImGui_ImplDX12_InvalidateDeviceObjects();
 	renderContext->CleanupRenderTarget();
 	renderContext->ResizeSwapChain(width, height);
+	renderContext->ResizeDepthStencilBuffer(width, height);
 	renderContext->CreateRenderTarget();
 	ImGui_ImplDX12_CreateDeviceObjects();
 
