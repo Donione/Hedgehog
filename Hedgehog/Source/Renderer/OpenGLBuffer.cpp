@@ -3,8 +3,10 @@
 #include <glad/glad.h>
 
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, unsigned int size)
+OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
+	this->layout = layout;
+
 	glCreateBuffers(1, &rendererID);
 	glBindBuffer(GL_ARRAY_BUFFER, rendererID);
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

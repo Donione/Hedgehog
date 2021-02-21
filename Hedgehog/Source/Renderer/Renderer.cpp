@@ -31,17 +31,25 @@ void Renderer::BeginScene(const Camera& camera)
 
 void Renderer::EndScene()
 {
+	for (auto& shader : usedShaders)
+	{
+		// When we unbind the shader, we clear the number of objects that used the same shader
+		// This is used in DirectX12 implemenation to offset the constant buffers
+		// OpenGL doesn't care
+		shader->Unbind();
+	}
+
+	usedShaders.clear();
 }
 
-void Renderer::Submit(const std::shared_ptr<Shader>& shader,
-					  const std::shared_ptr<VertexArray>& vertexArray,
+void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 					  const glm::mat4x4& transform)
 {
-	shader->Bind();
-	shader->UploadUniform("u_ViewProjection", sceneCamera.GetProjectionView());
-	shader->UploadUniform("u_Transform", transform);
+	// Keep track of different shaders that are being used so they can be cleared at the end of the scene
+	usedShaders.insert(vertexArray->GetShader());
+
+	vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera.GetProjectionView());
+	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 
 	RenderCommand::DrawIndexed(vertexArray);
-
-	shader->Unbind();
 }

@@ -90,18 +90,39 @@ public:
 			{ ShaderDataType::Float3, "a_position" },
 			{ ShaderDataType::Float3, "a_normal" },
 		};
+
+		ConstantBufferDescription modelconstBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4) },
+			{ "u_Transform", sizeof(glm::mat4) },
+		};
+
+		std::string modelVertexSrc;
+		std::string modelFragmentSrc;
+		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
+			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
+		}
+		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
+			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
+		}
+		modelShader.reset(Shader::Create(modelVertexSrc, modelFragmentSrc));
+		modelShader->SetupConstantBuffers(modelconstBufferDesc);
 		
-		modelVertexArray.reset(VertexArray::Create());
-		modelVertexBuffer.reset(VertexBuffer::Create(modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
-		modelVertexBuffer->SetLayout(modelVertexBufferArrayLayout);
+		modelVertexArray.reset(VertexArray::Create(modelShader, modelVertexBufferArrayLayout));
+		modelVertexBuffer.reset(VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
 		modelIndexBuffer.reset(IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
-		std::string modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
-		std::string modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
-		modelShader.reset(Shader::Create(modelVertexSrc, modelFragmentSrc));
 
-
+		ConstantBufferDescription constBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4) },
+			{ "u_Transform", sizeof(glm::mat4) },
+		};
 		
 		BufferLayout vertexBufferLayout =
 		{
@@ -125,18 +146,55 @@ public:
 			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, // bottom right
 		};
 
-		// Vertex Arrays
-		vertexArray.reset(VertexArray::Create());
+		// Shaders
+		std::string vertexSrc;
+		std::string fragmentSrc;
+		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		}
+		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
+		shader->SetupConstantBuffers(constBufferDesc);
 
-		vertexArraySquare.reset(VertexArray::Create());
+		std::string vertexSrcTexture;
+		std::string fragmentSrcTexture;
+		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
+			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
+		}
+		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
+			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
+		}
+		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
+		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			textureShader->UploadConstant("u_texture", 0);
+		}
+		textureShader->SetupConstantBuffers(constBufferDesc);
+
+		// Textures
+		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
+		texture.reset(Texture2D::Create(textureFilename));
+
+		// Vertex Arrays
+		vertexArray.reset(VertexArray::Create(shader, vertexBufferLayout));
+
+		vertexArraySquare.reset(VertexArray::Create(textureShader, vertexBufferLayout, texture));
 
 		// Vertex Buffers
-		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-		vertexBuffer->SetLayout(vertexBufferLayout);
+		vertexBuffer.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices)));
 		vertexArray->AddVertexBuffer(vertexBuffer);
 
-		vertexBufferSquare.reset(VertexBuffer::Create(vertices, sizeof(vertices) / 2));
-		vertexBufferSquare->SetLayout(vertexBufferLayout);
+		vertexBufferSquare.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices) / 2));
 		vertexArraySquare->AddVertexBuffer(vertexBufferSquare);
 
 		// Index Buffers
@@ -147,20 +205,6 @@ public:
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 		indexBufferSquare.reset(IndexBuffer::Create(indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int)));
 		vertexArraySquare->AddIndexBuffer(indexBufferSquare);
-
-		// Shaders
-		std::string vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-		std::string fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
-
-		std::string vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
-		std::string fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
-		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
-		textureShader->UploadUniform("u_texture", 0);
-
-		// Textures
-		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
-		texture.reset(Texture2D::Create(textureFilename));
 
 		// Transforms
 		transform2 = glm::mat4x4(1.0f);
@@ -242,46 +286,52 @@ public:
 
 		Renderer::BeginScene(camera);
 		{
-			if (showAxes)
-			{
-				float axesVertices[] =
-				{
-					0.0f, 0.0f, 0.0f, 1.0f,		 1.0f, 0.0f, 0.0f, 1.0f,
-					10.0f, 0.0f, 0.0f, 1.0f,		 1.0f, 0.0f, 0.0f, 1.0f,
-					0.0f, 0.0f, 0.0f, 1.0f,		 0.0f, 1.0f, 0.0f, 1.0f,
-					0.0f, 10.0f, 0.0f, 1.0f,		 0.0f, 1.0f, 0.0f, 1.0f,
-					0.0f, 0.0f, 0.0f, 1.0f,		 0.0f, 0.0f, 1.0f, 1.0f,
-					0.0f, 0.0f, 10.0f, 1.0f,		 0.0f, 0.0f, 1.0f, 1.0f,
-				};
+			//if (showAxes)
+			//{
+			//	BufferLayout axesBL =
+			//	{
+			//		{ ShaderDataType::Float4, "a_position" },
+			//		{ ShaderDataType::Float4, "a_color" },
+			//	};
 
-				unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
+			//	float axesVertices[] =
+			//	{
+			//		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,
+			//		10.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,
+			//		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,
+			//		0.0f, 10.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,
+			//		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,
+			//		0.0f, 0.0f, 10.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,
+			//	};
 
-				VertexBuffer* axesVB = VertexBuffer::Create(axesVertices, sizeof(axesVertices));
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 32, 0);
-				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 32, (const void*)16);
+			//	unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
 
-				IndexBuffer* axesIB = IndexBuffer::Create(axesIndices, sizeof(axesIndices) / sizeof(unsigned int));
+			//	VertexBuffer* axesVB = VertexBuffer::Create(axesBL, axesVertices, sizeof(axesVertices));
+			//	glEnableVertexAttribArray(0);
+			//	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 32, 0);
+			//	glEnableVertexAttribArray(1);
+			//	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 32, (const void*)16);
 
-				shader->Bind();
-				shader->UploadUniform("u_ViewProjection", camera.GetProjectionView());
-				shader->UploadUniform("u_Transform", glm::mat4x4(1.0f));
-				glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
-				shader->Unbind();
+			//	IndexBuffer* axesIB = IndexBuffer::Create(axesIndices, sizeof(axesIndices) / sizeof(unsigned int));
 
-				delete axesVB;
-				delete axesIB;
-			}
+			//	shader->Bind();
+			//	shader->UploadConstant("u_ViewProjection", camera.GetProjectionView());
+			//	shader->UploadConstant("u_Transform", glm::mat4x4(1.0f));
+			//	glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
+			//	shader->Unbind();
 
-			//Renderer::Submit(shader, vertexArray);
-			//Renderer::Submit(shader, vertexArray, transform3);
-			//Renderer::Submit(shader, vertexArray, transform2);
+			//	delete axesVB;
+			//	delete axesIB;
+			//}
 
-			//texture->Bind();
-			//Renderer::Submit(textureShader, vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
+			Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
+			Renderer::Submit(vertexArray, transform3);
+			Renderer::Submit(vertexArray, transform2);
 
-			Renderer::Submit(modelShader, modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			Renderer::Submit(modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+			// Order matters when we want to blend
+			Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
 		}
 		Renderer::EndScene();
 	}
@@ -374,6 +424,8 @@ private:
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> textureShader;
 
+	std::shared_ptr<Texture> texture;
+
 	std::shared_ptr<VertexArray> modelVertexArray;
 	std::shared_ptr<VertexBuffer> modelVertexBuffer;
 	std::shared_ptr<IndexBuffer> modelIndexBuffer;
@@ -397,8 +449,6 @@ private:
 	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep
-
-	std::shared_ptr<Texture> texture;
 };
 
 class ExampleOverlay : public Layer

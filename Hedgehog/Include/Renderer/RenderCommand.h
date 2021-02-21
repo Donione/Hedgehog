@@ -1,11 +1,16 @@
 #pragma once
 
 #include <Renderer/RendererAPI.h>
+#include <Renderer/RenderContext.h>
 
 
 class RenderCommand
 {
 public:
+	// TODECIDE maybe insted of tying render context and rendererAPI together
+	// create a static render context instance getter
+	static void Init(RenderContext* renderContext);
+
 	static void SetWireframeMode(bool enable)
 	{
 		rendererAPI->SetWireframeMode(enable);
@@ -26,6 +31,11 @@ public:
 		rendererAPI->SetBlending(enable);
 	}
 
+	static bool GetWireframeMode() { return rendererAPI->GetWireframeMode(); }
+	static bool GetDepthTest() { return rendererAPI->GetDepthTest(); }
+	static bool GetFaceCulling() { return rendererAPI->GetFaceCulling(); }
+	static bool GetBlending() { return rendererAPI->GetBlending(); }
+
 
 	static void SetViewport(int width, int height)
 	{
@@ -38,9 +48,19 @@ public:
 		rendererAPI->SetClearColor(color);
 	}
 
-	static void Clear()
+	static void Begin()
 	{
-		rendererAPI->Clear();
+		rendererAPI->Begin();
+	}
+
+	static void BeginFrame()
+	{
+		rendererAPI->BeginFrame();
+	}
+
+	static void EndFrame()
+	{
+		rendererAPI->EndFrame();
 	}
 
 
@@ -50,5 +70,5 @@ public:
 	}
 
 private:
-	static RendererAPI* rendererAPI;
+	inline static RendererAPI* rendererAPI;
 };

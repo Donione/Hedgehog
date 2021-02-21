@@ -30,6 +30,8 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 	{
+		// TODO: when the window is being resized by dragging the borders/corner, we're getting a message per pixel of new size
+		// maybe we want to just wait for the final new size and don't care about the intermediate sizes
 		WindowSizeMessage message(LOWORD(lParam), HIWORD(lParam));
 
 		if (MessageCallback) MessageCallback(message);

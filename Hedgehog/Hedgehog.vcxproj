@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,12 +93,16 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -109,6 +113,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,12 +130,16 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -141,6 +150,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +171,12 @@
     <ClInclude Include="Include\Message\WindowMessage.h" />
     <ClInclude Include="Include\Renderer\Buffer.h" />
     <ClInclude Include="Include\Renderer\Camera.h" />
+    <ClInclude Include="Include\Renderer\DirectX12Buffer.h" />
+    <ClInclude Include="Include\Renderer\DirectX12Context.h" />
+    <ClInclude Include="Include\Renderer\DirectX12RendererAPI.h" />
+    <ClInclude Include="Include\Renderer\DirectX12Shader.h" />
+    <ClInclude Include="Include\Renderer\DirectX12Texture.h" />
+    <ClInclude Include="Include\Renderer\DirectX12VertexArray.h" />
     <ClInclude Include="Include\Renderer\OpenGLBuffer.h" />
     <ClInclude Include="Include\Renderer\OpenGLContext.h" />
     <ClInclude Include="Include\Renderer\OpenGLRendererAPI.h" />
@@ -184,6 +200,12 @@
     <ClCompile Include="Source\Message\Message.cpp" />
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
     <ClCompile Include="Source\Renderer\Camera.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12Buffer.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12Context.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12RendererAPI.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12Shader.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12Texture.cpp" />
+    <ClCompile Include="Source\Renderer\DirectX12VertexArray.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLContext.cpp" />
     <ClCompile Include="Source\Renderer\OpenGLRendererAPI.cpp" />
@@ -214,6 +236,29 @@
     <None Include="Asset\Shader\OpenGLModelVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\Shader\DirectX12ExampleShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\DirectX12TextureShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\Shader\DirectX12ModelShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

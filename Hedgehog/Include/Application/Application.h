@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma comment(lib, "D3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
+
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
 #include <Renderer/RenderContext.h>
@@ -20,6 +24,7 @@ public:
 
 	static Application& GetInstance() { return *instance; }
 
+	RenderContext* GetRenderContext() { return renderContext; }
 	Window& GetWindow() { return window; }
 
 protected:
@@ -55,9 +60,13 @@ private:
 
 	RenderContext* renderContext;
 
+	glm::vec4 clear_color = glm::vec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 	// ImGuiComponent is an integral part of the application.
 	// It is supposed to handle all Gui rendering, which is submitted by layers.
 	ImGuiComponent* imGuiComponent;
 
 	Stopwatch frameDuration;
+
+	bool initialized = false;
 };

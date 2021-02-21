@@ -3,6 +3,11 @@
 #include <glad/glad.h>
 
 
+void OpenGLRendererAPI::Init(RenderContext* renderContext)
+{
+	this->renderContext = dynamic_cast<OpenGLContext*>(renderContext);
+}
+
 void OpenGLRendererAPI::SetWireframeMode(bool enable)
 {
 	if (enable != wireframeMode)
@@ -85,9 +90,14 @@ void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
 	glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void OpenGLRendererAPI::Clear()
+void OpenGLRendererAPI::BeginFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLRendererAPI::EndFrame()
+{
+	renderContext->SwapBuffers();
 }
 
 void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)

@@ -2,14 +2,18 @@
 
 #include <Renderer/Buffer.h>
 #include <Renderer/OpenGLBuffer.h>
+#include <Renderer/DirectX12Buffer.h>
 
 
-VertexBuffer* VertexBuffer::Create(const float* vertices, unsigned int size)
+VertexBuffer* VertexBuffer::Create(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexBuffer(vertices, size);
+		return new OpenGLVertexBuffer(layout, vertices, size);
+
+	case RendererAPI::API::DirectX12:
+		return new DirectX12VertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::None:
 		return nullptr;
@@ -25,6 +29,9 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	{
 	case RendererAPI::API::OpenGL:
 		return new OpenGLIndexBuffer(indices, count);
+
+	case RendererAPI::API::DirectX12:
+		return new DirectX12IndexBuffer(indices, count);
 
 	case RendererAPI::API::None:
 		return nullptr;

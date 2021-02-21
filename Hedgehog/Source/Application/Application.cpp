@@ -3,12 +3,15 @@
 #include <Message/KeyMessage.h>
 
 #include <Renderer/OpenGLContext.h>
+#include <Renderer/DirectX12Context.h>
 
 #include <iostream>
 
 
 void Application::Run()
 {
+	RenderCommand::Begin();
+
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
@@ -18,10 +21,10 @@ void Application::Run()
 
 		frameDuration.Start();
 
-		RenderCommand::Clear();
+		RenderCommand::BeginFrame();
 
 		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
-		for (auto layer : layers)
+		for (auto& layer : layers)
 		{
 			if (layer->IsEnabled())
 			{
@@ -31,7 +34,7 @@ void Application::Run()
 
 		imGuiComponent->BeginFrame();
 		// Fire OnGuiUpdate functions in order, first layers, overlays after
-		for (auto layer : layers)
+		for (auto& layer : layers)
 		{
 			if (layer->IsEnabled())
 			{
@@ -40,7 +43,7 @@ void Application::Run()
 		}
 		imGuiComponent->EndFrame();
 
-		renderContext->SwapBuffers();
+		RenderCommand::EndFrame();
 
 		// Poll and handle messages (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -82,6 +85,10 @@ void Application::Init()
 		renderContext = new OpenGLContext(window.GetHandle());
 		break;
 
+	case RendererAPI::API::DirectX12:
+		renderContext = new DirectX12Context(window.GetHandle());;
+		break;
+
 	case RendererAPI::API::None:
 		renderContext = nullptr;
 		break;
@@ -94,12 +101,17 @@ void Application::Init()
 	// Setup VSYNC
 	renderContext->SetSwapInterval(0);
 
+	RenderCommand::Init(renderContext);
+
+	RenderCommand::SetViewport(window.GetWidth(), window.GetHeight());
+	RenderCommand::SetClearColor(clear_color);
+
 	Renderer::SetWireframeMode(false);
 	Renderer::SetDepthTest(true);
 	Renderer::SetFaceCulling(true);
 	Renderer::SetBlending(true);
 
-	imGuiComponent = new ImGuiComponent(window.GetHandle());
+	imGuiComponent = new ImGuiComponent(window.GetHandle(), renderContext);
 
 	// Show the window
 	window.Show();
@@ -110,6 +122,13 @@ void Application::OnMessage(Message& message)
 {
 	if (message.GetMessageType() == MessageType::WindowSize)
 	{
+		if (!initialized)
+		{
+			initialized = true;
+			return;
+		}
+
+		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
 		RenderCommand::SetViewport(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
@@ -121,10 +140,10 @@ void Application::OnMessage(Message& message)
 		// For now just copy paste most of the main application run loop
 		if (true)
 		{
-			RenderCommand::Clear();
+			RenderCommand::BeginFrame();
 
 			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
-			for (auto layer : layers)
+			for (auto& layer : layers)
 			{
 				if (layer->IsEnabled())
 				{
@@ -134,7 +153,7 @@ void Application::OnMessage(Message& message)
 
 			imGuiComponent->BeginFrame();
 			// Fire OnGuiUpdate functions in order, first layers, overlays after
-			for (auto layer : layers)
+			for (auto& layer : layers)
 			{
 				if (layer->IsEnabled())
 				{
@@ -143,7 +162,7 @@ void Application::OnMessage(Message& message)
 			}
 			imGuiComponent->EndFrame();
 
-			renderContext->SwapBuffers();
+			RenderCommand::EndFrame();
 		}
 	}
 
@@ -172,6 +191,14 @@ void Application::OnMessage(Message& message)
 
 Application::~Application()
 {
-	delete renderContext;
 	delete imGuiComponent;
+
+	// you really shouldn't call ->Release on ComPtr objects as it releases automatically - it is a smart pointer, think std::shared_ptr
+	// to explicitly release resources through ComPtr, use the Reset() call
+	//m_rootSignature.Reset();
+	//m_pipelineState.Reset();
+
+	// I think everything touching the d3d12 device needs to be cleaned up before releasing the device itself
+	// So clean up everything else before deleting the context
+	delete renderContext;
 }

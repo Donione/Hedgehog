@@ -9,6 +9,8 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Texture.h>
 
+#include <set>
+
 
 class Renderer
 {
@@ -21,8 +23,7 @@ public:
 	static void BeginScene(const Camera& camera);
 	static void EndScene();
 
-	static void Submit(const std::shared_ptr<Shader>& shader,
-					   const std::shared_ptr<VertexArray>& vertexArray,
+	static void Submit(const std::shared_ptr<VertexArray>& vertexArray,
 					   const glm::mat4x4& transform = glm::mat4x4(1.0f));
 
 	static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
@@ -30,4 +31,6 @@ public:
 private:
 	// C++17 has inline static for static member definition
 	inline static Camera sceneCamera;
+
+	inline static std::set<std::shared_ptr<Shader>> usedShaders;
 };
