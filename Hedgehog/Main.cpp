@@ -156,8 +156,8 @@ public:
 		}
 		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 		{
-			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\shaders.hlsl";
-			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\shaders.hlsl";
+			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
 		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 		shader->SetupConstantBuffers(constBufferDesc);
