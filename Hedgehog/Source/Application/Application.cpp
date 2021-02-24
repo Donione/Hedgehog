@@ -64,6 +64,8 @@ void Application::Run()
 
 		frameDuration.Stop();
 	}
+
+	RenderCommand::End();
 }
 
 HWND Application::GetWindowHandle(void)
