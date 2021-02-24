@@ -58,7 +58,7 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	// Copy data to the intermediate upload heap and then schedule a copy 
 	// from the upload heap to the Texture2D.
 	D3D12_SUBRESOURCE_DATA textureData = {};
-	textureData.pData = data;// &texture[0];
+	textureData.pData = data;
 	textureData.RowPitch = (long long)width * 4; // TexturePixelSize;
 	textureData.SlicePitch = textureData.RowPitch * height;
 
