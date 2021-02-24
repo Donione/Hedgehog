@@ -13,6 +13,7 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 {
 	// TODO for fun, see how the ref count changes
 	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
+	bufferLayout = inputLayout;
 	texture = inputTexture;
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
@@ -44,9 +45,7 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		param.InitAsDescriptorTable(1, ranges, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters.push_back(param);
 
-		//std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
 		staticSamplers.resize(1);
-
 		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -82,60 +81,7 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 												   signature->GetBufferSize(),
 												   IID_PPV_ARGS(&m_rootSignature));
 
-	//D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[inputLayout.Size()];
-	// All the cool kinds use smart pointers these days insted of new/delete
-	//auto inputElementDescs = std::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(inputLayout.Size());
-	// or just use a vector
-	std::vector<D3D12_INPUT_ELEMENT_DESC> inputElementDescs;
-
-	//unsigned int inputIndex = 0;
-	unsigned int offset = 0;
-	for (auto& input : inputLayout)
-	{
-		// TODO learn what all of these do
-		//SemanticName, SemanticIndex, Format, InputSlot, AlignedByteOffset, InputSlotClass, InstanceDataStepRate
-		inputElementDescs.push_back({ input.name.c_str(), 0, GetDirectXFormat(input.type), 0, offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-		offset += input.size;
-	}
-
-	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	depthStencilDesc.DepthEnable = RenderCommand::GetDepthTest();
-	// TODO what is a stencil
-
-	auto blendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);	
-	blendDesc.RenderTarget[0].BlendEnable = RenderCommand::GetBlending();
-	blendDesc.RenderTarget[0].LogicOpEnable = false;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	
-
-	// Describe and create the graphics pipeline state object (PSO).
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-	psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
-	psoDesc.pRootSignature = m_rootSignature.Get();
-	psoDesc.VS = shader->GetVSBytecode();
-	psoDesc.PS = shader->GetPSBytecode();
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	psoDesc.RasterizerState.CullMode = RenderCommand::GetFaceCulling() ? D3D12_CULL_MODE_FRONT : D3D12_CULL_MODE_NONE;
-	psoDesc.RasterizerState.FillMode = RenderCommand::GetWireframeMode() ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
-	psoDesc.BlendState = blendDesc; // CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState = depthStencilDesc;
-	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	psoDesc.SampleMask = UINT_MAX; // sample mask has to do with multi-sampling. 0xFFFFFFFF (UINT_MAX) means point sampling is done
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc.SampleDesc.Count = 1; // This must be the same as the SampleDesc for swap chain
-	psoDesc.SampleDesc.Quality = 0;
-	dx12context->g_pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)); // TODO handle fail
-
-	// smart pointers or vectors clean themselves up
-	//delete[] inputElementDescs;
+	CreatePSO();
 }
 
 DirectX12VertexArray::~DirectX12VertexArray()
@@ -146,7 +92,7 @@ void DirectX12VertexArray::Bind() const
 {
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
-	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState.Get());
+	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState[currentPSO].Get());
 	dx12context->g_pd3dCommandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	if (texture)
@@ -168,4 +114,70 @@ void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& 
 void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 {
 	indexBuffers.push_back(indexBuffer);
+}
+
+void DirectX12VertexArray::UpdateRenderSettings()
+{
+	CreatePSO();
+}
+
+void DirectX12VertexArray::CreatePSO()
+{
+	//D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[inputLayout.Size()];
+	// All the cool kinds use smart pointers these days insted of new/delete
+	//auto inputElementDescs = std::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(inputLayout.Size());
+	// or just use a vector
+	std::vector<D3D12_INPUT_ELEMENT_DESC> inputElementDescs;
+
+	//unsigned int inputIndex = 0;
+	unsigned int offset = 0;
+	for (auto& input : bufferLayout)
+	{
+		// TODO learn what all of these do
+		//SemanticName, SemanticIndex, Format, InputSlot, AlignedByteOffset, InputSlotClass, InstanceDataStepRate
+		inputElementDescs.push_back({ input.name.c_str(), 0, GetDirectXFormat(input.type), 0, offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+		offset += input.size;
+	}
+
+	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	depthStencilDesc.DepthEnable = RenderCommand::GetDepthTest(); // depthStencilEnabled;
+	// TODO what IS a stencil ?
+
+	auto blendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	blendDesc.RenderTarget[0].BlendEnable = RenderCommand::GetBlending();
+	blendDesc.RenderTarget[0].LogicOpEnable = false;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	// Describe and create the graphics pipeline state object (PSO).
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
+	psoDesc.pRootSignature = m_rootSignature.Get();
+	psoDesc.VS = shader->GetVSBytecode();
+	psoDesc.PS = shader->GetPSBytecode();
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.RasterizerState.CullMode = RenderCommand::GetFaceCulling() ? D3D12_CULL_MODE_FRONT : D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.FillMode = RenderCommand::GetWireframeMode() ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
+	psoDesc.BlendState = blendDesc; // CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = depthStencilDesc;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc.SampleMask = UINT_MAX; // sample mask has to do with multi-sampling. 0xFFFFFFFF (UINT_MAX) means point sampling is done
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 1;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	psoDesc.SampleDesc.Count = 1; // This must be the same as the SampleDesc for swap chain
+	psoDesc.SampleDesc.Quality = 0;
+
+	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+	currentPSO = (currentPSO + 1) % MAX_PSOS;
+	dx12context->g_pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState[currentPSO])); // TODO handle fail
+
+	// smart pointers or vectors clean themselves up
+	//delete[] inputElementDescs;
 }

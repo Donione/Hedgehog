@@ -29,14 +29,29 @@ public:
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
 	virtual const std::shared_ptr<Texture>& GetTexture() const override { return texture; }
 
+	void UpdateRenderSettings();
+
 private:
 	DXGI_FORMAT GetDirectXFormat(ShaderDataType type) const { return DirectXFormats[(int)type]; }
 
+	void CreatePSO();
+
 private:
+	static const int MAX_PSOS = 3;
+	int currentPSO = -1;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+	// We're keeping a circular buffer of PSOs because when a render setting changes
+	// we have some frames in-flight with the old PSO bound
+	// TODO For some reason waiting for the last frame and then releasing the current PSO didn't work
+	// I was still getting a GPU error, deletion of a live object (the PSO)
+	// So keeping a buffer the size of the number of frames in flight should be enough for the old PSOs
+	// to get out of the GPU command queue
+	// TODO Investigate how to properly wait for the PSO to be unbound
+	//      Is it because of the command allocator/queue or because the command list is recording?
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState[MAX_PSOS];
 
 	std::shared_ptr<DirectX12Shader> shader;
+	BufferLayout bufferLayout;
 	std::shared_ptr<Texture> texture;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;

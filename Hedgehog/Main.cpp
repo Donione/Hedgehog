@@ -18,6 +18,8 @@
 
 #include <imgui_internal.h>
 
+#include <Renderer/DirectX12VertexArray.h>
+
 
 void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
 {
@@ -70,12 +72,13 @@ class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable),
-		wireframeMode(RenderCommand::GetWireframeMode()),
-		depthTest(RenderCommand::GetDepthTest()),
-		faceCulling(RenderCommand::GetFaceCulling()),
-		blending(RenderCommand::GetBlending())
+		Layer("Example Layer", enable)
 	{
+		previousWireframeMode = wireframeMode = RenderCommand::GetWireframeMode();
+		previousDepthTest = depthTest = RenderCommand::GetDepthTest();
+		previousFaceCulling = faceCulling = RenderCommand::GetFaceCulling();
+		previousBlending = blending = RenderCommand::GetBlending();
+
 		aspectRatio = (float)Application::GetInstance().GetWindow().GetWidth() / (float)Application::GetInstance().GetWindow().GetHeight();
 		camera = PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
 		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
@@ -187,7 +190,7 @@ public:
 		textureShader->SetupConstantBuffers(constBufferDesc);
 
 		// Textures
-		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
+		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ChernoLogo.png";
 		texture.reset(Texture2D::Create(textureFilename));
 
 		// Vertex Arrays
@@ -227,11 +230,6 @@ public:
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
 	{
-		Renderer::SetWireframeMode(wireframeMode);
-		Renderer::SetDepthTest(depthTest);
-		Renderer::SetFaceCulling(faceCulling);
-		Renderer::SetBlending(blending);
-
 		// Poll WASD input
 		if (GetKeyState(0x44) < 0) // 'D'
 		{
@@ -339,6 +337,44 @@ public:
 			Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
 		}
 		Renderer::EndScene();
+
+		// Update render settings at the end of the scene because current frame begun with the old settings
+		// really, the settings should be done after the EndFrame but we have just one layer atm
+		bool updatePSO = false;
+		if (wireframeMode != previousWireframeMode)
+		{
+			previousWireframeMode = wireframeMode;
+			Renderer::SetWireframeMode(wireframeMode);
+			updatePSO = true;
+		}
+
+		if (depthTest != previousDepthTest)
+		{
+			previousDepthTest = depthTest;
+			Renderer::SetDepthTest(depthTest);
+			updatePSO = true;
+		}
+
+		if (faceCulling != previousFaceCulling)
+		{
+			previousFaceCulling = faceCulling;
+			Renderer::SetFaceCulling(faceCulling);
+			updatePSO = true;
+		}
+
+		if (blending != previousBlending)
+		{
+			previousBlending = blending;
+			Renderer::SetBlending(blending);
+			updatePSO = true;
+		}
+
+		if (updatePSO)
+		{
+			std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
+			std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
+			std::dynamic_pointer_cast<DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
+		}
 	}
 
 	void OnGuiUpdate() override
@@ -355,20 +391,20 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Rendering Settings");
-		if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
-		{
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-		}
 		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
 		ImGui::Checkbox("Depth Test", &depthTest);
 		ImGui::Checkbox("Face Culling", &faceCulling);
 		ImGui::Checkbox("Blending", &blending);
-		if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
-		{
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
-		}
+		//if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		//{
+		//	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		//	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+		//}
+		//if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		//{
+		//	ImGui::PopItemFlag();
+		//	ImGui::PopStyleVar();
+		//}
 		ImGui::End();
 
 		ImGui::Begin("Scene");
@@ -426,6 +462,11 @@ private:
 	bool depthTest;
 	bool faceCulling;
 	bool blending;
+
+	bool previousWireframeMode;
+	bool previousDepthTest;
+	bool previousFaceCulling;
+	bool previousBlending;
 
 	bool showAxes = true;
 
