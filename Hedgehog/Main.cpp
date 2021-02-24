@@ -395,20 +395,32 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Rendering Settings");
-		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
-		ImGui::Checkbox("Depth Test", &depthTest);
-		ImGui::Checkbox("Face Culling", &faceCulling);
-		ImGui::Checkbox("Blending", &blending);
+		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			ImGui::Text("API used: OpenGL");
+		}
+		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			ImGui::Text("API used: DirectX12");
+		}
+
+		// Following code snippet can be used to disable ImGui controls and grey them out
 		//if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 		//{
 		//	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		//	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 		//}
+		//doStuff
 		//if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 		//{
 		//	ImGui::PopItemFlag();
 		//	ImGui::PopStyleVar();
 		//}
+
+		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
+		ImGui::Checkbox("Depth Test", &depthTest);
+		ImGui::Checkbox("Face Culling", &faceCulling);
+		ImGui::Checkbox("Blending", &blending);
 		ImGui::End();
 
 		ImGui::Begin("Scene");
