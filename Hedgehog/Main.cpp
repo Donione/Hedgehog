@@ -371,9 +371,13 @@ public:
 
 		if (updatePSO)
 		{
-			std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
-			std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
-			std::dynamic_pointer_cast<DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
+			// TODO obviously, this is just temporary
+			if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+			{
+				std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
+			}
 		}
 	}
 
