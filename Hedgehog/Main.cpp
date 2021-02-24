@@ -16,6 +16,8 @@
 
 #include <glad/glad.h>
 
+#include <imgui_internal.h>
+
 
 void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
 {
@@ -64,12 +66,15 @@ void loadModel(std::string& filename, long long int& numberOfVertices, float*& v
 	}
 }
 
-
 class ExampleLayer : public Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable)
+		Layer("Example Layer", enable),
+		wireframeMode(RenderCommand::GetWireframeMode()),
+		depthTest(RenderCommand::GetDepthTest()),
+		faceCulling(RenderCommand::GetFaceCulling()),
+		blending(RenderCommand::GetBlending())
 	{
 		aspectRatio = (float)Application::GetInstance().GetWindow().GetWidth() / (float)Application::GetInstance().GetWindow().GetHeight();
 		camera = PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
@@ -350,10 +355,20 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Rendering Settings");
+		if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+		}
 		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
 		ImGui::Checkbox("Depth Test", &depthTest);
 		ImGui::Checkbox("Face Culling", &faceCulling);
 		ImGui::Checkbox("Blending", &blending);
+		if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		{
+			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+		}
 		ImGui::End();
 
 		ImGui::Begin("Scene");
@@ -407,10 +422,10 @@ private:
 	PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
-	bool wireframeMode = false;
-	bool depthTest = true;
-	bool faceCulling = true;
-	bool blending = true;
+	bool wireframeMode;
+	bool depthTest;
+	bool faceCulling;
+	bool blending;
 
 	bool showAxes = true;
 
