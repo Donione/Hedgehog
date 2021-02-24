@@ -44,6 +44,13 @@ void DirectX12RendererAPI::Begin()
 	renderContext->g_frameContext[0].FenceValue = fenceValue;
 }
 
+void DirectX12RendererAPI::End()
+{
+	// We have still some frames in-flight at this point
+	// We need to wait for the GPU to finish before we let the destructors clean-up
+	renderContext->WaitForLastSubmittedFrame();
+}
+
 void DirectX12RendererAPI::BeginFrame()
 {
 	// TODO ensure that BeginFrame and EndFrame are always called in pairs and BeginFrame is called first.

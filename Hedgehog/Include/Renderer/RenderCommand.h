@@ -53,6 +53,11 @@ public:
 		rendererAPI->Begin();
 	}
 
+	static void End()
+	{
+		rendererAPI->End();
+	}
+
 	static void BeginFrame()
 	{
 		rendererAPI->BeginFrame();

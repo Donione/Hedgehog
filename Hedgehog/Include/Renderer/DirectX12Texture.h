@@ -4,7 +4,7 @@
 
 #include <wrl.h>
 
-#include <d3d12.h>
+#include <d3dx12.h>
 
 
 class DirectX12Texture2D : public Texture2D
