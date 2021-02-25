@@ -3,6 +3,9 @@
 #include <Message/Message.h>
 
 
+namespace Hedge
+{
+
 class MouseMessage : public Message
 {
 protected:
@@ -59,3 +62,5 @@ public:
 private:
 	int distance;
 };
+
+} // namespace Hedge

@@ -68,19 +68,19 @@ void loadModel(std::string& filename, long long int& numberOfVertices, float*& v
 	}
 }
 
-class ExampleLayer : public Layer
+class ExampleLayer : public Hedge::Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
 		Layer("Example Layer", enable)
 	{
-		previousWireframeMode = wireframeMode = RenderCommand::GetWireframeMode();
-		previousDepthTest = depthTest = RenderCommand::GetDepthTest();
-		previousFaceCulling = faceCulling = RenderCommand::GetFaceCulling();
-		previousBlending = blending = RenderCommand::GetBlending();
+		previousWireframeMode = wireframeMode = Hedge::RenderCommand::GetWireframeMode();
+		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
+		previousFaceCulling = faceCulling = Hedge::RenderCommand::GetFaceCulling();
+		previousBlending = blending = Hedge::RenderCommand::GetBlending();
 
-		aspectRatio = (float)Application::GetInstance().GetWindow().GetWidth() / (float)Application::GetInstance().GetWindow().GetHeight();
-		camera = PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
+		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
+		camera = Hedge::PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
 		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
 
 		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
@@ -93,13 +93,13 @@ public:
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 		loadModel(modelFilename, numberOfVertices, modelVertices, numberOfIndices, modelIndices);
 
-		BufferLayout modelVertexBufferArrayLayout =
+		Hedge::BufferLayout modelVertexBufferArrayLayout =
 		{
-			{ ShaderDataType::Float3, "a_position" },
-			{ ShaderDataType::Float3, "a_normal" },
+			{ Hedge::ShaderDataType::Float3, "a_position" },
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
 		};
 
-		ConstantBufferDescription modelconstBufferDesc =
+		Hedge::ConstantBufferDescription modelconstBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4) },
 			{ "u_Transform", sizeof(glm::mat4) },
@@ -107,36 +107,36 @@ public:
 
 		std::string modelVertexSrc;
 		std::string modelFragmentSrc;
-		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
 			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
 		}
-		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
-		modelShader.reset(Shader::Create(modelVertexSrc, modelFragmentSrc));
+		modelShader.reset(Hedge::Shader::Create(modelVertexSrc, modelFragmentSrc));
 		modelShader->SetupConstantBuffers(modelconstBufferDesc);
 		
-		modelVertexArray.reset(VertexArray::Create(modelShader, modelVertexBufferArrayLayout));
-		modelVertexBuffer.reset(VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
+		modelVertexArray.reset(Hedge::VertexArray::Create(modelShader, modelVertexBufferArrayLayout));
+		modelVertexBuffer.reset(Hedge::VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
-		modelIndexBuffer.reset(IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
+		modelIndexBuffer.reset(Hedge::IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
 
-		ConstantBufferDescription constBufferDesc =
+		Hedge::ConstantBufferDescription constBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4) },
 			{ "u_Transform", sizeof(glm::mat4) },
 		};
 		
-		BufferLayout vertexBufferLayout =
+		Hedge::BufferLayout vertexBufferLayout =
 		{
-			{ ShaderDataType::Float4, "a_position" },
-			{ ShaderDataType::Float4, "a_color" },
-			{ ShaderDataType::Float2, "a_textureCoordinates"}
+			{ Hedge::ShaderDataType::Float4, "a_position" },
+			{ Hedge::ShaderDataType::Float4, "a_color" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
 		};
 
 		float vertices[] =
@@ -157,33 +157,33 @@ public:
 		// Shaders
 		std::string vertexSrc;
 		std::string fragmentSrc;
-		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
 			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 		}
-		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
-		shader.reset(Shader::Create(vertexSrc, fragmentSrc));
+		shader.reset(Hedge::Shader::Create(vertexSrc, fragmentSrc));
 		shader->SetupConstantBuffers(constBufferDesc);
 
 		std::string vertexSrcTexture;
 		std::string fragmentSrcTexture;
-		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
 			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
 		}
-		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
 			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
 		}
-		textureShader.reset(Shader::Create(vertexSrcTexture, fragmentSrcTexture));
-		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		textureShader.reset(Hedge::Shader::Create(vertexSrcTexture, fragmentSrcTexture));
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			textureShader->UploadConstant("u_texture", 0);
 		}
@@ -191,27 +191,27 @@ public:
 
 		// Textures
 		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ChernoLogo.png";
-		texture.reset(Texture2D::Create(textureFilename));
+		texture.reset(Hedge::Texture2D::Create(textureFilename));
 
 		// Vertex Arrays
-		vertexArray.reset(VertexArray::Create(shader, vertexBufferLayout));
+		vertexArray.reset(Hedge::VertexArray::Create(shader, vertexBufferLayout));
 
-		vertexArraySquare.reset(VertexArray::Create(textureShader, vertexBufferLayout, texture));
+		vertexArraySquare.reset(Hedge::VertexArray::Create(textureShader, vertexBufferLayout, texture));
 
 		// Vertex Buffers
-		vertexBuffer.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices)));
+		vertexBuffer.reset(Hedge::VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices)));
 		vertexArray->AddVertexBuffer(vertexBuffer);
 
-		vertexBufferSquare.reset(VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices) / 2));
+		vertexBufferSquare.reset(Hedge::VertexBuffer::Create(vertexBufferLayout, vertices, sizeof(vertices) / 2));
 		vertexArraySquare->AddVertexBuffer(vertexBufferSquare);
 
 		// Index Buffers
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
+		indexBuffer.reset(Hedge::IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
 		vertexArray->AddIndexBuffer(indexBuffer);
 
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
-		indexBufferSquare.reset(IndexBuffer::Create(indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int)));
+		indexBufferSquare.reset(Hedge::IndexBuffer::Create(indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int)));
 		vertexArraySquare->AddIndexBuffer(indexBufferSquare);
 
 		// Transforms
@@ -287,7 +287,7 @@ public:
 		zRotation = 0;
 
 
-		Renderer::BeginScene(camera);
+		Hedge::Renderer::BeginScene(camera);
 		{
 			//if (showAxes)
 			//{
@@ -327,16 +327,16 @@ public:
 			//	delete axesIB;
 			//}
 
-			Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
-			Renderer::Submit(vertexArray, transform3);
-			Renderer::Submit(vertexArray, transform2);
+			Hedge::Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
+			Hedge::Renderer::Submit(vertexArray, transform3);
+			Hedge::Renderer::Submit(vertexArray, transform2);
 
-			Renderer::Submit(modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			Hedge::Renderer::Submit(modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 
 			// Order matters when we want to blend
-			Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
+			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
 		}
-		Renderer::EndScene();
+		Hedge::Renderer::EndScene();
 
 		// Update render settings at the end of the scene because current frame begun with the old settings
 		// really, the settings should be done after the EndFrame but we have just one layer atm
@@ -344,39 +344,39 @@ public:
 		if (wireframeMode != previousWireframeMode)
 		{
 			previousWireframeMode = wireframeMode;
-			Renderer::SetWireframeMode(wireframeMode);
+			Hedge::Renderer::SetWireframeMode(wireframeMode);
 			updatePSO = true;
 		}
 
 		if (depthTest != previousDepthTest)
 		{
 			previousDepthTest = depthTest;
-			Renderer::SetDepthTest(depthTest);
+			Hedge::Renderer::SetDepthTest(depthTest);
 			updatePSO = true;
 		}
 
 		if (faceCulling != previousFaceCulling)
 		{
 			previousFaceCulling = faceCulling;
-			Renderer::SetFaceCulling(faceCulling);
+			Hedge::Renderer::SetFaceCulling(faceCulling);
 			updatePSO = true;
 		}
 
 		if (blending != previousBlending)
 		{
 			previousBlending = blending;
-			Renderer::SetBlending(blending);
+			Hedge::Renderer::SetBlending(blending);
 			updatePSO = true;
 		}
 
 		if (updatePSO)
 		{
 			// TODO obviously, this is just temporary
-			if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 			{
-				std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
-				std::dynamic_pointer_cast<DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
-				std::dynamic_pointer_cast<DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
 			}
 		}
 	}
@@ -384,7 +384,7 @@ public:
 	void OnGuiUpdate() override
 	{
 		ImGui::Begin("Window");
-		ImGui::Text("Client Area Size: %u %u", Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
+		ImGui::Text("Client Area Size: %u %u", Hedge::Application::GetInstance().GetWindow().GetWidth(), Hedge::Application::GetInstance().GetWindow().GetHeight());
 		ImGui::End();
 
 		ImGui::Begin("Camera");
@@ -395,11 +395,11 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Rendering Settings");
-		if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			ImGui::Text("API used: OpenGL");
 		}
-		else if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			ImGui::Text("API used: DirectX12");
 		}
@@ -428,18 +428,18 @@ public:
 		ImGui::End();
 	}
 
-	void OnMessage(const Message& message) override
+	void OnMessage(const Hedge::Message& message) override
 	{
-		if (message.GetMessageType() == MessageType::MouseScrolled)
+		if (message.GetMessageType() == Hedge::MessageType::MouseScrolled)
 		{
-			const MouseScrollMessage& mouseScrollMessage = dynamic_cast<const MouseScrollMessage&>(message);
+			const Hedge::MouseScrollMessage& mouseScrollMessage = dynamic_cast<const Hedge::MouseScrollMessage&>(message);
 
 			yOffset += mouseScrollMessage.GetDistance();
 		}
 
-		if (message.GetMessageType() == MessageType::MouseMoved)
+		if (message.GetMessageType() == Hedge::MessageType::MouseMoved)
 		{
-			const MouseMoveMessage& mouseMoveMessage = dynamic_cast<const MouseMoveMessage&>(message);
+			const Hedge::MouseMoveMessage& mouseMoveMessage = dynamic_cast<const Hedge::MouseMoveMessage&>(message);
 
 			if (lastX == 0 && lastY == 0)
 			{
@@ -460,9 +460,9 @@ public:
 			}
 		}
 
-		if (message.GetMessageType() == MessageType::WindowSize)
+		if (message.GetMessageType() == Hedge::MessageType::WindowSize)
 		{
-			const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
+			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
 			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
 			camera.SetAspectRatio(aspectRatio);
@@ -471,7 +471,7 @@ public:
 
 private:
 	float aspectRatio;
-	PerspectiveCamera camera;
+	Hedge::PerspectiveCamera camera;
 	//OrthographicCamera camera;
 
 	bool wireframeMode;
@@ -486,22 +486,22 @@ private:
 
 	bool showAxes = true;
 
-	std::shared_ptr<VertexArray> vertexArray;
-	std::shared_ptr<VertexArray> vertexArraySquare;
-	std::shared_ptr<VertexBuffer> vertexBuffer;
-	std::shared_ptr<VertexBuffer> vertexBufferSquare;
-	std::shared_ptr<IndexBuffer> indexBuffer;
-	std::shared_ptr<IndexBuffer> indexBufferSquare;
+	std::shared_ptr<Hedge::VertexArray> vertexArray;
+	std::shared_ptr<Hedge::VertexArray> vertexArraySquare;
+	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer;
+	std::shared_ptr<Hedge::VertexBuffer> vertexBufferSquare;
+	std::shared_ptr<Hedge::IndexBuffer> indexBuffer;
+	std::shared_ptr<Hedge::IndexBuffer> indexBufferSquare;
 
-	std::shared_ptr<Shader> shader;
-	std::shared_ptr<Shader> textureShader;
+	std::shared_ptr<Hedge::Shader> shader;
+	std::shared_ptr<Hedge::Shader> textureShader;
 
-	std::shared_ptr<Texture> texture;
+	std::shared_ptr<Hedge::Texture> texture;
 
-	std::shared_ptr<VertexArray> modelVertexArray;
-	std::shared_ptr<VertexBuffer> modelVertexBuffer;
-	std::shared_ptr<IndexBuffer> modelIndexBuffer;
-	std::shared_ptr<Shader> modelShader;
+	std::shared_ptr<Hedge::VertexArray> modelVertexArray;
+	std::shared_ptr<Hedge::VertexBuffer> modelVertexBuffer;
+	std::shared_ptr<Hedge::IndexBuffer> modelIndexBuffer;
+	std::shared_ptr<Hedge::Shader> modelShader;
 
 	glm::mat4x4 transform2;
 	glm::mat4x4 transform3;
@@ -523,7 +523,7 @@ private:
 	float scrollSpeed = 0.25; // units/mousestep
 };
 
-class ExampleOverlay : public Layer
+class ExampleOverlay : public Hedge::Layer
 {
 public:
 	ExampleOverlay(const std::string& name, bool enable = true) : Layer(name, enable) { }
@@ -546,7 +546,7 @@ public:
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-			RenderCommand::SetClearColor({ clear_color.x, clear_color.y, clear_color.z, 1.0f });
+			Hedge::RenderCommand::SetClearColor({ clear_color.x, clear_color.y, clear_color.z, 1.0f });
 
 			if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 				counter++;
@@ -571,7 +571,7 @@ public:
 		}
 	}
 
-	void OnMessage(const Message& message) override
+	void OnMessage(const Hedge::Message& message) override
 	{
 	}
 
@@ -583,7 +583,7 @@ private:
 	bool show_another_window = false;
 };
 
-class Sandbox : public Application
+class Sandbox : public Hedge::Application
 {
 public:
 	Sandbox(HINSTANCE hInstance) : Application(hInstance)
@@ -594,7 +594,7 @@ public:
 
 	~Sandbox()
 	{
-		Layer* layer;
+		Hedge::Layer* layer;
 		while (layer = layers.TopOverlay())
 		{
 			layers.PopOverlay();

@@ -7,6 +7,9 @@
 #include <glad/glad.h>
 
 
+namespace Hedge
+{
+
 class OpenGLVertexArray : public VertexArray
 {
 public:
@@ -51,3 +54,5 @@ private:
 		GL_BOOL
 	};
 };
+
+} // namespace Hedge

@@ -1,5 +1,9 @@
 #pragma once
 
+
+namespace Hedge
+{
+
 class RenderContext
 {
 public:
@@ -8,3 +12,5 @@ public:
 	virtual void SetSwapInterval(int interval) = 0;
 	virtual void SwapBuffers() = 0;
 };
+
+} // namespace Hedge

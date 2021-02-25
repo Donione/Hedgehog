@@ -4,6 +4,9 @@
 #include <vector>
 
 
+namespace Hedge
+{
+
 // TODO matrices
 enum class ShaderDataType
 {
@@ -110,3 +113,5 @@ public:
 
 	static IndexBuffer* Create(const unsigned int* indices, unsigned int count);
 };
+
+} // namespace Hedge

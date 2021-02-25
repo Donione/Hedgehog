@@ -5,6 +5,9 @@
 #include <d3dx12.h>
 
 
+namespace Hedge
+{
+
 class DirectX12VertexBuffer : public VertexBuffer
 {
 public:
@@ -45,3 +48,5 @@ private:
 	ID3D12Resource* indexBuffer = NULL;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 };
+
+} // namespace Hedge

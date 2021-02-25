@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 
 
+namespace Hedge
+{
+
 struct Frustum
 {
 	float left;
@@ -73,3 +76,5 @@ public:
 	PerspectiveCamera() = default;
 	PerspectiveCamera(float fov, float aspectRatio, float frustumNear, float frustumFar);
 };
+
+} // namespace Hedge

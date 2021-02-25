@@ -10,10 +10,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+namespace Hedge
+{
+
 void DirectX12Shader::Create(const std::wstring& VSFilePath,
-								 const std::string& VSEntryPoint,
-								 const std::wstring& PSFilePath,
-								 const std::string& PSEntryPoint)
+							 const std::string& VSEntryPoint,
+							 const std::wstring& PSFilePath,
+							 const std::string& PSEntryPoint)
 {
 	#if defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
@@ -234,3 +237,5 @@ const D3D12_SHADER_BYTECODE DirectX12Shader::GetPSBytecode() const
 		return { nullptr, 0 };
 	}
 }
+
+} // namespace Hedge

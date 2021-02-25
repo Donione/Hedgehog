@@ -4,6 +4,9 @@
 #include <Renderer/OpenGLVertexArray.h>
 
 
+namespace Hedge
+{
+
 VertexArray* VertexArray::Create(const std::shared_ptr<Shader>& inputShader,
 								 const BufferLayout& inputLayout,
 								 const std::shared_ptr<Texture>& inputTexture)
@@ -23,3 +26,5 @@ VertexArray* VertexArray::Create(const std::shared_ptr<Shader>& inputShader,
 		return nullptr;
 	}
 }
+
+} // namespace Hedge

@@ -5,6 +5,9 @@
 #include <Renderer/DirectX12RendererAPI.h>
 
 
+namespace Hedge
+{
+
 void RenderCommand::Init(RenderContext* renderContext)
 {
 	switch (Renderer::GetAPI())
@@ -31,3 +34,5 @@ void RenderCommand::Init(RenderContext* renderContext)
 		rendererAPI->Init(renderContext);
 	}
 }
+
+} // namespace Hedge

@@ -5,6 +5,9 @@
 #include <vector>
 
 
+namespace Hedge
+{
+
 // LayerStack doesn't own Layers that are pushed into it
 // Meaning that it doesn't clean up on Pops or in destructor
 // TODO: Might be useful to use smart pointers
@@ -43,3 +46,5 @@ private:
 	// it's better to use an index and iterator arithmetics
 	unsigned int overlayStart;
 };
+
+} // namespace Hedge

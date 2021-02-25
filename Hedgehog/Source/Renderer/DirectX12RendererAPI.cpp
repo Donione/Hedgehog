@@ -6,6 +6,9 @@
 #include <imgui_impl_dx12.h>
 
 
+namespace Hedge
+{
+
 void DirectX12RendererAPI::Init(RenderContext* renderContext)
 {
 	this->renderContext = dynamic_cast<DirectX12Context*>(renderContext);
@@ -118,3 +121,5 @@ void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& verte
 	vertexArray->Bind();
 	renderContext->g_pd3dCommandList->DrawIndexedInstanced(vertexArray->GetIndexBuffer().at(0)->GetCount(), 1, 0, 0, 0);
 }
+
+} // namespace Hedge

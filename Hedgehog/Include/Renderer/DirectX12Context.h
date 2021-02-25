@@ -8,6 +8,9 @@
 #include <dxgi1_4.h>
 
 
+namespace Hedge
+{
+
 class DirectX12Context : public RenderContext
 {
 public:
@@ -62,3 +65,5 @@ public:
 	ID3D12DescriptorHeap* dsDescriptorHeap;
 	ID3D12Resource* depthStencilBuffer;
 };
+
+} // namespace Hedge

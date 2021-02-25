@@ -7,6 +7,9 @@
 #include <d3dx12.h>
 
 
+namespace Hedge
+{
+
 class DirectX12Texture2D : public Texture2D
 {
 public:
@@ -31,3 +34,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
 };
+
+} // namespace Hedge

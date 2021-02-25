@@ -4,6 +4,9 @@
 #include <Renderer/RenderContext.h>
 
 
+namespace Hedge
+{
+
 class RenderCommand
 {
 public:
@@ -77,3 +80,5 @@ public:
 private:
 	inline static RendererAPI* rendererAPI;
 };
+
+} // namespace Hedge

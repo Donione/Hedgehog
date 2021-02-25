@@ -3,6 +3,9 @@
 #include <Renderer/Buffer.h>
 
 
+namespace Hedge
+{
+
 class OpenGLVertexBuffer : public VertexBuffer
 {
 public:
@@ -35,3 +38,5 @@ private:
 	unsigned int rendererID;
 	unsigned int count = 0;
 };
+
+} // namespace Hedge

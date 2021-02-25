@@ -4,6 +4,9 @@
 #include <Application/Application.h>
 
 
+namespace Hedge
+{
+
 DirectX12VertexBuffer::DirectX12VertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
@@ -94,3 +97,5 @@ void DirectX12IndexBuffer::Bind() const
 
 	dx12context->g_pd3dCommandList->IASetIndexBuffer(&indexBufferView);
 }
+
+} // namespace Hedge

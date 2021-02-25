@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 
 
+namespace Hedge
+{
+
 OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
 	this->layout = layout;
@@ -53,3 +56,5 @@ void OpenGLIndexBuffer::Unbind() const
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+} // namespace Hedge

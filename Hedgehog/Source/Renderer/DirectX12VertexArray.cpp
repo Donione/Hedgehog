@@ -7,6 +7,9 @@
 #include <vector>
 
 
+namespace Hedge
+{
+
 DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
 										   const BufferLayout& inputLayout,
 										   const std::shared_ptr<Texture>& inputTexture)
@@ -181,3 +184,5 @@ void DirectX12VertexArray::CreatePSO()
 	// smart pointers or vectors clean themselves up
 	//delete[] inputElementDescs;
 }
+
+} // namespace Hedge

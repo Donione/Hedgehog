@@ -6,6 +6,9 @@
 #include <vector>
 
 
+namespace Hedge
+{
+
 class OpenGLShader : public Shader
 {
 public:
@@ -37,3 +40,5 @@ private:
 private:
 	unsigned int shaderID = 0;
 };
+
+} // namespace Hedge

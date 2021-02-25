@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 
 
+namespace Hedge
+{
+
 void OpenGLRendererAPI::Init(RenderContext* renderContext)
 {
 	this->renderContext = dynamic_cast<OpenGLContext*>(renderContext);
@@ -106,3 +109,5 @@ void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexAr
 	glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer().at(0)->GetCount(), GL_UNSIGNED_INT, nullptr);
 	vertexArray->Unbind();
 }
+
+} // namespace Hedge

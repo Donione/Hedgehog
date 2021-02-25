@@ -4,6 +4,9 @@
 #include <Renderer/OpenGLShader.h>
 
 
+namespace Hedge
+{
+
 Shader* Shader::Create(const std::string& filePath)
 {
 	return Create(filePath, filePath);
@@ -29,3 +32,5 @@ Shader* Shader::Create(const std::string& vertexFilePath, const std::string& pix
 		return nullptr;
 	}
 }
+
+} // namespace Hedge

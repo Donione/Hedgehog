@@ -3,6 +3,9 @@
 #include <string>
 
 
+namespace Hedge
+{
+
 class Texture
 {
 public:
@@ -20,3 +23,5 @@ class Texture2D : public Texture
 public:
 	static Texture2D* Create(const std::string& filename);
 };
+
+} // namespace Hedge

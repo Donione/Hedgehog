@@ -1,6 +1,9 @@
 #include <Renderer/Renderer.h>
 
 
+namespace Hedge
+{
+
 // static private member needs definition if not using C++17's inline static
 //Camera Renderer::sceneCamera;
 
@@ -53,3 +56,5 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 
 	RenderCommand::DrawIndexed(vertexArray);
 }
+
+} // namespace Hedge

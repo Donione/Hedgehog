@@ -8,6 +8,9 @@
 #include <iostream>
 
 
+namespace Hedge
+{
+
 void Application::Run()
 {
 	RenderCommand::Begin();
@@ -204,3 +207,5 @@ Application::~Application()
 	// So clean up everything else before deleting the context
 	delete renderContext;
 }
+
+} // namespace Hedge

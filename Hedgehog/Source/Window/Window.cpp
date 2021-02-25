@@ -15,6 +15,9 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
+namespace Hedge
+{
+
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Wire inputs into the ImGui using the example implementation
@@ -223,3 +226,5 @@ HWND Window::GetHandle(void)
 {
 	return hwnd;
 }
+
+} // namespace Hedge

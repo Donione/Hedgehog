@@ -5,6 +5,9 @@
 #include <Renderer/DirectX12Buffer.h>
 
 
+namespace Hedge
+{
+
 VertexBuffer* VertexBuffer::Create(const BufferLayout& layout, const float* vertices, unsigned int size)
 {
 	switch (Renderer::GetAPI())
@@ -55,3 +58,5 @@ void BufferLayout::CalculateOffsetsAndStride()
 	// Stride is the sum of all elements' size
 	stride = offset;
 }
+
+} // namespace Hedge

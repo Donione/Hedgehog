@@ -4,6 +4,9 @@
 #include <Renderer/OpenGLContext.h>
 
 
+namespace Hedge
+{
+
 class OpenGLRendererAPI : public RendererAPI
 {
 public:
@@ -37,3 +40,5 @@ private:
 	bool faceCulling = false; // in OpenGL it is disabled by default
 	bool blending = false; // in OpenGL it is disabled by default
 };
+
+} // namespace Hedge

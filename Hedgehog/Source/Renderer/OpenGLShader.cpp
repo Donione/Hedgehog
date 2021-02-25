@@ -4,6 +4,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+namespace Hedge
+{
+
 OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string& pixelFilePath)
 {
 	// Create an empty vertex shader handle
@@ -217,3 +220,5 @@ std::vector<GLchar> OpenGLShader::getShaderInfoLog(GLint id)
 
 	return infoLog;
 }
+
+} // namespace Hedge

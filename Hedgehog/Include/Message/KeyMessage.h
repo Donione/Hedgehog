@@ -3,6 +3,9 @@
 #include <Message/Message.h>
 
 
+namespace Hedge
+{
+
 class KeyMessage : public Message
 {
 public:
@@ -74,3 +77,5 @@ public:
 
 	unsigned char GetKeyCode(void) { return virtualKeyCode; }
 };
+
+} // namespace Hedge

@@ -6,6 +6,9 @@
 #include <stb_image.h>
 
 
+namespace Hedge
+{
+
 DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	: filename(filename)
 {
@@ -90,3 +93,5 @@ void DirectX12Texture2D::Bind(unsigned int slot) const
 	dx12context->g_pd3dCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	dx12context->g_pd3dCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, srvHeap->GetGPUDescriptorHandleForHeapStart());
 }
+
+} // namespace Hedge

@@ -7,6 +7,10 @@
 
 #include <Renderer/RenderContext.h>
 
+
+namespace Hedge
+{
+
 // TODO should this be just a interface into API specific implementations?
 // ImGuiComponent is a wrapper class over ImGui core functions for initialization and rendering
 class ImGuiComponent
@@ -26,3 +30,5 @@ private:
 
 	ID3D12DescriptorHeap* SRVDescHeap = nullptr;
 };
+
+} // namespace Hedge

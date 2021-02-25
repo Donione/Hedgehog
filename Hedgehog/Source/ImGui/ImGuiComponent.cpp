@@ -12,6 +12,10 @@
 
 #include <cstdio>
 
+
+namespace Hedge
+{
+
 ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 	: renderContext(renderContext)
 {
@@ -147,3 +151,5 @@ ImGuiComponent::~ImGuiComponent()
 
 	if (SRVDescHeap) { SRVDescHeap->Release(); SRVDescHeap = nullptr; }
 }
+
+} // namespace Hedge

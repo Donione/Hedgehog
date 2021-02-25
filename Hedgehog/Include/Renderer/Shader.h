@@ -5,6 +5,9 @@
 #include <vector>
 
 
+namespace Hedge
+{
+
 // TODO setup tiered approch for constatnt data
 // something like:
 //    something that need to be accessed very frequently/very fast -> root constant
@@ -65,3 +68,5 @@ public:
 	static Shader* Create(const std::string& filePath);
 	static Shader* Create(const std::string& vertexFilePath, const std::string& pixelFilePath);
 };
+
+} // namespace Hedge

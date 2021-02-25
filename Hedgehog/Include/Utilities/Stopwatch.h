@@ -3,6 +3,9 @@
 #include <chrono>
 
 
+namespace Hedge
+{
+
 class Stopwatch
 {
 public:
@@ -31,3 +34,5 @@ private:
 
 	std::chrono::duration<double, std::milli> duration;
 };
+
+} // namespace Hedge

@@ -6,6 +6,9 @@
 #include <d3dx12.h>
 
 
+namespace Hedge
+{
+
 class DirectX12RendererAPI : public RendererAPI
 {
 public:
@@ -47,3 +50,5 @@ private:
 	UINT backBufferIdx;
 	D3D12_RESOURCE_BARRIER barrier;
 };
+
+} // namespace Hedge

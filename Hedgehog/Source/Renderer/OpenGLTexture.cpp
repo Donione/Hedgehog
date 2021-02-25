@@ -4,6 +4,9 @@
 #include <stb_image.h>
 
 
+namespace Hedge
+{
+
 OpenGLTexture2D::OpenGLTexture2D(const std::string& filename)
 	: filename(filename)
 {
@@ -50,3 +53,5 @@ void OpenGLTexture2D::Bind(unsigned int slot) const
 {
 	glBindTextureUnit(slot, textureID);
 }
+
+} // namespace Hedge

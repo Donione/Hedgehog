@@ -7,6 +7,9 @@
 #include <Renderer/VertexArray.h>
 
 
+namespace Hedge
+{
+
 class RendererAPI
 {
 public:
@@ -45,3 +48,5 @@ public:
 private:
 	static API api;
 };
+
+} // namespace Hedge

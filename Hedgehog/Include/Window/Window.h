@@ -7,6 +7,9 @@
 #include <functional>
 
 
+namespace Hedge
+{
+
 class Window
 {
 public:
@@ -56,3 +59,5 @@ private:
 
 	std::function<void(Message&)> MessageCallback = NULL;
 };
+
+} // namespace Hedge

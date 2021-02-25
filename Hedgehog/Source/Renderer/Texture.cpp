@@ -5,6 +5,9 @@
 #include <Renderer/DirectX12Texture.h>
 
 
+namespace Hedge
+{
+
 Texture2D* Texture2D::Create(const std::string& filename)
 {
 	switch (Renderer::GetAPI())
@@ -22,3 +25,5 @@ Texture2D* Texture2D::Create(const std::string& filename)
 		return nullptr;
 	}
 }
+
+} // namespace Hedge

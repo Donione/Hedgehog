@@ -9,6 +9,9 @@
 #include <wrl.h>
 
 
+namespace Hedge
+{
+
 class DirectX12Shader : public Shader
 {
 public:
@@ -74,3 +77,5 @@ private:
 
 	long long int objectNum = 0;
 };
+
+} // namespace Hedge

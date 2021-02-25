@@ -3,6 +3,9 @@
 #include <Message/Message.h>
 
 
+namespace Hedge
+{
+
 class WindowSizeMessage : public Message
 {
 public:
@@ -62,3 +65,5 @@ protected:
 	int right;
 	int bottom;
 };
+
+} // namespace Hedge

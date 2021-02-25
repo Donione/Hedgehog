@@ -10,6 +10,9 @@
 #endif
 
 
+namespace Hedge
+{
+
 DirectX12Context::DirectX12Context(HWND windowHandle)
 {
 	this->windowHandle = windowHandle;
@@ -302,3 +305,5 @@ void DirectX12Context::ResizeDepthStencilBuffer(int width, int height)
 	// Create the depth/stencil buffer view (which goes into the depth/stencil descriptor heap)
 	g_pd3dDevice->CreateDepthStencilView(depthStencilBuffer, &depthStencilDesc, dsDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
+
+} // namespace Hedge

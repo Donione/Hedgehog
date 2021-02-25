@@ -5,6 +5,9 @@
 #include <Windows.h>
 
 
+namespace Hedge
+{
+
 class OpenGLContext : public RenderContext
 {
 public:
@@ -21,3 +24,5 @@ private:
 
 	HGLRC context = NULL;
 };
+
+} // namespace Hedge

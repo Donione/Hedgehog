@@ -1,6 +1,9 @@
 #include <Renderer/OpenGLVertexArray.h>
 
 
+namespace Hedge
+{
+
 OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
 									 const std::shared_ptr<Texture>& inputTexture)
 {
@@ -63,3 +66,5 @@ void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 	indexBuffers.push_back(indexBuffer);
 	this->Unbind();
 }
+
+} // namespace Hedge

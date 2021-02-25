@@ -7,6 +7,9 @@
 #include <Renderer/Texture.h>
 
 
+namespace Hedge
+{
+
 // TODO
 // multiple vertex/index buffers rendering
 // maybe submit with name so it can be selected what will be rendered, defaulting to rendering everything in order
@@ -30,3 +33,5 @@ public:
 							   const BufferLayout& inputLayout,
 							   const std::shared_ptr<Texture>& inputTexture = nullptr);
 };
+
+} // namespace Hedge

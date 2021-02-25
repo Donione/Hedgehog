@@ -4,6 +4,9 @@
 #include <glm/gtx/euler_angles.hpp>
 
 
+namespace Hedge
+{
+
 void Camera::SetPosition(const glm::vec3& position)
 {
 	this->position = position;
@@ -100,3 +103,5 @@ PerspectiveCamera::PerspectiveCamera(float fov, float aspectRatio, float nearCli
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
 	CalculateView();
 }
+
+} // namespace Hedge

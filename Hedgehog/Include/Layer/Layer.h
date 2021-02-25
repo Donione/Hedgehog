@@ -6,6 +6,9 @@
 #include <Message/Message.h>
 
 
+namespace Hedge
+{
+
 class Layer
 {
 protected:
@@ -32,3 +35,5 @@ protected:
 	const std::string name;
 	bool enabled;
 };
+
+} // namespace Hedge

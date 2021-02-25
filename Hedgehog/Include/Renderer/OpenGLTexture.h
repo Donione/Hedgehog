@@ -3,6 +3,9 @@
 #include <Renderer/Texture.h>
 
 
+namespace Hedge
+{
+
 class OpenGLTexture2D : public Texture2D
 {
 public:
@@ -22,3 +25,5 @@ private:
 	unsigned int width;
 	unsigned int height;
 };
+
+} // namespace Hedge

@@ -5,6 +5,9 @@
 #include <iomanip>
 
 
+namespace Hedge
+{
+
 // TODECIDE: Can a single message belong to multiple message classes?
 enum class MessageCategory
 {
@@ -38,3 +41,5 @@ protected:
 	MessageCategory category = MessageCategory::Undefined;
 	MessageType type = MessageType::Undefined;
 };
+
+} // namespace Hedge

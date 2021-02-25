@@ -44,6 +44,9 @@
 #include <glad/glad_wgl.h>
 
 
+namespace Hedge
+{
+
 OpenGLContext::OpenGLContext(HWND windowHandle)
 {
 	this->windowHandle = windowHandle;
@@ -107,3 +110,5 @@ void OpenGLContext::SwapBuffers()
 	//wglMakeCurrent(deviceContext, context);
 	::SwapBuffers(deviceContext);
 }
+
+} // namespace Hedge

@@ -17,6 +17,9 @@
 #include <assert.h>
 
 
+namespace Hedge
+{
+
 class Application
 {
 public:
@@ -70,3 +73,5 @@ private:
 
 	bool initialized = false;
 };
+
+} // namespace Hedge

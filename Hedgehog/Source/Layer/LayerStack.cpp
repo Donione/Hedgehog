@@ -1,6 +1,9 @@
 #include <Layer/LayerStack.h>
 
 
+namespace Hedge
+{
+
 LayerStack::LayerStack()
 {
 	overlayStart = 0;
@@ -67,3 +70,5 @@ void LayerStack::PopOverlay()
 		layers.pop_back();
 	}
 }
+
+} // namespace Hedge

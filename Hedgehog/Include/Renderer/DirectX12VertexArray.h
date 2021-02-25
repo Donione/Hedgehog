@@ -8,6 +8,9 @@
 #include <d3dx12.h>
 
 
+namespace Hedge
+{
+
 // TODO rename to something else, maybe something pipeline-y
 class DirectX12VertexArray : public VertexArray
 {
@@ -71,3 +74,5 @@ private:
 		DXGI_FORMAT_R8_UINT
 	};
 };
+
+} // namespace Hedge

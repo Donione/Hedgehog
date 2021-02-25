@@ -12,6 +12,9 @@
 #include <set>
 
 
+namespace Hedge
+{
+
 class Renderer
 {
 public:
@@ -34,3 +37,5 @@ private:
 
 	inline static std::set<std::shared_ptr<Shader>> usedShaders;
 };
+
+} // namespace Hedge
