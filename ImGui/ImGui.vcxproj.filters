@@ -10,6 +10,9 @@
     <Filter Include="Include\backends">
       <UniqueIdentifier>{4c39049c-75f5-4efc-a563-a69fd2ff8a22}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\backends">
+      <UniqueIdentifier>{652c9606-10c6-44b8-b3b0-8d738ab6621f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\modules\ImGui\imgui.cpp">
@@ -21,20 +24,20 @@
     <ClCompile Include="..\modules\ImGui\imgui_draw.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_dx12.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_opengl3.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\modules\ImGui\imgui_widgets.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\modules\ImGui\imgui_tables.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_dx12.cpp">
+      <Filter>Source\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>Source\backends</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
