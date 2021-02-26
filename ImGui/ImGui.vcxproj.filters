@@ -7,44 +7,47 @@
     <Filter Include="Source">
       <UniqueIdentifier>{11c0b9ed-2f93-4f0d-adcf-d25f1e696ade}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\backends">
+      <UniqueIdentifier>{4c39049c-75f5-4efc-a563-a69fd2ff8a22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\imgui-master\imgui.cpp">
+    <ClCompile Include="..\modules\ImGui\imgui.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\imgui_demo.cpp">
+    <ClCompile Include="..\modules\ImGui\imgui_demo.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\imgui_draw.cpp">
+    <ClCompile Include="..\modules\ImGui\imgui_draw.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_opengl3.cpp">
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_dx12.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_win32.cpp">
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_opengl3.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\imgui_widgets.cpp">
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_win32.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_dx12.cpp">
+    <ClCompile Include="..\modules\ImGui\imgui_widgets.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\ImGui\imgui_tables.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\imgui-master\imgui.h">
-      <Filter>Include</Filter>
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_dx12.h">
+      <Filter>Include\backends</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_opengl3.h">
-      <Filter>Include</Filter>
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_opengl3.h">
+      <Filter>Include\backends</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_win32.h">
-      <Filter>Include</Filter>
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_win32.h">
+      <Filter>Include\backends</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\imgui-master\imconfig.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_dx12.h">
+    <ClInclude Include="..\modules\ImGui\imgui.h">
       <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,11 +1,8 @@
 #include <ImGui/ImGuiComponent.h>
 
-#include <glad/glad.h>
-
-#include <imgui.h>
-#include "imgui_impl_win32.h"
-#include <imgui_impl_opengl3.h>
-#include <imgui_impl_dx12.h>
+#include <backends/imgui_impl_win32.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_dx12.h>
 
 #include <Renderer/Renderer.h>
 #include <Renderer/DirectX12Context.h>

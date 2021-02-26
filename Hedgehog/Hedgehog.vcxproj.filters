@@ -258,10 +258,8 @@
     <FxCompile Include="Asset\Shader\DirectX12TextureShader.hlsl">
       <Filter>Assets\Shader</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="Asset\Shader\DirectX12ExampleShader.hlsl">
+    <FxCompile Include="Asset\Shader\DirectX12ExampleShader.hlsl">
       <Filter>Assets\Shader</Filter>
-    </CustomBuild>
+    </FxCompile>
   </ItemGroup>
 </Project>

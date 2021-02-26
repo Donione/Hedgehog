@@ -18,6 +18,22 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\modules\ImGui\imgui.cpp" />
+    <ClCompile Include="..\modules\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="..\modules\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="..\modules\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="..\modules\ImGui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_dx12.h" />
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="..\modules\ImGui\imgui.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -72,19 +88,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\ImGui\;$(SolutionDir)GLAD\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\ImGui\;$(SolutionDir)GLAD\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\ImGui\;$(SolutionDir)GLAD\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)GLAD\include\;$(ProjectDir)..\..\imgui-master\examples;$(ProjectDir)..\..\imgui-master;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\ImGui\;$(SolutionDir)GLAD\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,22 +162,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_dx12.cpp" />
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\..\imgui-master\examples\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_demo.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_draw.cpp" />
-    <ClCompile Include="..\..\imgui-master\imgui_widgets.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_dx12.h" />
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\..\imgui-master\examples\imgui_impl_win32.h" />
-    <ClInclude Include="..\..\imgui-master\imconfig.h" />
-    <ClInclude Include="..\..\imgui-master\imgui.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
