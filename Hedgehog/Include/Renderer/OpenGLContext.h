@@ -15,6 +15,7 @@ public:
 	virtual ~OpenGLContext() override;
 
 	void SetSwapInterval(int interval) override;
+	void MakeCurrent() override;
 	void SwapBuffers() override;
 
 
