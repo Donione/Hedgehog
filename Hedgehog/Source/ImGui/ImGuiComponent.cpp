@@ -20,24 +20,26 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	////io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	////io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(hwnd);
-
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
+		ImGui_ImplWin32_InitForOpenGL(hwnd);
 		ImGui_ImplOpenGL3_Init("#version 460");
 		break;
 
 	case RendererAPI::API::DirectX12:
 	{
+		ImGui_ImplWin32_InitForDirectX12(hwnd);
 		DirectX12Context* dx12renderContext = dynamic_cast<DirectX12Context*>(renderContext);
 		CreateSRVDescHeap();
 		ImGui_ImplDX12_Init(dx12renderContext->g_pd3dDevice,
@@ -50,9 +52,8 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 	}
 
 	case RendererAPI::API::None:
-		break;
-
 	default:
+		assert(false);
 		break;
 	}
 
@@ -85,6 +86,7 @@ void ImGuiComponent::BeginFrame()
 
 	case RendererAPI::API::None:
 	default:
+		assert(false);
 		break;
 	}
 
@@ -113,9 +115,17 @@ void ImGuiComponent::EndFrame()
 
 	case RendererAPI::API::None:
 	default:
+		assert(false);
 		break;
 	}
 
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		renderContext->MakeCurrent();
+	}
 }
 
 void ImGuiComponent::CreateSRVDescHeap()
@@ -140,6 +150,7 @@ ImGuiComponent::~ImGuiComponent()
 
 	case RendererAPI::API::None:
 	default:
+		assert(false);
 		break;
 	}
 
