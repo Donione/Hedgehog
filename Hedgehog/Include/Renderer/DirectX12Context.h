@@ -25,6 +25,8 @@ public:
 	virtual ~DirectX12Context() override;
 
 	void SetSwapInterval(int interval) override;
+	void MakeCurrent() override { /* do nothing */ }
+	void SwapBuffers() override;
 
 	void WaitForLastSubmittedFrame();
 	FrameContext* WaitForNextFrameResources();
@@ -32,8 +34,6 @@ public:
 	void CleanupRenderTarget();
 	void ResizeSwapChain(int width, int height);
 	void ResizeDepthStencilBuffer(int width, int height);
-
-	void SwapBuffers() override;
 
 
 private:

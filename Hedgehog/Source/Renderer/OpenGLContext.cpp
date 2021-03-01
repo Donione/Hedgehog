@@ -111,4 +111,9 @@ void OpenGLContext::SwapBuffers()
 	::SwapBuffers(deviceContext);
 }
 
+void OpenGLContext::MakeCurrent()
+{
+	wglMakeCurrent(deviceContext, context);
+}
+
 } // namespace Hedge
