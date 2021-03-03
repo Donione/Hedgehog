@@ -31,7 +31,8 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 
 	for (int i = 0; i < shader->GetConstBufferCount(); i++)
 	{
-		rootParameters[i].InitAsConstantBufferView(i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		// TODO add shader visibility to const buffer description
+		rootParameters[i].InitAsConstantBufferView(i, 0, D3D12_SHADER_VISIBILITY_ALL);
 	}
 
 	std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;

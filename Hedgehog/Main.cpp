@@ -103,6 +103,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4) },
 			{ "u_Transform", sizeof(glm::mat4) },
+			{ "u_viewPos", sizeof(glm::vec3) },
 		};
 
 		std::string modelVertexSrc;
@@ -122,9 +123,16 @@ public:
 		
 		modelVertexArray.reset(Hedge::VertexArray::Create(modelShader, modelVertexBufferArrayLayout));
 		modelVertexBuffer.reset(Hedge::VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
+		delete modelVertices;
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
 		modelIndexBuffer.reset(Hedge::IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
+		modelTransform = glm::translate(glm::mat4(1.0f), translation);
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.x), glm::vec3(1.0, 0.0, 0.0));
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.y), glm::vec3(0.0, 1.0, 0.0));
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.z), glm::vec3(0.0, 0.0, 1.0));
+		modelTransform = glm::scale(modelTransform, glm::vec3(1.0f) * scale);
+
 
 		Hedge::ConstantBufferDescription constBufferDesc =
 		{
@@ -331,7 +339,8 @@ public:
 			Hedge::Renderer::Submit(vertexArray, transform3);
 			Hedge::Renderer::Submit(vertexArray, transform2);
 
-			Hedge::Renderer::Submit(modelVertexArray, glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4x4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera.GetPosition());
+			Hedge::Renderer::Submit(modelVertexArray, modelTransform);
 
 			// Order matters when we want to blend
 			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
@@ -505,6 +514,7 @@ private:
 
 	glm::mat4x4 transform2;
 	glm::mat4x4 transform3;
+	glm::mat4 modelTransform;
 
 	int lastX = 0;
 	int lastY = 0;
