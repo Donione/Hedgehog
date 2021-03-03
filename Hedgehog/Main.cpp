@@ -19,6 +19,7 @@
 #include <imgui_internal.h>
 
 #include <Renderer/DirectX12VertexArray.h>
+#include <glm/gtc/type_ptr.hpp>
 
 
 void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
@@ -434,7 +435,22 @@ public:
 
 		ImGui::Begin("Scene");
 		ImGui::Checkbox("Show Axes", &showAxes);
+
+
+		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
+		ImGui::SliderFloat3("rotate", glm::value_ptr(rotate), -360.0, 360.0);
+		ImGui::SliderFloat("scale", &scale, 0.01f, 10.0f);
+		modelTransform = glm::translate(glm::mat4(1.0f), translation);
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.x), glm::vec3(1.0, 0.0, 0.0));
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.y), glm::vec3(0.0, 1.0, 0.0));
+		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.z), glm::vec3(0.0, 0.0, 1.0));
+		modelTransform = glm::scale(modelTransform, glm::vec3(1.0f) * scale);
+
 		ImGui::End();
+
+		//ImGui::InputFloat4("input float4", vec4f);
+		//ImGui::DragFloat4("drag float4", vec4f, 0.01f, 0.0f, 1.0f);
+		//ImGui::SliderFloat4("slider float4", vec4f, 0.0f, 1.0f);
 	}
 
 	void OnMessage(const Hedge::Message& message) override
@@ -515,6 +531,10 @@ private:
 	glm::mat4x4 transform2;
 	glm::mat4x4 transform3;
 	glm::mat4 modelTransform;
+
+	glm::vec3 translation = glm::vec3(0.0f);
+	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
+	float scale = 1.0f;
 
 	int lastX = 0;
 	int lastY = 0;
