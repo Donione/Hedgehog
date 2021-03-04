@@ -49,8 +49,23 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 	assert(SUCCEEDED(isOK));
 }
 
-DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(const ConstantBufferDescriptionElement& description)
+DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBufferUsage usage)
 {
+	unsigned int rootParamIndex = 0;
+	switch (usage)
+	{
+	case ConstantBufferUsage::Scene: rootParamIndex = 0; break;
+	case ConstantBufferUsage::Object: rootParamIndex = 1; break;
+	case ConstantBufferUsage::Other: rootParamIndex = 2; break;
+	default: assert(false); break;
+	}
+
+	unsigned long long size = GetConstantBufferSize(usage);
+	if (size == 0)
+	{
+		return { 0, nullptr, nullptr, 0 };
+	}
+
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 	Microsoft::WRL::ComPtr<ID3D12Resource> constantBuffer;
 	UINT8* mappedData = nullptr;
@@ -88,7 +103,34 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(const Cons
 	ThrowIfFailed(constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mappedData)));
 	// Any reason to zero the newly created constant buffer?
 
-	return { 0, constantBuffer, mappedData, description.size };
+	return { rootParamIndex, constantBuffer, mappedData, size };
+}
+
+unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage usage)
+{
+	unsigned long long size = 0;
+	for (auto& element : description)
+	{
+		if (element.usage == usage)
+		{
+			size += element.size;
+		}
+	}
+	// CB size is required to be 256-byte aligned.
+	return (size + 255) & ~255;
+}
+
+DirectX12Shader::ConstantBufferView DirectX12Shader::CreateConstantBufferView(ConstantBufferDescriptionElement element)
+{
+	ConstantBufferView newBuffer;
+	newBuffer.mappedData = constantBuffers[element.usage].mappedData + dataOffsets[element.usage];
+	newBuffer.size = element.size;
+	newBuffer.totalSize = constantBuffers[element.usage].totalSize;
+	constantBufferViews.emplace(element.name, newBuffer);
+
+	dataOffsets.at(element.usage) += element.size;
+
+	return newBuffer;
 }
 
 DirectX12Shader::~DirectX12Shader()
@@ -130,7 +172,7 @@ void DirectX12Shader::Bind()
 	for (auto const& [key, constBuffer] : constantBuffers)
 	{
 		dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
-																		  constBuffer.buffer->GetGPUVirtualAddress() + objectNum * 256);
+																		  constBuffer.buffer->GetGPUVirtualAddress() + objectNum * constBuffer.totalSize);
 	}
 
 	objectNum++;
@@ -143,11 +185,12 @@ void DirectX12Shader::Unbind()
 
 void DirectX12Shader::SetupConstantBuffers(ConstantBufferDescription constBufferDesc)
 {
+	// Setup should be called only once
 	assert(constantBuffers.size() == 0);
 
 	description = constBufferDesc;
 
-	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+	//DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
 	//// Create heap descriptors for the constant buffers
 	//D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -157,17 +200,21 @@ void DirectX12Shader::SetupConstantBuffers(ConstantBufferDescription constBuffer
 
 	//dx12context->g_pd3dDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&CBVDescHeap));
 
-	unsigned int rootParamIndex = 0;
-	for (auto& element : constBufferDesc)
+	std::vector<ConstantBufferUsage> usages = { ConstantBufferUsage::Scene, ConstantBufferUsage::Object, ConstantBufferUsage::Other };
+	for (auto usage : usages)
 	{
-		ConstantBuffer newBuffer = CreateConstantBuffer(element);
-		newBuffer.rootParamIndex = rootParamIndex++;
-		constantBuffers.emplace(element.name, newBuffer);
+		ConstantBuffer newBuffer = CreateConstantBuffer(usage);
+		if (newBuffer.buffer) constantBuffers.emplace(usage, newBuffer);
+	}
+
+	for (auto& element : description)
+	{
+		constantBufferViews.emplace(element.name, CreateConstantBufferView(element));
 	}
 
 	// Simple way to check the constant buffer description didn't contain duplicate names
 	// TODO Should be probably done in the ConstantBufferDescription constructor
-	assert(constantBuffers.size() == description.Size());
+	assert(constantBufferViews.size() == description.Size());
 }
 
 void DirectX12Shader::UploadConstant(const std::string& name, float constant)
@@ -207,11 +254,11 @@ void DirectX12Shader::UploadConstant(const std::string& name, int constant)
 
 void DirectX12Shader::UploadConstant(const std::string& name, void* constant, unsigned long long size)
 {
-	assert(constantBuffers.contains(name));
-	assert(size == constantBuffers[name].size);
+	assert(constantBufferViews.contains(name));
+	assert(size == constantBufferViews[name].size);
 
 	// TODO assert no overflow
-	memcpy(constantBuffers[name].mappedData + objectNum * 256, constant, size);
+	memcpy(constantBufferViews[name].mappedData + objectNum * constantBufferViews[name].totalSize, constant, size);
 }
 
 const D3D12_SHADER_BYTECODE DirectX12Shader::GetVSBytecode() const
