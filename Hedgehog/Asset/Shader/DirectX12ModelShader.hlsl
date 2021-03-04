@@ -12,16 +12,12 @@
 cbuffer SceneConstantBuffer : register(b0)
 {
     matrix u_ViewProjection;
+    vector u_viewPos;
 };
 
-cbuffer SceneConstantBuffer2 : register(b1)
+cbuffer ObjectConstantBuffer : register(b1)
 {
     matrix u_Transform;
-}
-
-cbuffer SceneConstantBuffer3 : register(b2)
-{
-    vector u_viewPos;
 }
 
 struct PSInput

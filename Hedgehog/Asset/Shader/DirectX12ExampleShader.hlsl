@@ -14,7 +14,7 @@ cbuffer SceneConstantBuffer : register(b0)
     matrix u_ViewProjection;
 };
 
-cbuffer SceneConstantBuffer2 : register(b1)
+cbuffer ObjectConstantBuffer : register(b1)
 {
     matrix u_Transform;
 }

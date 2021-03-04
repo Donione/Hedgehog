@@ -8,6 +8,13 @@
 namespace Hedge
 {
 
+enum class ConstantBufferUsage
+{
+	Scene,
+	Object,
+	Other,
+};
+
 // TODO setup tiered approch for constatnt data
 // something like:
 //    something that need to be accessed very frequently/very fast -> root constant
@@ -16,11 +23,14 @@ namespace Hedge
 struct ConstantBufferDescriptionElement
 {
 	ConstantBufferDescriptionElement() = default;
-	ConstantBufferDescriptionElement(const std::string& name, unsigned long long size)
-		: name(name), size(size) {}
+	ConstantBufferDescriptionElement(const std::string& name,
+									 unsigned long long size,
+									 ConstantBufferUsage usage = ConstantBufferUsage::Other)
+		: name(name), size(size), usage(usage) {}
 
 	std::string name;
 	unsigned long long size;
+	ConstantBufferUsage usage;
 };
 
 class ConstantBufferDescription

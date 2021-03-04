@@ -14,6 +14,8 @@ DirectX12VertexBuffer::DirectX12VertexBuffer(const BufferLayout& layout, const f
 
 	this->layout = layout;
 
+	// TODO use default upload heap and copy data into it using upload heap
+	// this needs a barrier and command list execution
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(size);
 	dx12context->g_pd3dDevice->CreateCommittedResource(
@@ -71,7 +73,7 @@ DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned
 		nullptr,
 		IID_PPV_ARGS(&indexBuffer)); // TODO handle fail
 
-	UINT8* pIndexDataBegin;
+	UINT8* pIndexDataBegin = nullptr;
 	CD3DX12_RANGE readRange(0, 0);
 	indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)); // TODO handle fail
 	memcpy(pIndexDataBegin, indices, size);

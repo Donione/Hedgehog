@@ -119,6 +119,7 @@ void DirectX12RendererAPI::EndFrame()
 void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
 {
 	vertexArray->Bind();
+	// TODO experiment with SV_InstanceID
 	renderContext->g_pd3dCommandList->DrawIndexedInstanced(vertexArray->GetIndexBuffer().at(0)->GetCount(), 1, 0, 0, 0);
 }
 

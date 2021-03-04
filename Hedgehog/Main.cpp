@@ -102,9 +102,9 @@ public:
 
 		Hedge::ConstantBufferDescription modelconstBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4) },
-			{ "u_Transform", sizeof(glm::mat4) },
-			{ "u_viewPos", sizeof(glm::vec3) },
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
 		};
 
 		std::string modelVertexSrc;
@@ -137,8 +137,8 @@ public:
 
 		Hedge::ConstantBufferDescription constBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4) },
-			{ "u_Transform", sizeof(glm::mat4) },
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 		};
 		
 		Hedge::BufferLayout vertexBufferLayout =

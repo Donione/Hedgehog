@@ -57,15 +57,24 @@ private:
 				const std::wstring& PSFilePath,
 				const std::string& PSEntryPoint);
 
-	struct ConstantBuffer
+	struct ConstantBufferView
 	{
-		unsigned int rootParamIndex;
-		Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
 		UINT8* mappedData = nullptr;
 		unsigned long long size = 0;
+		unsigned long long totalSize = 0;
 	};
 
-	DirectX12Shader::ConstantBuffer CreateConstantBuffer(const ConstantBufferDescriptionElement& description);
+	struct ConstantBuffer
+	{
+		unsigned int rootParamIndex = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
+		UINT8* mappedData = nullptr;
+		unsigned long long totalSize = 0;
+	};
+
+	DirectX12Shader::ConstantBuffer CreateConstantBuffer(ConstantBufferUsage usage);
+	unsigned long long GetConstantBufferSize(ConstantBufferUsage usage);
+	DirectX12Shader::ConstantBufferView CreateConstantBufferView(ConstantBufferDescriptionElement element);
 
 private:
 	ID3DBlob* vertexShader = nullptr;
@@ -73,7 +82,14 @@ private:
 
 	ConstantBufferDescription description;
 	ID3D12DescriptorHeap* CBVDescHeap = nullptr;
-	std::unordered_map<std::string, ConstantBuffer> constantBuffers;
+	std::unordered_map<ConstantBufferUsage, ConstantBuffer> constantBuffers;
+	std::unordered_map<std::string, ConstantBufferView> constantBufferViews;
+	std::unordered_map <ConstantBufferUsage, unsigned long long> dataOffsets =
+	{
+		{ConstantBufferUsage::Scene, 0},
+		{ConstantBufferUsage::Object, 0},
+		{ConstantBufferUsage::Other, 0}
+	};
 
 	long long int objectNum = 0;
 };
