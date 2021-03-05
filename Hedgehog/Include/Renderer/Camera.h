@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <Component/Transform.h>
 
 
 namespace Hedge
@@ -29,10 +29,10 @@ public:
 	Camera() = default;
 
 public:
-	const glm::vec3& GetPosition() { return position; }
+	const glm::vec3& GetPosition() const { return transform.GetTranslation(); }
 	void SetPosition(const glm::vec3& position);
 
-	const glm::vec3& GetRotation() { return rotationAngles; }
+	const glm::vec3& GetRotation() const { return transform.GetRotation(); }
 	void SetRotation(const glm::vec3& rotation);
 
 	void Move(const glm::vec3& positionOffset);
@@ -49,11 +49,9 @@ protected:
 
 
 protected:
-	glm::vec3 position = { 0, 0, 0 };
-	glm::vec3 rotationAngles = { 0, 0, 0 }; // in degrees
-	glm::mat4x4 rotation = glm::mat4x4(1.0f);
-	glm::mat4x4 model = glm::mat4x4(1.0f); // position and rotation
-	glm::mat4x4 view = glm::mat4x4(1.0f); // inverse of model matrix
+	Transform transform;
+
+	glm::mat4x4 view = glm::mat4x4(1.0f); // inverse of model (transform) matrix
 	glm::mat4x4 projection = glm::mat4x4(1.0f);
 	glm::mat4x4 projectionView = glm::mat4x4(1.0f);
 

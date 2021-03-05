@@ -21,6 +21,8 @@
 #include <Renderer/DirectX12VertexArray.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Component/Transform.h>
+
 
 void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
 {
@@ -84,8 +86,8 @@ public:
 		camera = Hedge::PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
 		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
 
-		camera.SetPosition({ 1.0f, 1.0f, 3.0f }); // world space, +z goes out of the screen
-		camera.SetRotation({ -10.0f, 20.0f, 0.0f });
+		camera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
+		camera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
 
 		long long int numberOfVertices;
 		long long int numberOfIndices;
@@ -128,11 +130,9 @@ public:
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
 		modelIndexBuffer.reset(Hedge::IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
-		modelTransform = glm::translate(glm::mat4(1.0f), translation);
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.x), glm::vec3(1.0, 0.0, 0.0));
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.y), glm::vec3(0.0, 1.0, 0.0));
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.z), glm::vec3(0.0, 0.0, 1.0));
-		modelTransform = glm::scale(modelTransform, glm::vec3(1.0f) * scale);
+		modelTransform.SetTranslation(translation);
+		modelTransform.SetRotation(rotate);
+		modelTransform.SetUniformScale(scale);
 
 
 		Hedge::ConstantBufferDescription constBufferDesc =
@@ -224,17 +224,13 @@ public:
 		vertexArraySquare->AddIndexBuffer(indexBufferSquare);
 
 		// Transforms
-		transform2 = glm::mat4x4(1.0f);
-		transform2 = glm::translate(transform2, glm::vec3(3.0f, 0.25f, 0.5f));
-		transform2 = glm::rotate(transform2, glm::radians(-20.0f), glm::vec3(0.0, 1.0, 0.0));
-		transform2 = glm::rotate(transform2, glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0));
-		transform2 = glm::scale(transform2, glm::vec3(1.5f, 1.5f, 1.5f));
+		transform2.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
+		transform2.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
+		transform2.UniformScale(1.5f);
 
-		transform3 = glm::mat4x4(1.0f);
-		transform3 = glm::translate(transform3, glm::vec3(1.5f, 2.0f, -0.5f));
-		transform3 = glm::rotate(transform3, glm::radians(-10.0f), glm::vec3(0.0, 1.0, 0.0));
-		transform3 = glm::rotate(transform3, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-		transform3 = glm::scale(transform3, glm::vec3(0.5f, 1.0f, 0.5f));
+		transform3.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
+		transform3.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
+		transform3.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -337,11 +333,11 @@ public:
 			//}
 
 			Hedge::Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
-			Hedge::Renderer::Submit(vertexArray, transform3);
-			Hedge::Renderer::Submit(vertexArray, transform2);
+			Hedge::Renderer::Submit(vertexArray, transform2.Get());
+			Hedge::Renderer::Submit(vertexArray, transform3.Get());
 
 			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera.GetPosition());
-			Hedge::Renderer::Submit(modelVertexArray, modelTransform);
+			Hedge::Renderer::Submit(modelVertexArray, modelTransform.Get());
 
 			// Order matters when we want to blend
 			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
@@ -440,11 +436,9 @@ public:
 		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
 		ImGui::SliderFloat3("rotate", glm::value_ptr(rotate), -360.0, 360.0);
 		ImGui::SliderFloat("scale", &scale, 0.01f, 10.0f);
-		modelTransform = glm::translate(glm::mat4(1.0f), translation);
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.x), glm::vec3(1.0, 0.0, 0.0));
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.y), glm::vec3(0.0, 1.0, 0.0));
-		modelTransform = glm::rotate(modelTransform, glm::radians(rotate.z), glm::vec3(0.0, 0.0, 1.0));
-		modelTransform = glm::scale(modelTransform, glm::vec3(1.0f) * scale);
+		modelTransform.SetTranslation(translation);
+		modelTransform.SetRotation(rotate);
+		modelTransform.SetUniformScale(scale);
 
 		ImGui::End();
 
@@ -528,9 +522,9 @@ private:
 	std::shared_ptr<Hedge::IndexBuffer> modelIndexBuffer;
 	std::shared_ptr<Hedge::Shader> modelShader;
 
-	glm::mat4x4 transform2;
-	glm::mat4x4 transform3;
-	glm::mat4 modelTransform;
+	Hedge::Transform transform2;
+	Hedge::Transform transform3;
+	Hedge::Transform modelTransform;
 
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
