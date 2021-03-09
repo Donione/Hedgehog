@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Application\Application.h" />
+    <ClInclude Include="Include\Component\Light.h" />
     <ClInclude Include="Include\Component\Transform.h" />
     <ClInclude Include="Include\ImGui\ImGuiComponent.h" />
     <ClInclude Include="Include\Layer\Layer.h" />

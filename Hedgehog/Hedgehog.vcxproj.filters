@@ -156,6 +156,9 @@
     <ClInclude Include="Include\Renderer\DirectX12Texture.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Component\Light.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Component\Transform.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
