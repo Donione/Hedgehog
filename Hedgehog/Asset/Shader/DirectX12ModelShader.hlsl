@@ -11,13 +11,15 @@
 
 cbuffer SceneConstantBuffer : register(b0)
 {
-    matrix u_ViewProjection;
-    vector u_viewPos;
+    float4x4 u_ViewProjection;
+    float3 u_viewPos;
+    float3 u_lightPosition;
+    float3 u_lightColor;
 };
 
 cbuffer ObjectConstantBuffer : register(b1)
 {
-    matrix u_Transform;
+    float4x4 u_Transform;
 }
 
 struct PSInput
@@ -42,21 +44,20 @@ PSInput VSMain(float3 position : a_position, float3 normal : a_normal)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    float3 lightColor = float3(0.56f, 0.14f, 0.14f);
-    float3 lightPosition = float3(3.0f, 3.0f, 5.0f);
+    float3 objectColor = float3(0.333f, 0.125f, 0.024f);
 
     float3 ambient = float3(0.0f, 0.0f, 0.0f);
 
     float3 norm = normalize(input.normal);
-    float3 lightDir = normalize(lightPosition - input.pos);
+    float3 lightDir = normalize(u_lightPosition - input.pos);
     float diff = max(dot(norm, lightDir), 0.0);
-    float3 diffuse = diff * lightColor;
+    float3 diffuse = diff * u_lightColor;
 
     float specularStrength = 0.2;
     float3 viewDir = normalize(u_viewPos - input.pos);
     float3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    float3 specular = specularStrength * spec * lightColor;
+    float3 specular = specularStrength * spec * u_lightColor;
 
-    return float4(ambient + diffuse + specular, 1.0f);
+    return float4((ambient + diffuse + specular) * objectColor, 1.0f);
 }

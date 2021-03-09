@@ -55,6 +55,12 @@
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{a7521b8b-89f0-4389-8746-e94668ba3fb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Component">
+      <UniqueIdentifier>{7434d9d6-fd79-40ba-be22-e39551dab28c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component">
+      <UniqueIdentifier>{5ae14cb2-235b-4a3f-a579-a11e81fc94e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -150,6 +156,12 @@
     <ClInclude Include="Include\Renderer\DirectX12Texture.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Component\Light.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Component\Transform.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -230,6 +242,9 @@
     <ClCompile Include="Source\Renderer\DirectX12Texture.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Component\Transform.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">
@@ -250,6 +265,12 @@
     <None Include="Asset\Shader\OpenGLModelVertexShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
+    <None Include="Asset\Shader\OpenGLModelExamplePixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLModelExampleVertexShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\DirectX12ModelShader.hlsl">
@@ -259,6 +280,9 @@
       <Filter>Assets\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\DirectX12ExampleShader.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\DirectX12ModelExampleShader.hlsl">
       <Filter>Assets\Shader</Filter>
     </FxCompile>
   </ItemGroup>

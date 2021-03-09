@@ -162,6 +162,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Application\Application.h" />
+    <ClInclude Include="Include\Component\Light.h" />
+    <ClInclude Include="Include\Component\Transform.h" />
     <ClInclude Include="Include\ImGui\ImGuiComponent.h" />
     <ClInclude Include="Include\Layer\Layer.h" />
     <ClInclude Include="Include\Layer\LayerStack.h" />
@@ -195,6 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\Component\Transform.cpp" />
     <ClCompile Include="Source\ImGui\ImGuiComponent.cpp" />
     <ClCompile Include="Source\Layer\LayerStack.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
@@ -232,6 +235,8 @@
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExamplePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl" />
+    <None Include="Asset\Shader\OpenGLModelExamplePixelShader.glsl" />
+    <None Include="Asset\Shader\OpenGLModelExampleVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelPixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl" />
@@ -244,6 +249,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\DirectX12ModelExampleShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Asset\Shader\DirectX12TextureShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

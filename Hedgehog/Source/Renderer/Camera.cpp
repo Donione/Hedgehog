@@ -9,40 +9,25 @@ namespace Hedge
 
 void Camera::SetPosition(const glm::vec3& position)
 {
-	this->position = position;
-
+	transform.SetTranslation(position);
 	CalculateView();
 }
 
 void Camera::SetRotation(const glm::vec3& rotation)
 {
-	this->rotationAngles = rotation;
-
-	this->rotation = glm::rotate(glm::mat4x4(1.0f), glm::radians(rotationAngles.y), glm::vec3(0.0f, 1.0f, 0.0f))
-		* glm::rotate(glm::mat4x4(1.0f), glm::radians(rotationAngles.x), glm::vec3(1.0f, 0.0f, 0.0f))
-		* glm::rotate(glm::mat4x4(1.0f), glm::radians(rotationAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
+	transform.SetRotation(rotation);
 	CalculateView();
 }
 
 void Camera::Move(const glm::vec3& positionOffset)
 {
-	glm::vec4 orientedPositionOffset = rotation * glm::vec4(positionOffset, 1.0f);
-
-	position += glm::vec3(orientedPositionOffset);
-
+	transform.Translate(positionOffset);
 	CalculateView();
 }
 
 void Camera::Rotate(const glm::vec3& rotationOffset)
 {
-	rotation = glm::rotate(rotation, glm::radians(rotationOffset.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation = glm::rotate(rotation, glm::radians(rotationOffset.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	rotation = glm::rotate(rotation, glm::radians(rotationOffset.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	glm::extractEulerAngleXYZ(rotation, rotationAngles.x, rotationAngles.y, rotationAngles.z);
-	rotationAngles = glm::degrees(rotationAngles);
-
+	transform.Rotate(rotationOffset);
 	CalculateView();
 }
 
@@ -56,12 +41,7 @@ void Camera::SetAspectRatio(float aspectRatio)
 
 void Camera::CalculateView()
 {
-	glm::mat4x4 translation = glm::translate(glm::mat4x4(1.0f), position);
-
-	model = translation * rotation;
-
-	view = glm::inverse(model);
-
+	view = glm::inverse(transform.Get());
 	projectionView = projection * view;
 }
 
