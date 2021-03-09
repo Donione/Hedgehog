@@ -63,8 +63,18 @@ class OrthographicCamera : public Camera
 {
 public:
 	OrthographicCamera() = default;
-	OrthographicCamera(float left, float right, float bottom, float top);
-	OrthographicCamera(float left, float right, float bottom, float top, float frustumNear, float frustumFar);
+	OrthographicCamera(float left,
+					   float right,
+					   float bottom,
+					   float top,
+					   float frustumNear = 0.01f,
+					   float frustumFar = 1.0f);
+
+private:
+	glm::mat4 CreateOrthographicMatrix();
+
+private:
+	float zoom = 1.0f;
 };
 
 
@@ -73,6 +83,9 @@ class PerspectiveCamera : public Camera
 public:
 	PerspectiveCamera() = default;
 	PerspectiveCamera(float fov, float aspectRatio, float frustumNear, float frustumFar);
+
+private:
+	glm::mat4 CreatePerspectiveMatrix();
 };
 
 } // namespace Hedge
