@@ -16,7 +16,7 @@ struct Frustum
 	float nearClip;
 	float farClip;
 
-	// fov and aspect ratio can be computed from left, right, top and bottom and vice versa
+	// fov applies only for perspective camera
 	float fov;
 	float aspectRatio;
 
@@ -38,7 +38,7 @@ public:
 	void Move(const glm::vec3& positionOffset);
 	void Rotate(const glm::vec3& rotationOffset);
 
-	void SetAspectRatio(float aspectRatio);
+	virtual void SetAspectRatio(float aspectRatio) = 0;
 
 	const glm::mat4x4& GetView() const { return view; }
 	const glm::mat4x4& GetProjection() const { return projection; }
@@ -70,6 +70,9 @@ public:
 					   float frustumNear = 0.01f,
 					   float frustumFar = 1.0f);
 
+	virtual void SetAspectRatio(float aspectRatio) override;
+	virtual void SetZoom(float zoom);
+
 private:
 	glm::mat4 CreateOrthographicMatrix();
 
@@ -83,6 +86,9 @@ class PerspectiveCamera : public Camera
 public:
 	PerspectiveCamera() = default;
 	PerspectiveCamera(float fov, float aspectRatio, float frustumNear, float frustumFar);
+
+	virtual void SetAspectRatio(float aspectRatio) override;
+	virtual void SetFOV(float FOV);
 
 private:
 	glm::mat4 CreatePerspectiveMatrix();

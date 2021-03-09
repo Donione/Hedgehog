@@ -59,14 +59,6 @@ void Camera::Rotate(const glm::vec3& rotationOffset)
 	CalculateView();
 }
 
-void Camera::SetAspectRatio(float aspectRatio)
-{
-	frustum.aspectRatio = aspectRatio;
-
-	projection = glm::perspective(glm::radians(frustum.fov), aspectRatio, frustum.nearClip, frustum.farClip);
-	CalculateView();
-}
-
 void Camera::CalculateView()
 {
 	view = glm::inverse(transform.Get());
@@ -83,6 +75,27 @@ OrthographicCamera::OrthographicCamera(float left, float right, float bottom, fl
 	frustum.nearClip = nearClip;
 	frustum.farClip = farClip;
 
+	frustum.aspectRatio = right / top;
+
+	projection = CreateOrthographicMatrix();
+	CalculateView();
+}
+
+void OrthographicCamera::SetAspectRatio(float aspectRatio)
+{
+	frustum.left = -aspectRatio;
+	frustum.right = aspectRatio;;
+
+	frustum.aspectRatio = aspectRatio;
+
+	projection = CreateOrthographicMatrix();
+	CalculateView();
+}
+
+void OrthographicCamera::SetZoom(float zoom)
+{
+	this->zoom = zoom;
+
 	projection = CreateOrthographicMatrix();
 	CalculateView();
 }
@@ -94,6 +107,22 @@ PerspectiveCamera::PerspectiveCamera(float fov, float aspectRatio, float nearCli
 	frustum.aspectRatio = aspectRatio;
 	frustum.nearClip = nearClip;
 	frustum.farClip = farClip;
+
+	projection = CreatePerspectiveMatrix();
+	CalculateView();
+}
+
+void PerspectiveCamera::SetAspectRatio(float aspectRatio)
+{
+	frustum.aspectRatio = aspectRatio;
+
+	projection = CreatePerspectiveMatrix();
+	CalculateView();
+}
+
+void PerspectiveCamera::SetFOV(float FOV)
+{
+	frustum.fov = FOV;
 
 	projection = CreatePerspectiveMatrix();
 	CalculateView();
