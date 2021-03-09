@@ -22,6 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Component/Transform.h>
+#include <Component/Light.h>
 
 
 void loadModel(std::string& filename, long long int& numberOfVertices, float*& vertices, long long int& numberOfIndices, unsigned int*& indices)
@@ -89,6 +90,9 @@ public:
 		camera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		camera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
 
+		light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		light.SetPosition(glm::vec3(3.0f, 3.0f, 5.0f));
+
 		long long int numberOfVertices;
 		long long int numberOfIndices;
 		float* modelVertices = NULL;
@@ -107,6 +111,8 @@ public:
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
+			{ "u_lightPosition", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
+			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
 		};
 
 		std::string modelVertexSrc;
@@ -123,12 +129,13 @@ public:
 		}
 		modelShader.reset(Hedge::Shader::Create(modelVertexSrc, modelFragmentSrc));
 		modelShader->SetupConstantBuffers(modelconstBufferDesc);
-		
+
 		modelVertexArray.reset(Hedge::VertexArray::Create(modelShader, modelVertexBufferArrayLayout));
 		modelVertexBuffer.reset(Hedge::VertexBuffer::Create(modelVertexBufferArrayLayout, modelVertices, sizeof(float) * 6 * (int)numberOfVertices));
 		delete modelVertices;
 		modelVertexArray->AddVertexBuffer(modelVertexBuffer);
 		modelIndexBuffer.reset(Hedge::IndexBuffer::Create(modelIndices, 3 * (int)numberOfIndices));
+		delete modelIndices;
 		modelVertexArray->AddIndexBuffer(modelIndexBuffer);
 		modelTransform.SetTranslation(translation);
 		modelTransform.SetRotation(rotate);
@@ -337,10 +344,12 @@ public:
 			Hedge::Renderer::Submit(vertexArray, transform3.Get());
 
 			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera.GetPosition());
+			modelVertexArray->GetShader()->UploadConstant("u_lightColor", light.GetColor());
+			modelVertexArray->GetShader()->UploadConstant("u_lightPosition", light.GetPosition());
 			Hedge::Renderer::Submit(modelVertexArray, modelTransform.Get());
 
 			// Order matters when we want to blend
-			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(0.0, 2.0f, 0.0f)));
+			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(-1.0f, 2.0f, 0.0f)));
 		}
 		Hedge::Renderer::EndScene();
 
@@ -440,11 +449,16 @@ public:
 		modelTransform.SetRotation(rotate);
 		modelTransform.SetUniformScale(scale);
 
-		ImGui::End();
+		ImGui::Text("\nLight properties:");
+		ImGui::ColorEdit3("Color", glm::value_ptr(light.GetColor()));
+		glm::vec3 lightPosition = light.GetPosition();
+		ImGui::DragFloat3("Position", glm::value_ptr(lightPosition), 0.01f, -20.0f, 20.0f);
 
-		//ImGui::InputFloat4("input float4", vec4f);
-		//ImGui::DragFloat4("drag float4", vec4f, 0.01f, 0.0f, 1.0f);
-		//ImGui::SliderFloat4("slider float4", vec4f, 0.0f, 1.0f);
+		light.SetPosition(glm::vec3(glm::sin(lightX) * 3.0f, glm::sin(lightY) * 3.0f, glm::cos(lightZ) * 3.0f));
+		lightX += 0.001f;
+		lightY += 0.0013f;
+		lightZ += 0.001f;
+		ImGui::End();
 	}
 
 	void OnMessage(const Hedge::Message& message) override
@@ -529,6 +543,11 @@ private:
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
 	float scale = 1.0f;
+
+	Hedge::Light light;
+	float lightX = 0.0f;
+	float lightY = 0.0f;
+	float lightZ = 0.0f;
 
 	int lastX = 0;
 	int lastY = 0;
