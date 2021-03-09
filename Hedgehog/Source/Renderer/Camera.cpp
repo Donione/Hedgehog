@@ -68,6 +68,8 @@ void Camera::CalculateView()
 
 OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top, float nearClip, float farClip)
 {
+	type = CameraType::Orthographic;
+
 	frustum.left = left;
 	frustum.right = right;
 	frustum.bottom = bottom;
@@ -103,6 +105,8 @@ void OrthographicCamera::SetZoom(float zoom)
 
 PerspectiveCamera::PerspectiveCamera(float fov, float aspectRatio, float nearClip, float farClip)
 {
+	type = CameraType::Perspective;
+
 	frustum.fov = fov;
 	frustum.aspectRatio = aspectRatio;
 	frustum.nearClip = nearClip;

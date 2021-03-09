@@ -23,12 +23,20 @@ struct Frustum
 	Frustum() = default;
 };
 
+enum class CameraType
+{
+	Orthographic,
+	Perspective,
+};
+
 class Camera
 {
 public:
 	Camera() = default;
 
 public:
+	CameraType GetType() const { return type; }
+
 	const glm::vec3& GetPosition() const { return transform.GetTranslation(); }
 	void SetPosition(const glm::vec3& position);
 
@@ -49,6 +57,8 @@ protected:
 
 
 protected:
+	CameraType type;
+
 	Transform transform;
 
 	glm::mat4x4 view = glm::mat4x4(1.0f); // inverse of model (transform) matrix
