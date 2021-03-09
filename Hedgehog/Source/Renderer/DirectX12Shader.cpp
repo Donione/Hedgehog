@@ -113,7 +113,9 @@ unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage us
 	{
 		if (element.usage == usage)
 		{
-			size += element.size;
+			// TODO properly follow packing rules
+			// the following won't work on floats and float2s
+			size += ((element.size + 15) & ~15);
 		}
 	}
 	// CB size is required to be 256-byte aligned.
@@ -128,7 +130,7 @@ DirectX12Shader::ConstantBufferView DirectX12Shader::CreateConstantBufferView(Co
 	newBuffer.totalSize = constantBuffers[element.usage].totalSize;
 	constantBufferViews.emplace(element.name, newBuffer);
 
-	dataOffsets.at(element.usage) += element.size;
+	dataOffsets.at(element.usage) += ((element.size + 15) & ~15);
 
 	return newBuffer;
 }
