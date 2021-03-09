@@ -11,6 +11,8 @@ uniform vec3 u_lightPosition;
 
 void main()
 {
+	vec3 objectColor = vec3(0.333f, 0.125f, 0.024f);
+
 	vec3 ambient = vec3(0.0f, 0.0f, 0.0f);
 
 	vec3 norm = normalize(v_Normal);
@@ -24,5 +26,5 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3 specular = specularStrength * spec * u_lightColor;
 
-	a_color = vec4(ambient + diffuse + specular, 1.0f);
+	a_color = vec4((ambient + diffuse + specular) * objectColor, 1.0f);
 }

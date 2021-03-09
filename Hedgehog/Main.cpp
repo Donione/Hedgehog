@@ -238,6 +238,52 @@ public:
 		transform3.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
 		transform3.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
 		transform3.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
+
+
+
+		float* lightVertices = NULL;
+		unsigned int* lightIndices = NULL;
+
+		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\koule.tri";
+		loadModel(modelFilename, numberOfVertices, lightVertices, numberOfIndices, lightIndices);
+
+		Hedge::BufferLayout lightVertexBufferArrayLayout =
+		{
+			{ Hedge::ShaderDataType::Float3, "a_position" },
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
+		};
+
+		Hedge::ConstantBufferDescription lightconstBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
+		};
+
+		std::string lightVertexSrc;
+		std::string lightFragmentSrc;
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		{
+			lightVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+		}
+		else
+		{
+			lightVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
+			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
+		}
+		lightShader.reset(Hedge::Shader::Create(lightVertexSrc, lightFragmentSrc));
+		lightShader->SetupConstantBuffers(lightconstBufferDesc);
+
+		lightVertexArray.reset(Hedge::VertexArray::Create(lightShader, lightVertexBufferArrayLayout));
+		lightVertexBuffer.reset(Hedge::VertexBuffer::Create(lightVertexBufferArrayLayout, lightVertices, sizeof(float) * 6 * (int)numberOfVertices));
+		delete lightVertices;
+		lightVertexArray->AddVertexBuffer(lightVertexBuffer);
+		lightIndexBuffer.reset(Hedge::IndexBuffer::Create(lightIndices, 3 * (int)numberOfIndices));
+		delete lightIndices;
+		lightVertexArray->AddIndexBuffer(lightIndexBuffer);
+		light.SetPosition(glm::vec3(lightX, lightY, lightZ));
+		light.GetTransform().SetUniformScale(0.1f);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -392,6 +438,7 @@ public:
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(vertexArray)->UpdateRenderSettings();
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(vertexArraySquare)->UpdateRenderSettings();
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(modelVertexArray)->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(lightVertexArray)->UpdateRenderSettings();
 			}
 		}
 	}
@@ -543,6 +590,12 @@ private:
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
 	float scale = 1.0f;
+
+
+	std::shared_ptr<Hedge::VertexArray> lightVertexArray;
+	std::shared_ptr<Hedge::VertexBuffer> lightVertexBuffer;
+	std::shared_ptr<Hedge::IndexBuffer> lightIndexBuffer;
+	std::shared_ptr<Hedge::Shader> lightShader;
 
 	Hedge::Light light;
 	float lightX = 0.0f;
