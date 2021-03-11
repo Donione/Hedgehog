@@ -57,7 +57,7 @@ protected:
 
 
 protected:
-	CameraType type;
+	CameraType type = CameraType::Perspective;
 
 	Transform transform;
 
@@ -65,7 +65,7 @@ protected:
 	glm::mat4x4 projection = glm::mat4x4(1.0f);
 	glm::mat4x4 projectionView = glm::mat4x4(1.0f);
 
-	Frustum frustum = Frustum();
+	Frustum frustum;
 };
 
 
