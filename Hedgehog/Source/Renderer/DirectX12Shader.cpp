@@ -55,14 +55,16 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 	switch (usage)
 	{
 	case ConstantBufferUsage::Scene: rootParamIndex = 0; break;
-	case ConstantBufferUsage::Object: rootParamIndex = 1; break;
-	case ConstantBufferUsage::Other: rootParamIndex = 2; break;
+	case ConstantBufferUsage::Light: rootParamIndex = 1; break;
+	case ConstantBufferUsage::Object: rootParamIndex = 2; break;
+	case ConstantBufferUsage::Other: rootParamIndex = 3; break;
 	default: assert(false); break;
 	}
 
 	unsigned long long size = GetConstantBufferSize(usage);
 	if (size == 0)
 	{
+		constBuffersSkipped++;
 		return { 0, nullptr, nullptr, 0 };
 	}
 
@@ -103,7 +105,7 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 	ThrowIfFailed(constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mappedData)));
 	// Any reason to zero the newly created constant buffer?
 
-	return { rootParamIndex, constantBuffer, mappedData, size };
+	return { rootParamIndex - constBuffersSkipped, constantBuffer, mappedData, size };
 }
 
 unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage usage)
@@ -202,7 +204,7 @@ void DirectX12Shader::SetupConstantBuffers(ConstantBufferDescription constBuffer
 
 	//dx12context->g_pd3dDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&CBVDescHeap));
 
-	std::vector<ConstantBufferUsage> usages = { ConstantBufferUsage::Scene, ConstantBufferUsage::Object, ConstantBufferUsage::Other };
+	std::vector<ConstantBufferUsage> usages = { ConstantBufferUsage::Scene, ConstantBufferUsage::Light, ConstantBufferUsage::Object, ConstantBufferUsage::Other };
 	for (auto usage : usages)
 	{
 		ConstantBuffer newBuffer = CreateConstantBuffer(usage);

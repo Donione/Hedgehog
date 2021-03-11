@@ -11,6 +11,7 @@ namespace Hedge
 enum class ConstantBufferUsage
 {
 	Scene,
+	Light,
 	Object,
 	Other,
 };

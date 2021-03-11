@@ -83,6 +83,7 @@ private:
 	ConstantBufferDescription description;
 	ID3D12DescriptorHeap* CBVDescHeap = nullptr;
 	std::unordered_map<ConstantBufferUsage, ConstantBuffer> constantBuffers;
+	int constBuffersSkipped = 0;
 	std::unordered_map<std::string, ConstantBufferView> constantBufferViews;
 	std::unordered_map <ConstantBufferUsage, unsigned long long> dataOffsets =
 	{
