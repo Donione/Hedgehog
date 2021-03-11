@@ -84,11 +84,15 @@ public:
 		previousBlending = blending = Hedge::RenderCommand::GetBlending();
 
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
-		camera = Hedge::PerspectiveCamera(56.0f, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
-		//camera = OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f)
+		perspectiveCamera = Hedge::PerspectiveCamera(cameraFOV, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
+		orthographicCamera = Hedge::OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f);
+		orthographicCamera.SetZoom(cameraZoom);
+		camera = &perspectiveCamera;
 
-		camera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
-		camera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+		orthographicCamera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
+		orthographicCamera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+		perspectiveCamera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
+		perspectiveCamera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
 
 		light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
 		light.SetPosition(glm::vec3(3.0f, 3.0f, 5.0f));
@@ -329,12 +333,17 @@ public:
 
 		if (GetKeyState(VK_SPACE) < 0)
 		{
-			camera.SetPosition({ 0.0f, 0.0f, 3.0f });
-			camera.SetRotation({ 0.0f, 0.0f, 0.0f });
+			//camera.SetPosition({ 0.0f, 0.0f, 3.0f });
+			orthographicCamera.SetPosition({ 0.0f, 0.0f, 0.0f });
+			orthographicCamera.SetRotation({ 0.0f, 0.0f, 0.0f });
+			perspectiveCamera.SetPosition({ 0.0f, 0.0f, 0.0f });
+			perspectiveCamera.SetRotation({ 0.0f, 0.0f, 0.0f });
 		}
 
-		camera.Move(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
-		camera.Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		orthographicCamera.Move(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+		orthographicCamera.Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		perspectiveCamera.Move(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+		perspectiveCamera.Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
 
 		xOffset = 0;
 		yOffset = 0;
@@ -388,8 +397,11 @@ public:
 			Hedge::Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
 			Hedge::Renderer::Submit(vertexArray, transform2.Get());
 			Hedge::Renderer::Submit(vertexArray, transform3.Get());
-
-			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera.GetPosition());
+			
+			lightVertexArray->GetShader()->UploadConstant("u_lightColor", light.GetColor());
+			Hedge::Renderer::Submit(lightVertexArray, light.GetTransform().Get());
+			
+			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
 			modelVertexArray->GetShader()->UploadConstant("u_lightColor", light.GetColor());
 			modelVertexArray->GetShader()->UploadConstant("u_lightPosition", light.GetPosition());
 			Hedge::Renderer::Submit(modelVertexArray, modelTransform.Get());
@@ -449,12 +461,39 @@ public:
 		ImGui::Text("Client Area Size: %u %u", Hedge::Application::GetInstance().GetWindow().GetWidth(), Hedge::Application::GetInstance().GetWindow().GetHeight());
 		ImGui::End();
 
+
 		ImGui::Begin("Camera");
-		glm::vec3 position = camera.GetPosition();
-		glm::vec3 rotation = camera.GetRotation();
+
+		static int cameraType = 1;
+		ImGui::Combo("Camera Type", &cameraType, "Orthographic\0Perspective\0\0");
+		if (cameraType == 0)
+		{
+			camera = &orthographicCamera;
+		}
+		else
+		{
+			camera = &perspectiveCamera;
+		}
+
+		glm::vec3 position = camera->GetPosition();
+		glm::vec3 rotation = camera->GetRotation();
 		ImGui::Text("Position: %f %f %f", position.x, position.y, position.z);
 		ImGui::Text("Rotation: %f %f %f", rotation.x, rotation.y, rotation.z);
+
+		if (camera->GetType() == Hedge::CameraType::Orthographic)
+		{
+			ImGui::SliderFloat("Zoom", &cameraZoom, 0.1f, 10.0f);
+			orthographicCamera.SetZoom(cameraZoom);
+		}
+		else if (camera->GetType() == Hedge::CameraType::Perspective)
+		{
+			ImGui::SliderFloat("vFOV", &cameraFOV, 20.0f, 150.0f);
+			perspectiveCamera.SetFOV(cameraFOV);
+			ImGui::SameLine();
+			ImGui::Text("(hFOV: %f)", cameraFOV * aspectRatio);
+		}
 		ImGui::End();
+
 
 		ImGui::Begin("Rendering Settings");
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
@@ -485,10 +524,11 @@ public:
 		ImGui::Checkbox("Blending", &blending);
 		ImGui::End();
 
+
 		ImGui::Begin("Scene");
 		ImGui::Checkbox("Show Axes", &showAxes);
 
-
+		ImGui::Text("\nModel transform:");
 		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
 		ImGui::SliderFloat3("rotate", glm::value_ptr(rotate), -360.0, 360.0);
 		ImGui::SliderFloat("scale", &scale, 0.01f, 10.0f);
@@ -545,14 +585,18 @@ public:
 			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
 			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
-			camera.SetAspectRatio(aspectRatio);
+			orthographicCamera.SetAspectRatio(aspectRatio);
+			perspectiveCamera.SetAspectRatio(aspectRatio);
 		}
 	}
 
 private:
 	float aspectRatio;
-	Hedge::PerspectiveCamera camera;
-	//OrthographicCamera camera;
+	float cameraFOV = 56.0f;
+	float cameraZoom = 1.0f;
+	Hedge::Camera* camera;
+	Hedge::PerspectiveCamera perspectiveCamera;
+	Hedge::OrthographicCamera orthographicCamera;
 
 	bool wireframeMode;
 	bool depthTest;

@@ -23,7 +23,7 @@ public:
 	static void SetFaceCulling(bool enable);
 	static void SetBlending(bool enable);
 
-	static void BeginScene(const Camera& camera);
+	static void BeginScene(Camera* camera);
 	static void EndScene();
 
 	static void Submit(const std::shared_ptr<VertexArray>& vertexArray,
@@ -33,7 +33,7 @@ public:
 
 private:
 	// C++17 has inline static for static member definition
-	inline static Camera sceneCamera;
+	inline static Camera* sceneCamera;
 
 	inline static std::set<std::shared_ptr<Shader>> usedShaders;
 };

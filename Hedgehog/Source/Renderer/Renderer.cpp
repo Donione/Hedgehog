@@ -27,7 +27,7 @@ void Renderer::SetBlending(bool enable)
 	RenderCommand::SetBlending(enable);
 }
 
-void Renderer::BeginScene(const Camera& camera)
+void Renderer::BeginScene(Camera* camera)
 {
 	sceneCamera = camera;
 }
@@ -51,7 +51,7 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 	// Keep track of different shaders that are being used so they can be cleared at the end of the scene
 	usedShaders.insert(vertexArray->GetShader());
 
-	vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera.GetProjectionView());
+	vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera->GetProjectionView());
 	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 
 	RenderCommand::DrawIndexed(vertexArray);
