@@ -6,28 +6,41 @@
 namespace Hedge
 {
 
-enum class LightType
+// Light structures padded acording to DirectX constant buffer packing rules (buckets of float4s)
+
+// PointLight shines in all directions and gets attenuated with distance
+struct PointLight
 {
-	Point,
+	glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f);
+	float padding0;
+	glm::vec3 position = glm::vec3(0.0f);
+	float padding1;
+	glm::vec3 attenuation = glm::vec3(1.0f, 0.0f, 0.0f); // x = constant, y = linear, z = quadratic components
+	float padding2;
 };
 
-class Light
+// SpotLight is a PointLight with a direction and cutoff radius (and a soft edge)
+struct SpotLight
 {
-public:
-	Light(LightType type = LightType::Point) : type(type) {}
-
-	glm::vec3& GetColor() { return color; }
-	const glm::vec3& GetPosition() const { return transform.GetTranslation(); }
-
-	void SetColor(const glm::vec3& color) { this->color = color; }
-	void SetPosition(const glm::vec3& position) { transform.SetTranslation(position); }
-
-	Transform& GetTransform() { return transform; }
-
-private:
-	LightType type;
 	glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f);
-	Transform transform;
+	float padding0;
+	glm::vec3 position = glm::vec3(0.0f);
+	float padding1;
+	glm::vec3 attenuation = glm::vec3(1.0f, 0.0f, 0.0f); // x = constant, y = linear, z = quadratic components
+	float padding2;
+	glm::vec3 direction = glm::vec3(0.0f);
+	float padding3;
+	glm::vec2 cutoffAngle = glm::cos(glm::radians(glm::vec2(15.0f, 20.0f))); // cosine of inner and outer angle in radians
+	float padding4[2];
+};
+
+// Directional Light is a sun-like light where position doesn't matter
+struct DirectionalLight
+{
+	glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f);
+	float padding0;
+	glm::vec3 direction = glm::vec3(0.0f);
+	float padding1;
 };
 
 } // namespace Hedge
