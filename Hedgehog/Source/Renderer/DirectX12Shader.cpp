@@ -64,6 +64,7 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 	unsigned long long size = GetConstantBufferSize(usage);
 	if (size == 0)
 	{
+		constBuffersSkipped++;
 		return { 0, nullptr, nullptr, 0 };
 	}
 
@@ -104,7 +105,7 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 	ThrowIfFailed(constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mappedData)));
 	// Any reason to zero the newly created constant buffer?
 
-	return { rootParamIndex, constantBuffer, mappedData, size };
+	return { rootParamIndex - constBuffersSkipped, constantBuffer, mappedData, size };
 }
 
 unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage usage)
