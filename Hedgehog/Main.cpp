@@ -58,6 +58,7 @@ void loadModel(std::string& filename, long long int& numberOfVertices, float*& v
 
 		glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
 
+		// to estimate vertex normals, accumulate triangle normals in vertices (and normalizes them when all triangles were processed or in a shader)
 		vertices[indices[index * 3 + 0] * 6 + 3] += normal.x;
 		vertices[indices[index * 3 + 0] * 6 + 4] += normal.y;
 		vertices[indices[index * 3 + 0] * 6 + 5] += normal.z;
@@ -94,8 +95,20 @@ public:
 		perspectiveCamera.SetPosition(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		perspectiveCamera.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
 
-		light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
-		light.SetPosition(glm::vec3(3.0f, 3.0f, 5.0f));
+		light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
+		light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
+		light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
+		lightTransform.SetUniformScale(0.1f);
+
+		spotLight.color = (glm::vec3(1.0f, 1.0f, 1.0f));
+		//spotLight.SetAttenuation(glm::vec3(1.0f, 0.027f, 0.0028f));
+		spotLight.position = (glm::vec3(0.0f, 0.0f, 2.0f));
+		spotLight.direction = (glm::vec3(xdir, ydir, zdir));
+		//spotLight.cutoffAngle = glm::vec2(glm::cos(glm::radians(15.0f)), glm::cos(glm::radians(20.0f)));
+		//spotLight.cutoffAngle = glm::radians(glm::vec2(15.0f, 20.0f));
+
+		directionalLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
+		directionalLight.direction = glm::vec3(xdir, ydir, zdir);
 
 		long long int numberOfVertices;
 		long long int numberOfIndices;
@@ -114,9 +127,10 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
-			{ "u_lightPosition", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
-			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
+			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene },
+			{ "u_directionalLight", sizeof(float) * 4 * 2, Hedge::ConstantBufferUsage::Light },
+			{ "u_pointLight", sizeof(float) * 4 * 3, Hedge::ConstantBufferUsage::Light },
+			{ "u_spotLight", sizeof(float) * 4 * 5, Hedge::ConstantBufferUsage::Light },
 		};
 
 		std::string modelVertexSrc;
@@ -286,8 +300,6 @@ public:
 		lightIndexBuffer.reset(Hedge::IndexBuffer::Create(lightIndices, 3 * (int)numberOfIndices));
 		delete lightIndices;
 		lightVertexArray->AddIndexBuffer(lightIndexBuffer);
-		light.SetPosition(glm::vec3(lightX, lightY, lightZ));
-		light.GetTransform().SetUniformScale(0.1f);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -394,20 +406,30 @@ public:
 			//	delete axesIB;
 			//}
 
-			Hedge::Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
-			Hedge::Renderer::Submit(vertexArray, transform2.Get());
-			Hedge::Renderer::Submit(vertexArray, transform3.Get());
+			//Hedge::Renderer::Submit(vertexArray, glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f)));
+			//Hedge::Renderer::Submit(vertexArray, transform2.Get());
+			//Hedge::Renderer::Submit(vertexArray, transform3.Get());
 			
-			lightVertexArray->GetShader()->UploadConstant("u_lightColor", light.GetColor());
-			Hedge::Renderer::Submit(lightVertexArray, light.GetTransform().Get());
+			lightVertexArray->GetShader()->UploadConstant("u_lightColor", light.color);
+			Hedge::Renderer::Submit(lightVertexArray, lightTransform.Get());
 			
+			float data[20];
 			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
-			modelVertexArray->GetShader()->UploadConstant("u_lightColor", light.GetColor());
-			modelVertexArray->GetShader()->UploadConstant("u_lightPosition", light.GetPosition());
+
+			data[0] = directionalLight.color.r; data[1] = directionalLight.color.g; data[2] = directionalLight.color.b;
+			data[4] = directionalLight.direction.x; data[5] = directionalLight.direction.y; data[6] = directionalLight.direction.z;
+			modelVertexArray->GetShader()->UploadConstant("u_directionalLight", (uint8_t*)data, sizeof(float) * 4 * 2);
+
+			data[0] = light.color.r; data[1] = light.color.g; data[2] = light.color.b;
+			data[4] = light.position.x; data[5] = light.position.y; data[6] = light.position.z;
+			data[8] = light.attenuation.x; data[9] = light.attenuation.y; data[10] = light.attenuation.z;
+			modelVertexArray->GetShader()->UploadConstant("u_pointLight", (uint8_t*)data, sizeof(float) * 4 * 3);
+
+			modelVertexArray->GetShader()->UploadConstant("u_spotLight", (uint8_t*)&spotLight.color, sizeof(float) * 4 * 5);
 			Hedge::Renderer::Submit(modelVertexArray, modelTransform.Get());
 
 			// Order matters when we want to blend
-			Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(-1.0f, 2.0f, 0.0f)));
+			//Hedge::Renderer::Submit(vertexArraySquare, glm::translate(glm::mat4x4(1.0f), glm::vec3(-1.0f, 2.0f, 0.0f)));
 		}
 		Hedge::Renderer::EndScene();
 
@@ -536,15 +558,35 @@ public:
 		modelTransform.SetRotation(rotate);
 		modelTransform.SetUniformScale(scale);
 
-		ImGui::Text("\nLight properties:");
-		ImGui::ColorEdit3("Color", glm::value_ptr(light.GetColor()));
-		glm::vec3 lightPosition = light.GetPosition();
-		ImGui::DragFloat3("Position", glm::value_ptr(lightPosition), 0.01f, -20.0f, 20.0f);
 
-		light.SetPosition(glm::vec3(glm::sin(lightX) * 3.0f, glm::sin(lightY) * 3.0f, glm::cos(lightZ) * 3.0f));
-		lightX += 0.001f;
-		lightY += 0.0013f;
-		lightZ += 0.001f;
+		ImGui::Begin("Lights");
+
+		ImGui::Text("Directional light");
+		ImGui::ColorEdit3("Color", glm::value_ptr(directionalLight.color));
+		ImGui::DragFloat3("Direction", glm::value_ptr(directionalLight.direction), 0.01f, -10.0, 10.0f);
+
+		ImGui::Text("\nPoint light");
+		ImGui::ColorEdit3("Color2", glm::value_ptr(light.color));
+		ImGui::DragFloat3("Position2", glm::value_ptr(light.position), 0.01f, -20.0f, 20.0f);
+		lightTransform.SetTranslation(light.position);
+		// light.attenuation
+
+		ImGui::Text("\nSpot light");
+		ImGui::ColorEdit3("Color3", glm::value_ptr(spotLight.color));
+		ImGui::DragFloat3("Position3", glm::value_ptr(spotLight.position), 0.01f, -20.0f, 20.0f);
+		ImGui::DragFloat3("Direction3", glm::value_ptr(spotLight.direction), 0.01f, -10.0, 10.0f);
+		glm::vec2 cutoffAngle = glm::degrees(glm::acos(spotLight.cutoffAngle));
+		ImGui::DragFloat("Inner cutoff angle", &cutoffAngle.x, 0.1f, cutoffAngle.y - 20.0f, cutoffAngle.y);
+		ImGui::DragFloat("Outer cutoff angle", &cutoffAngle.y, 0.1f, cutoffAngle.x, 180.0f);
+		//ImGui::DragFloat2("Cutoff angle", glm::value_ptr(cutoffAngle), 0.1f, 0.0f, 180.0f);
+		spotLight.cutoffAngle = glm::cos(glm::radians(cutoffAngle));
+
+		ImGui::End();
+
+		//light.SetPosition(glm::vec3(glm::sin(lightX) * 3.0f, glm::sin(lightY) * 3.0f, glm::cos(lightZ) * 3.0f));
+		//lightX += 0.001f;
+		//lightY += 0.0013f;
+		//lightZ += 0.001f;
 		ImGui::End();
 	}
 
@@ -641,7 +683,14 @@ private:
 	std::shared_ptr<Hedge::IndexBuffer> lightIndexBuffer;
 	std::shared_ptr<Hedge::Shader> lightShader;
 
-	Hedge::Light light;
+	//Hedge::Light light;
+	Hedge::PointLight light;
+	Hedge::SpotLight spotLight;
+	Hedge::DirectionalLight directionalLight;
+	Hedge::Transform lightTransform;
+	float xdir = 0.0f;
+	float ydir = 0.0f;
+	float zdir = -1.0f;
 	float lightX = 0.0f;
 	float lightY = 0.0f;
 	float lightZ = 0.0f;
