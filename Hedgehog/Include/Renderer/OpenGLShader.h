@@ -30,7 +30,11 @@ public:
 
 	virtual void UploadConstant(const std::string& name, int constant) override;
 
-	virtual void UploadConstant(const std::string& name, void* constant, unsigned long long size) override;
+	virtual void UploadConstant(const std::string& name, const DirectionalLight& constant) override;
+	virtual void UploadConstant(const std::string& name, const PointLight& constant) override;
+	virtual void UploadConstant(const std::string& name, const SpotLight& constant) override;
+
+	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override;
 
 private:
 	std::string ReadFile(const std::string& filePath);

@@ -256,13 +256,28 @@ void DirectX12Shader::UploadConstant(const std::string& name, int constant)
 	UploadConstant(name, static_cast<void*>(&constant), sizeof(int));
 }
 
-void DirectX12Shader::UploadConstant(const std::string& name, void* constant, unsigned long long size)
+void DirectX12Shader::UploadConstant(const std::string& name, const DirectionalLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(DirectionalLight));
+}
+
+void DirectX12Shader::UploadConstant(const std::string& name, const PointLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(PointLight));
+}
+
+void DirectX12Shader::UploadConstant(const std::string& name, const SpotLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(SpotLight));
+}
+
+void DirectX12Shader::UploadConstant(const std::string& name, const void* constant, unsigned long long size)
 {
 	assert(constantBufferViews.contains(name));
-	assert(size == constantBufferViews[name].size);
+	assert(size == constantBufferViews.at(name).size);
 
 	// TODO assert no overflow
-	memcpy(constantBufferViews[name].mappedData + objectNum * constantBufferViews[name].totalSize, constant, size);
+	memcpy(constantBufferViews.at(name).mappedData + objectNum * constantBufferViews.at(name).totalSize, constant, size);
 }
 
 const D3D12_SHADER_BYTECODE DirectX12Shader::GetVSBytecode() const

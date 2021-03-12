@@ -177,7 +177,29 @@ void OpenGLShader::UploadConstant(const std::string& name, int constant)
 	glUniform1i(uniformLocation, constant);
 }
 
-void OpenGLShader::UploadConstant(const std::string& name, void* constant, unsigned long long size)
+void OpenGLShader::UploadConstant(const std::string& name, const DirectionalLight& constant)
+{
+	UploadConstant(name + ".color", constant.color);
+	UploadConstant(name + ".direction", constant.direction);
+}
+
+void OpenGLShader::UploadConstant(const std::string& name, const PointLight& constant)
+{
+	UploadConstant(name + ".color", constant.color);
+	UploadConstant(name + ".position", constant.position);
+	UploadConstant(name + ".attenuation", constant.attenuation);
+}
+
+void OpenGLShader::UploadConstant(const std::string& name, const SpotLight& constant)
+{
+	UploadConstant(name + ".color", constant.color);
+	UploadConstant(name + ".position", constant.position);
+	UploadConstant(name + ".attenuation", constant.attenuation);
+	UploadConstant(name + ".direction", constant.direction);
+	UploadConstant(name + ".cutoffAngle", constant.cutoffAngle);
+}
+
+void OpenGLShader::UploadConstant(const std::string& name, const void* constant, unsigned long long size)
 {
 	assert(false);
 }

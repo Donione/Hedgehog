@@ -413,19 +413,10 @@ public:
 			lightVertexArray->GetShader()->UploadConstant("u_lightColor", light.color);
 			Hedge::Renderer::Submit(lightVertexArray, lightTransform.Get());
 			
-			float data[20];
 			modelVertexArray->GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
-
-			data[0] = directionalLight.color.r; data[1] = directionalLight.color.g; data[2] = directionalLight.color.b;
-			data[4] = directionalLight.direction.x; data[5] = directionalLight.direction.y; data[6] = directionalLight.direction.z;
-			modelVertexArray->GetShader()->UploadConstant("u_directionalLight", (uint8_t*)data, sizeof(float) * 4 * 2);
-
-			data[0] = light.color.r; data[1] = light.color.g; data[2] = light.color.b;
-			data[4] = light.position.x; data[5] = light.position.y; data[6] = light.position.z;
-			data[8] = light.attenuation.x; data[9] = light.attenuation.y; data[10] = light.attenuation.z;
-			modelVertexArray->GetShader()->UploadConstant("u_pointLight", (uint8_t*)data, sizeof(float) * 4 * 3);
-
-			modelVertexArray->GetShader()->UploadConstant("u_spotLight", (uint8_t*)&spotLight.color, sizeof(float) * 4 * 5);
+			modelVertexArray->GetShader()->UploadConstant("u_directionalLight", directionalLight);
+			modelVertexArray->GetShader()->UploadConstant("u_pointLight", light);
+			modelVertexArray->GetShader()->UploadConstant("u_spotLight", spotLight);
 			Hedge::Renderer::Submit(modelVertexArray, modelTransform.Get());
 
 			// Order matters when we want to blend
