@@ -80,6 +80,10 @@ public:
 	virtual void UploadConstant(const std::string& name, const PointLight& constant) = 0;
 	virtual void UploadConstant(const std::string& name, const SpotLight& constant) = 0;
 
+	virtual void UploadConstant(const std::string& name, const DirectionalLight* constant, int count = 1) = 0;
+	virtual void UploadConstant(const std::string& name, const PointLight* constant, int count = 1) = 0;
+	virtual void UploadConstant(const std::string& name, const SpotLight* constant, int count = 1) = 0;
+
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) = 0;
 
 	static Shader* Create(const std::string& filePath);

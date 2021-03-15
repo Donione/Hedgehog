@@ -271,6 +271,21 @@ void DirectX12Shader::UploadConstant(const std::string& name, const SpotLight& c
 	UploadConstant(name, static_cast<const void*>(&constant), sizeof(SpotLight));
 }
 
+void DirectX12Shader::UploadConstant(const std::string& name, const DirectionalLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(DirectionalLight) * count);
+}
+
+void DirectX12Shader::UploadConstant(const std::string& name, const PointLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(PointLight) * count);
+}
+
+void DirectX12Shader::UploadConstant(const std::string& name, const SpotLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(SpotLight) * count);
+}
+
 void DirectX12Shader::UploadConstant(const std::string& name, const void* constant, unsigned long long size)
 {
 	assert(constantBufferViews.contains(name));
