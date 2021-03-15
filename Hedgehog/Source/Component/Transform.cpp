@@ -68,6 +68,15 @@ void Transform::SetRotation(const glm::vec3& rotation)
 	updateTransform = true;
 }
 
+void Transform::SetRotation(const glm::mat4& rotation)
+{
+	rotationMatrix = rotation;
+
+	glm::extractEulerAngleXYZ(rotationMatrix, this->rotation.x, this->rotation.y, this->rotation.z);
+	this->rotation = glm::degrees(this->rotation);
+	updateTransform = true;
+}
+
 void Transform::Rotate(const glm::vec3& rotation)
 {
 	rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
