@@ -40,7 +40,7 @@ struct SpotLight
 cbuffer SceneLightsBuffer : register(b1)
 {
     DirectionalLight u_directionalLight;
-    PointLight u_pointLight;
+    PointLight u_pointLight[2];
     SpotLight u_spotLight;
 }
 
@@ -164,7 +164,8 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 norm = normalize(input.normal);
 
     result += CalculateDirectionalLight(normalize(-u_directionalLight.direction), u_directionalLight.color, input.pos, norm);
-    result += CalculatePointLight(u_pointLight.position, u_pointLight.color, u_pointLight.attenuation, input.pos, norm);
+    result += CalculatePointLight(u_pointLight[0].position, u_pointLight[0].color, u_pointLight[0].attenuation, input.pos, norm);
+    result += CalculatePointLight(u_pointLight[1].position, u_pointLight[1].color, u_pointLight[1].attenuation, input.pos, norm);
     result += CalculateSpotLight(u_spotLight.position,
                                  u_spotLight.color,
                                  normalize(-u_spotLight.direction),
