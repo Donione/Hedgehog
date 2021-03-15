@@ -128,11 +128,11 @@ DirectX12Shader::ConstantBufferView DirectX12Shader::CreateConstantBufferView(Co
 {
 	ConstantBufferView newBuffer;
 	newBuffer.mappedData = constantBuffers[element.usage].mappedData + dataOffsets[element.usage];
-	newBuffer.size = element.size;
+	newBuffer.size = element.size * element.count;
 	newBuffer.totalSize = constantBuffers[element.usage].totalSize;
 	constantBufferViews.emplace(element.name, newBuffer);
 
-	dataOffsets.at(element.usage) += ((element.size + 15) & ~15);
+	dataOffsets.at(element.usage) += ((element.size * element.count + 15) & ~15);
 
 	return newBuffer;
 }

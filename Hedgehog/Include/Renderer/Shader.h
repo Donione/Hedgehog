@@ -28,12 +28,14 @@ struct ConstantBufferDescriptionElement
 	ConstantBufferDescriptionElement() = default;
 	ConstantBufferDescriptionElement(const std::string& name,
 									 unsigned long long size,
-									 ConstantBufferUsage usage = ConstantBufferUsage::Other)
-		: name(name), size(size), usage(usage) {}
+									 ConstantBufferUsage usage = ConstantBufferUsage::Other,
+									 unsigned int count = 1)
+		: name(name), size(size), usage(usage), count(count) {}
 
 	std::string name;
 	unsigned long long size;
 	ConstantBufferUsage usage;
+	unsigned int count;
 };
 
 class ConstantBufferDescription
