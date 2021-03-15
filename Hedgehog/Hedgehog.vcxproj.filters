@@ -162,6 +162,9 @@
     <ClInclude Include="Include\Component\Transform.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Component\Mesh.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -243,6 +246,9 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Component\Transform.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Mesh.cpp">
       <Filter>Source\Component</Filter>
     </ClCompile>
   </ItemGroup>
