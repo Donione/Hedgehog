@@ -50,6 +50,7 @@ public:
 
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 
+		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
 		Hedge::BufferLayout modelVertexBufferArrayLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
@@ -79,7 +80,7 @@ public:
 			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
 
-		modelMesh = Hedge::Mesh(modelFilename, modelVertexBufferArrayLayout,
+		modelMesh = Hedge::Mesh(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
 								modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
 
 		modelMesh.transform.SetTranslation(translation);
@@ -93,6 +94,8 @@ public:
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 		};
 		
+		auto PrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
+
 		Hedge::BufferLayout vertexBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float4, "a_position" },
@@ -151,7 +154,7 @@ public:
 
 		mesh = Hedge::Mesh(vertices, sizeof(vertices),
 						   indices, sizeof(indices) / sizeof(unsigned int),
-						   vertexBufferLayout,
+						   PrimitiveTopology, vertexBufferLayout,
 						   vertexSrc, fragmentSrc, constBufferDesc);
 		mesh.transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
@@ -166,7 +169,7 @@ public:
 
 		squareMesh = Hedge::Mesh(vertices, sizeof(vertices) / 2,
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
-								 vertexBufferLayout,
+								 PrimitiveTopology, vertexBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, constBufferDesc,
 								 textureFilename);
 		squareMesh.transform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
@@ -192,6 +195,8 @@ public:
 		pointLight[1].position = (glm::vec3(0.0f, 2.0f, 0.0f));
 
 		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\koule.tri";
+
+		auto lightPrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
 
 		Hedge::BufferLayout lightVertexBufferArrayLayout =
 		{
@@ -219,12 +224,12 @@ public:
 			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
 		}
 
-		pointLightMeshes[0] = Hedge::Mesh(modelFilename, lightVertexBufferArrayLayout,
+		pointLightMeshes[0] = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		pointLightMeshes[0].transform.SetUniformScale(0.1f);
 
 
-		pointLightMeshes[1] = Hedge::Mesh(modelFilename, lightVertexBufferArrayLayout,
+		pointLightMeshes[1] = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		pointLightMeshes[1].transform.SetUniformScale(0.1f);
 
@@ -237,7 +242,7 @@ public:
 
 		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\valec.tri";
 
-		spotLightMesh = Hedge::Mesh(modelFilename, lightVertexBufferArrayLayout,
+		spotLightMesh = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 									lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		spotLightMesh.transform.SetUniformScale(0.1f);
 		spotLightMesh.transform.SetTranslation(glm::vec3(0.0f));
