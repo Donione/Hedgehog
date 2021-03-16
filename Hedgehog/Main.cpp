@@ -37,7 +37,7 @@ public:
 		previousBlending = blending = Hedge::RenderCommand::GetBlending();
 
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
-		perspectiveCamera = Hedge::PerspectiveCamera(cameraFOV, aspectRatio, 0.01f, 25.0f); // camera space, +z goes into the screen
+		perspectiveCamera = Hedge::PerspectiveCamera(cameraFOV, aspectRatio, 0.01f, 100.0f); // camera space, +z goes into the screen
 		orthographicCamera = Hedge::OrthographicCamera(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f);
 		orthographicCamera.SetZoom(cameraZoom);
 		camera = &perspectiveCamera;
@@ -249,8 +249,88 @@ public:
 		spotLightMesh.transform.SetRotation(glm::vec3(0.0f));
 
 		spotLightBaseRotation = glm::mat4(1.0f);
-		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(11.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(-14.1f), glm::vec3(0.0f, 1.0f, 0.0f));
+		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(9.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(-13.75f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+		// Axes lines
+		auto axesPrimitiveTopology = Hedge::PrimitiveTopology::Line;
+
+		Hedge::BufferLayout axesBL =
+		{
+			{ Hedge::ShaderDataType::Float4, "a_position" },
+			{ Hedge::ShaderDataType::Float4, "a_color" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		};
+
+		struct Vertex
+		{
+			float x, y, z, w, r, g, b, a, u, v;
+		};
+
+		Vertex axesVertices[6] =
+		{
+			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f }, // X axis
+			{ 100.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f },
+			{ 0.0f, -100.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f }, // Y axis
+			{ 0.0f, 100.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f },
+			{ 0.0f, 0.0f, -100.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f }, // Z axis
+			{ 0.0f, 0.0f, 100.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f },
+		};
+
+		unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
+
+		const int numVertices = 804;
+		Vertex gridVertices[numVertices];
+		int index = 0;
+
+		for (int x = -100; x <= 100; x++)
+		{
+			gridVertices[index++] = { (float)x, 0.0f, -100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+			gridVertices[index++] = { (float)x, 0.0f,  100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+		}
+
+		for (int z = -100; z <= 100; z++)
+		{
+			gridVertices[index++] = { -100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+			gridVertices[index++] = {  100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+		}
+
+		assert(index == numVertices);
+
+		unsigned int gridIndices[numVertices];
+		for (int i = 0; i < numVertices; i++)
+		{
+			gridIndices[i] = i;
+		}
+
+
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		{
+			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		{
+			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		}
+
+		constBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		};
+
+		axesMesh = Hedge::Mesh(&axesVertices[0].x, sizeof(axesVertices),
+							   axesIndices, sizeof(axesIndices) / sizeof(unsigned int),
+							   axesPrimitiveTopology, axesBL,
+							   vertexSrc, fragmentSrc, constBufferDesc);
+
+		gridMesh = Hedge::Mesh(&gridVertices[0].x, sizeof(gridVertices),
+							   gridIndices, sizeof(gridIndices) / sizeof(unsigned int),
+							   axesPrimitiveTopology, axesBL,
+							   vertexSrc, fragmentSrc, constBufferDesc);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -319,47 +399,19 @@ public:
 
 		Hedge::Renderer::BeginScene(camera);
 		{
-			//if (showAxes)
-			//{
-			//	BufferLayout axesBL =
-			//	{
-			//		{ ShaderDataType::Float4, "a_position" },
-			//		{ ShaderDataType::Float4, "a_color" },
-			//	};
+			if (showGrid)
+			{
+				Hedge::Renderer::Submit(gridMesh.Get());
+			}
 
-			//	float axesVertices[] =
-			//	{
-			//		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,
-			//		10.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,
-			//		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,
-			//		0.0f, 10.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,
-			//		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,
-			//		0.0f, 0.0f, 10.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,
-			//	};
+			if (showAxes)
+			{
+				Hedge::Renderer::Submit(axesMesh.Get());
+			}
 
-			//	unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
-
-			//	VertexBuffer* axesVB = VertexBuffer::Create(axesBL, axesVertices, sizeof(axesVertices));
-			//	glEnableVertexAttribArray(0);
-			//	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 32, 0);
-			//	glEnableVertexAttribArray(1);
-			//	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 32, (const void*)16);
-
-			//	IndexBuffer* axesIB = IndexBuffer::Create(axesIndices, sizeof(axesIndices) / sizeof(unsigned int));
-
-			//	shader->Bind();
-			//	shader->UploadConstant("u_ViewProjection", camera.GetProjectionView());
-			//	shader->UploadConstant("u_Transform", glm::mat4x4(1.0f));
-			//	glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
-			//	shader->Unbind();
-
-			//	delete axesVB;
-			//	delete axesIB;
-			//}
-
-			Hedge::Renderer::Submit(mesh.Get(), mesh.transform.Get());
-			Hedge::Renderer::Submit(mesh.Get(), transform2.Get());
-			Hedge::Renderer::Submit(mesh.Get(), transform3.Get());
+			//Hedge::Renderer::Submit(mesh.Get(), mesh.transform.Get());
+			//Hedge::Renderer::Submit(mesh.Get(), transform2.Get());
+			//Hedge::Renderer::Submit(mesh.Get(), transform3.Get());
 			
 			pointLightMeshes[0].GetShader()->UploadConstant("u_lightColor", pointLight[0].color);
 			Hedge::Renderer::Submit(pointLightMeshes[0].Get(), pointLightMeshes[0].transform.Get());
@@ -375,9 +427,9 @@ public:
 			modelMesh.GetShader()->UploadConstant("u_pointLight", pointLight, 2);
 			modelMesh.GetShader()->UploadConstant("u_spotLight", spotLight);
 			Hedge::Renderer::Submit(modelMesh.Get(), modelMesh.transform.Get());
-
+			
 			// Order matters when we want to blend
-			Hedge::Renderer::Submit(squareMesh.Get(), squareMesh.transform.Get());
+			//Hedge::Renderer::Submit(squareMesh.Get(), squareMesh.transform.Get());
 		}
 		Hedge::Renderer::EndScene();
 
@@ -498,6 +550,7 @@ public:
 
 		ImGui::Begin("Scene");
 		ImGui::Checkbox("Show Axes", &showAxes);
+		ImGui::Checkbox("Show Grid", &showGrid);
 
 		ImGui::Text("\nModel transform:");
 		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
@@ -618,9 +671,13 @@ private:
 	bool previousBlending;
 
 	bool showAxes = true;
+	bool showGrid = true;
 
 
 	// Meshes
+	Hedge::Mesh axesMesh;
+	Hedge::Mesh gridMesh;
+
 	Hedge::Mesh mesh;
 	Hedge::Transform transform2;
 	Hedge::Transform transform3;
@@ -656,7 +713,7 @@ private:
 	float yRotation = 0;
 	float zRotation = 0;
 
-	float movementSpeed = 5.0f / 1000.0f; // units/ms
+	float movementSpeed = 2.5f / 1000.0f; // units/ms
 	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep

@@ -7,5 +7,8 @@ in vec4 v_color;
 
 void main()
 {
-	a_color = v_color;
+	float distance = length(v_position);
+	float att = 1.0f / (1.0f + distance * 0.027f + distance * distance * 0.0028f);
+
+	a_color = vec4(v_color.rgb, att * v_color.a);
 }
