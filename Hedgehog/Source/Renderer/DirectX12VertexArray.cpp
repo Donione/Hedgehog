@@ -145,6 +145,7 @@ void DirectX12VertexArray::CreatePSO()
 	}
 
 	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	depthStencilDesc.DepthEnable = RenderCommand::GetDepthTest(); // depthStencilEnabled;
 	// TODO what IS a stencil ?
 
