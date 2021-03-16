@@ -86,8 +86,8 @@ Mesh::Mesh(const std::string& modelFilename, BufferLayout bufferLayout,
 	vertexArray->AddIndexBuffer(indexBuffer);
 }
 
-Mesh::Mesh(const float* vertices, long long int numberOfVertices,
-		   const unsigned int* indices, long long int numberOfIndices,
+Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
+		   const unsigned int* indices, unsigned int numberOfIndices,
 		   BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::string& textureFilename)
@@ -102,10 +102,10 @@ Mesh::Mesh(const float* vertices, long long int numberOfVertices,
 
 	vertexArray.reset(Hedge::VertexArray::Create(shader, bufferLayout, texture));
 
-	vertexBuffer.reset(Hedge::VertexBuffer::Create(bufferLayout, vertices, sizeof(float) * 6 * (int)numberOfVertices));
+	vertexBuffer.reset(Hedge::VertexBuffer::Create(bufferLayout, vertices, sizeOfVertices));
 	vertexArray->AddVertexBuffer(vertexBuffer);
 
-	indexBuffer.reset(Hedge::IndexBuffer::Create(indices, 3 * (int)numberOfIndices));
+	indexBuffer.reset(Hedge::IndexBuffer::Create(indices, numberOfIndices));
 	vertexArray->AddIndexBuffer(indexBuffer);
 }
 

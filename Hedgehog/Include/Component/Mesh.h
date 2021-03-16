@@ -24,8 +24,8 @@ public:
 	//    using provided vertices and indices
 	//    loading shaders' source code from files
 	//    [optionally] loading texture from a file
-	Mesh(const float* vertices, long long int numberOfVertices,
-		 const unsigned int* indices, long long int numberOfIndices,
+	Mesh(const float* vertices, unsigned int sizeOfVertices,
+		 const unsigned int* indices, unsigned int numberOfIndices,
 		 BufferLayout bufferLayout,
 		 const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		 const std::string& textureFilename = "");
