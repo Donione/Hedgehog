@@ -16,7 +16,7 @@ public:
 	//    loading model from a file
 	//    loading shaders' source code from files
 	//    [optionally] loading texture from a file
-	Mesh(const std::string& modelFilename, BufferLayout bufferLayout,
+	Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		 const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		 const std::string& textureFilename = "");
 
@@ -26,7 +26,7 @@ public:
 	//    [optionally] loading texture from a file
 	Mesh(const float* vertices, unsigned int sizeOfVertices,
 		 const unsigned int* indices, unsigned int numberOfIndices,
-		 BufferLayout bufferLayout,
+		 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		 const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		 const std::string& textureFilename = "");
 

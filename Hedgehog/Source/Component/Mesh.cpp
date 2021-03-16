@@ -57,7 +57,7 @@ void loadModel(const std::string& filename,
 }
 
 
-Mesh::Mesh(const std::string& modelFilename, BufferLayout bufferLayout,
+Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::string& textureFilename)
 {
@@ -75,9 +75,9 @@ Mesh::Mesh(const std::string& modelFilename, BufferLayout bufferLayout,
 		texture.reset(Hedge::Texture2D::Create(textureFilename));
 	}
 
-	vertexArray.reset(Hedge::VertexArray::Create(shader, bufferLayout, texture));
+	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, texture));
 
-	vertexBuffer.reset(Hedge::VertexBuffer::Create(bufferLayout, vertices, sizeof(float) * 6 * (int)numberOfVertices));
+	vertexBuffer.reset(Hedge::VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeof(float) * 6 * (int)numberOfVertices));
 	delete vertices;
 	vertexArray->AddVertexBuffer(vertexBuffer);
 
@@ -88,7 +88,7 @@ Mesh::Mesh(const std::string& modelFilename, BufferLayout bufferLayout,
 
 Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   const unsigned int* indices, unsigned int numberOfIndices,
-		   BufferLayout bufferLayout,
+		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::string& textureFilename)
 {
@@ -100,9 +100,9 @@ Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		texture.reset(Hedge::Texture2D::Create(textureFilename));
 	}
 
-	vertexArray.reset(Hedge::VertexArray::Create(shader, bufferLayout, texture));
+	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, texture));
 
-	vertexBuffer.reset(Hedge::VertexBuffer::Create(bufferLayout, vertices, sizeOfVertices));
+	vertexBuffer.reset(Hedge::VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeOfVertices));
 	vertexArray->AddVertexBuffer(vertexBuffer);
 
 	indexBuffer.reset(Hedge::IndexBuffer::Create(indices, numberOfIndices));

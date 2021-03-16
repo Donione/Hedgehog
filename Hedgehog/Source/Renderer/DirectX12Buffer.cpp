@@ -7,11 +7,15 @@
 namespace Hedge
 {
 
-DirectX12VertexBuffer::DirectX12VertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size)
+DirectX12VertexBuffer::DirectX12VertexBuffer(PrimitiveTopology primitiveTopology,
+											 const BufferLayout& layout,
+											 const float* vertices,
+											 unsigned int size)
 {
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 	assert(dx12context);
 
+	this->primitiveTopology = primitiveTopology;
 	this->layout = layout;
 
 	// TODO use default upload heap and copy data into it using upload heap
@@ -50,7 +54,7 @@ void DirectX12VertexBuffer::Bind() const
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
-	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // TODO add topology to constructor
+	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(GetDirectX12PrimitiveTopology(primitiveTopology));
 	dx12context->g_pd3dCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 }
 

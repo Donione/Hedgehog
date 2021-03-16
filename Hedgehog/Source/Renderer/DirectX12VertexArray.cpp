@@ -11,11 +11,12 @@ namespace Hedge
 {
 
 DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
-										   const BufferLayout& inputLayout,
+										   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
 										   const std::shared_ptr<Texture>& inputTexture)
 {
 	// TODO for fun, see how the ref count changes
 	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
+	this->primitiveTopology = primitiveTopology;
 	bufferLayout = inputLayout;
 	texture = inputTexture;
 
@@ -172,7 +173,7 @@ void DirectX12VertexArray::CreatePSO()
 	psoDesc.DepthStencilState = depthStencilDesc;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleMask = UINT_MAX; // sample mask has to do with multi-sampling. 0xFFFFFFFF (UINT_MAX) means point sampling is done
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.PrimitiveTopologyType = GetPipelinePrimitiveTopology(primitiveTopology);
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.SampleDesc.Count = 1; // This must be the same as the SampleDesc for swap chain

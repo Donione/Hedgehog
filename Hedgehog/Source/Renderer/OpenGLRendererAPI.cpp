@@ -1,5 +1,7 @@
 #include <Renderer/OpenGLRendererAPI.h>
 
+#include <Renderer/OpenGLVertexArray.h>
+
 #include <glad/glad.h>
 
 
@@ -106,7 +108,8 @@ void OpenGLRendererAPI::EndFrame()
 void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
 {
 	vertexArray->Bind();
-	glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer().at(0)->GetCount(), GL_UNSIGNED_INT, nullptr);
+	GLenum primitiveTopology = GetPipelinePrimitiveTopology(vertexArray->GetVertexBuffers().at(0)->GetPrimitiveType());
+	glDrawElements(primitiveTopology, vertexArray->GetIndexBuffer().at(0)->GetCount(), GL_UNSIGNED_INT, nullptr);
 	vertexArray->Unbind();
 }
 

@@ -16,7 +16,7 @@ class DirectX12VertexArray : public VertexArray
 {
 public:
 	DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
-						 const BufferLayout& inputLayout,
+						 PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
 						 const std::shared_ptr<Texture>& inputTexture);
 	virtual ~DirectX12VertexArray() override;
 
@@ -36,6 +36,7 @@ public:
 
 private:
 	DXGI_FORMAT GetDirectXFormat(ShaderDataType type) const { return DirectXFormats[(int)type]; }
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
 
 	void CreatePSO();
 
@@ -54,6 +55,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState[MAX_PSOS];
 
 	std::shared_ptr<DirectX12Shader> shader;
+	PrimitiveTopology primitiveTopology;
 	BufferLayout bufferLayout;
 	std::shared_ptr<Texture> texture;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
@@ -72,6 +74,14 @@ private:
 		DXGI_FORMAT_R32G32B32_SINT,
 		DXGI_FORMAT_R32G32B32A32_SINT,
 		DXGI_FORMAT_R8_UINT
+	};
+
+	const D3D12_PRIMITIVE_TOPOLOGY_TYPE pipelinePrimitiveTopologies[4]
+	{
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED,
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE,
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
 	};
 };
 
