@@ -50,7 +50,7 @@ public:
 
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 
-		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
+		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
 		Hedge::BufferLayout modelVertexBufferArrayLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
@@ -94,7 +94,7 @@ public:
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 		};
 		
-		auto PrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
+		auto PrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
 
 		Hedge::BufferLayout vertexBufferLayout =
 		{
@@ -196,7 +196,7 @@ public:
 
 		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\koule.tri";
 
-		auto lightPrimitiveTopology = Hedge::PrimitiveTopology::Trinagle;
+		auto lightPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
 
 		Hedge::BufferLayout lightVertexBufferArrayLayout =
 		{

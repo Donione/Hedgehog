@@ -27,7 +27,7 @@ enum class PrimitiveTopology
 	None = 0,
 	Point,
 	Line,
-	Trinagle,
+	Triangle,
 };
 
 struct ShaderDataTypeAttributes
