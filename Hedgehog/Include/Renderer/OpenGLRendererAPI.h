@@ -3,6 +3,8 @@
 #include <Renderer/RendererAPI.h>
 #include <Renderer/OpenGLContext.h>
 
+#include <glad/glad.h>
+
 
 namespace Hedge
 {
@@ -33,12 +35,24 @@ public:
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
 
 private:
+	GLenum GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
+
+
+private:
 	OpenGLContext* renderContext;
 
 	bool wireframeMode = false; // in OpenGL it is disabled by default
 	bool depthTest = false; // in OpenGL it is disabled by default
 	bool faceCulling = false; // in OpenGL it is disabled by default
 	bool blending = false; // in OpenGL it is disabled by default
+
+	const GLenum pipelinePrimitiveTopologies[4]
+	{
+		GL_NONE,
+		GL_POINTS,
+		GL_LINES,
+		GL_TRIANGLES,
+	};
 };
 
 } // namespace Hedge

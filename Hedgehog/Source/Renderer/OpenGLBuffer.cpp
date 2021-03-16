@@ -6,8 +6,12 @@
 namespace Hedge
 {
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size)
+OpenGLVertexBuffer::OpenGLVertexBuffer(PrimitiveTopology primitiveTopology,
+									   const BufferLayout& layout,
+									   const float* vertices,
+									   unsigned int size)
 {
+	this->primitiveTopology = primitiveTopology;
 	this->layout = layout;
 
 	glCreateBuffers(1, &rendererID);

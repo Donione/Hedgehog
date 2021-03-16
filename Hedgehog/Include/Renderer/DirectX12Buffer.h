@@ -10,22 +10,41 @@ namespace Hedge
 
 class DirectX12VertexBuffer : public VertexBuffer
 {
+
+
 public:
-	DirectX12VertexBuffer(const BufferLayout& layout, const float* vertices, unsigned int size);
+	DirectX12VertexBuffer(PrimitiveTopology primitiveTopology,
+						  const BufferLayout& layout,
+						  const float* vertices,
+						  unsigned int size);
 	virtual ~DirectX12VertexBuffer() override;
 
 	virtual void Bind() const override;
 	virtual void Unbind() const override { /* do nothing */ }
 
+	virtual const PrimitiveTopology GetPrimitiveType() const override { return primitiveTopology; }
 	virtual const BufferLayout& GetLayout() const override { return layout; }
 
 	const D3D12_VERTEX_BUFFER_VIEW* const GetView() const { return &vertexBufferView; }
 
 private:
+	D3D12_PRIMITIVE_TOPOLOGY GetDirectX12PrimitiveTopology(PrimitiveTopology type) const { return DirectX12PrimitiveTopologies[(int)type]; }
+
+
+private:
+	PrimitiveTopology primitiveTopology;
 	BufferLayout layout;
 
 	ID3D12Resource* vertexBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {};
+
+	const D3D12_PRIMITIVE_TOPOLOGY DirectX12PrimitiveTopologies[4]
+	{
+		D3D_PRIMITIVE_TOPOLOGY_UNDEFINED,
+		D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
+		D3D_PRIMITIVE_TOPOLOGY_LINELIST,
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+	};
 };
 
 

@@ -30,7 +30,7 @@ public:
 	virtual const std::shared_ptr<Texture>& GetTexture() const = 0;
 
 	static VertexArray* Create(const std::shared_ptr<Shader>& inputShader,
-							   const BufferLayout& inputLayout,
+							   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
 							   const std::shared_ptr<Texture>& inputTexture = nullptr);
 };
 

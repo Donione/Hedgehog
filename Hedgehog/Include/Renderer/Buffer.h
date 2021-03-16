@@ -22,6 +22,14 @@ enum class ShaderDataType
 	Bool
 };
 
+enum class PrimitiveTopology
+{
+	None = 0,
+	Point,
+	Line,
+	Trinagle,
+};
+
 struct ShaderDataTypeAttributes
 {
 	unsigned int size;
@@ -92,12 +100,16 @@ private:
 class VertexBuffer
 {
 public:
-	static VertexBuffer* Create(const BufferLayout& layout, const float* vertices, unsigned int size);
+	static VertexBuffer* Create(PrimitiveTopology primitiveTopology,
+								const BufferLayout& layout,
+								const float* vertices,
+								unsigned int size);
 	virtual ~VertexBuffer() {}
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
 
+	virtual const PrimitiveTopology GetPrimitiveType() const = 0;
 	virtual const BufferLayout& GetLayout() const = 0;
 };
 

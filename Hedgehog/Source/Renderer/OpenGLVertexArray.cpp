@@ -5,9 +5,11 @@ namespace Hedge
 {
 
 OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
+									 PrimitiveTopology primitiveTopology,
 									 const std::shared_ptr<Texture>& inputTexture)
 {
 	shader = std::dynamic_pointer_cast<OpenGLShader>(inputShader);
+	this->primitiveTopology = primitiveTopology;
 	texture = inputTexture;
 
 	glCreateVertexArrays(1, &rendererID);

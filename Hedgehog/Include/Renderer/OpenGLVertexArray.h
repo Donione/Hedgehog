@@ -14,6 +14,7 @@ class OpenGLVertexArray : public VertexArray
 {
 public:
 	OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
+					  PrimitiveTopology primitiveTopology,
 					  const std::shared_ptr<Texture>& inputTexture);
 	virtual ~OpenGLVertexArray() override;
 
@@ -31,9 +32,11 @@ public:
 private:
 	unsigned int GetOpenGLBaseType(ShaderDataType type) const { return OpenGLBaseTypes[(int)type]; }
 
+
 private:
 	unsigned int rendererID = 0;
 	std::shared_ptr<OpenGLShader> shader;
+	PrimitiveTopology primitiveTopology;
 	std::shared_ptr<Texture> texture;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
