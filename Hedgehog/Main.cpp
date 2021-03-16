@@ -475,6 +475,8 @@ public:
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(pointLightMeshes[0].Get())->UpdateRenderSettings();
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(pointLightMeshes[1].Get())->UpdateRenderSettings();
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(spotLightMesh.Get())->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(axesMesh.Get())->UpdateRenderSettings();
+				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(gridMesh.Get())->UpdateRenderSettings();
 			}
 		}
 	}
