@@ -80,13 +80,13 @@ public:
 		std::string modelFragmentSrc;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
-			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
+			modelVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
+			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			modelVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
-			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
+			modelVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
+			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
 
 		modelEntity = registry.create();
@@ -134,30 +134,30 @@ public:
 		std::string fragmentSrc;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
 
 		std::string vertexSrcTexture;
 		std::string fragmentSrcTexture;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
-			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
+			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
+			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			vertexSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
-			fragmentSrcTexture = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
+			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
+			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
 		}
 
 		// Textures
-		std::string textureFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Texture\\ezi.png";
+		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\ezi.png";
 
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
@@ -210,7 +210,7 @@ public:
 		dirLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
 		// Pointlights
-		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\koule.tri";
+		modelFilename = "..\\Hedgehog\\Asset\\Model\\koule.tri";
 
 		auto lightPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
 
@@ -231,13 +231,13 @@ public:
 		std::string lightFragmentSrc;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			lightVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
-			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+			lightVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
 		}
 		else
 		{
-			lightVertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
-			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
+			lightVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
+			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
 		}
 
 		auto pointLight1 = registry.create();
@@ -271,7 +271,7 @@ public:
 
 
 		// Spotlight
-		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\valec.tri";
+		modelFilename = "..\\Hedgehog\\Asset\\Model\\valec.tri";
 
 		spotlight = registry.create();
 		auto& spotLightLight = registry.emplace<Hedge::SpotLight>(spotlight);
@@ -339,13 +339,13 @@ public:
 
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			vertexSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-			fragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
 
 		constBufferDesc =
