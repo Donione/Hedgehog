@@ -34,7 +34,7 @@ void loadModel(const std::string& filename,
 	{
 		in >> indices[index * 3 + 0] >> indices[index * 3 + 1] >> indices[index * 3 + 2];
 
-		// get the triangle normal
+		// calculate the triangle normal
 		glm::vec3 v0(vertices[indices[index * 3 + 0] * 6 + 0], vertices[indices[index * 3 + 0] * 6 + 1], vertices[indices[index * 3 + 0] * 6 + 2]);
 		glm::vec3 v1(vertices[indices[index * 3 + 1] * 6 + 0], vertices[indices[index * 3 + 1] * 6 + 1], vertices[indices[index * 3 + 1] * 6 + 2]);
 		glm::vec3 v2(vertices[indices[index * 3 + 2] * 6 + 0], vertices[indices[index * 3 + 2] * 6 + 1], vertices[indices[index * 3 + 2] * 6 + 2]);

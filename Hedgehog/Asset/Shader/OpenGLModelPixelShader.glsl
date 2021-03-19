@@ -29,7 +29,8 @@ in vec3 v_Normal;
 
 uniform vec3 u_viewPos;
 uniform DirectionalLight u_directionalLight;
-uniform PointLight u_pointLight[2];
+uniform int u_numberOfPointLights;
+uniform PointLight u_pointLight[3];
 uniform SpotLight u_spotLight;
 
 
@@ -123,8 +124,10 @@ void main()
     vec3 norm = normalize(v_Normal);
 
     result += CalculateDirectionalLight(normalize(-u_directionalLight.direction), u_directionalLight.color, v_Position, norm);
-    result += CalculatePointLight(u_pointLight[0].position, u_pointLight[0].color, u_pointLight[0].attenuation, v_Position, norm);
-    result += CalculatePointLight(u_pointLight[1].position, u_pointLight[1].color, u_pointLight[1].attenuation, v_Position, norm);
+    for (int i = 0; i < u_numberOfPointLights; i++)
+    {
+        result += CalculatePointLight(u_pointLight[i].position, u_pointLight[i].color, u_pointLight[i].attenuation, v_Position, norm);
+    }
     result += CalculateSpotLight(u_spotLight.position,
                                 u_spotLight.color,
                                 normalize(-u_spotLight.direction),

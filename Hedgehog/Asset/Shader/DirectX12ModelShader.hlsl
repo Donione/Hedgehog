@@ -18,7 +18,9 @@ cbuffer SceneConstantBuffer : register(b0)
 struct DirectionalLight
 {
     float3 color;
+    float pad0;
     float3 direction;
+    float pad1;
 };
 
 struct PointLight
@@ -40,7 +42,8 @@ struct SpotLight
 cbuffer SceneLightsBuffer : register(b1)
 {
     DirectionalLight u_directionalLight;
-    PointLight u_pointLight[2];
+    int u_numberOfPointLights;
+    PointLight u_pointLight[3];
     SpotLight u_spotLight;
 }
 
@@ -164,8 +167,12 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 norm = normalize(input.normal);
 
     result += CalculateDirectionalLight(normalize(-u_directionalLight.direction), u_directionalLight.color, input.pos, norm);
-    result += CalculatePointLight(u_pointLight[0].position, u_pointLight[0].color, u_pointLight[0].attenuation, input.pos, norm);
-    result += CalculatePointLight(u_pointLight[1].position, u_pointLight[1].color, u_pointLight[1].attenuation, input.pos, norm);
+    for (int i = 0; i < u_numberOfPointLights; i++)
+    {
+        result += CalculatePointLight(u_pointLight[i].position, u_pointLight[i].color, u_pointLight[i].attenuation, input.pos, norm);
+    }
+    //result += CalculatePointLight(u_pointLight[1].position, u_pointLight[1].color, u_pointLight[1].attenuation, input.pos, norm);
+    //result += CalculatePointLight(u_pointLight[2].position, u_pointLight[2].color, u_pointLight[2].attenuation, input.pos, norm);
     result += CalculateSpotLight(u_spotLight.position,
                                  u_spotLight.color,
                                  normalize(-u_spotLight.direction),

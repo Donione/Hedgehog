@@ -58,7 +58,7 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 		nullptr,
 		IID_PPV_ARGS(&textureUploadHeap));
 
-	// Copy data to the intermediate upload heap and then schedule a copy 
+	// Copy data to the intermediate upload heap and then schedule a copy
 	// from the upload heap to the Texture2D.
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = data;
@@ -83,6 +83,9 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	dx12context->g_pd3dDevice->CreateShaderResourceView(texture.Get(), &srvDesc, srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	// I believe that the data are copied into the intermediate upload heap by this point and so it is safe to release here
+	stbi_image_free(data);
 }
 
 void DirectX12Texture2D::Bind(unsigned int slot) const

@@ -24,6 +24,14 @@
 #include <Component/Light.h>
 #include <Component/Mesh.h>
 
+#include <entt.hpp>
+
+
+struct Vertex
+{
+	float x, y, z, w, r, g, b, a, u, v;
+};
+
 
 class ExampleLayer : public Hedge::Layer
 {
@@ -63,7 +71,8 @@ public:
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene },
 			{ "u_directionalLight", sizeof(Hedge::DirectionalLight), Hedge::ConstantBufferUsage::Light },
-			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 2 },
+			{ "u_numberOfPointLights", sizeof(int), Hedge::ConstantBufferUsage::Light },
+			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
 		};
 
@@ -80,12 +89,14 @@ public:
 			modelFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
 
-		modelMesh = Hedge::Mesh(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
-								modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
-
-		modelMesh.transform.SetTranslation(translation);
-		modelMesh.transform.SetRotation(rotate);
-		modelMesh.transform.SetUniformScale(scale);
+		modelEntity = registry.create();
+		registry.emplace<Hedge::Mesh>(modelEntity,
+									  modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
+									  modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
+		auto& modelEntityTransform = registry.emplace<Hedge::Transform>(modelEntity);
+		modelEntityTransform.SetTranslation(translation);
+		modelEntityTransform.SetRotation(rotate);
+		modelEntityTransform.SetUniformScale(scale);
 
 
 		Hedge::ConstantBufferDescription constBufferDesc =
@@ -152,48 +163,53 @@ public:
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 
 
-		mesh = Hedge::Mesh(vertices, sizeof(vertices),
-						   indices, sizeof(indices) / sizeof(unsigned int),
-						   PrimitiveTopology, vertexBufferLayout,
-						   vertexSrc, fragmentSrc, constBufferDesc);
-		mesh.transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
+		// We want to share this mesh for multiple render objects
+		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
+		// (not that there is a lot of data held within mesh components)
+		auto mesh = Hedge::Mesh(vertices, sizeof(vertices),
+								indices, sizeof(indices) / sizeof(unsigned int),
+								PrimitiveTopology, vertexBufferLayout,
+								vertexSrc, fragmentSrc, constBufferDesc);
 
-		// Transforms
-		transform2.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
-		transform2.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
-		transform2.UniformScale(1.5f);
+		auto cube1 = registry.create();
+		registry.emplace<Hedge::Mesh>(cube1, mesh);
+		auto& cube1Transform = registry.emplace<Hedge::Transform>(cube1);
+		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
-		transform3.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
-		transform3.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
-		transform3.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
+		auto cube2 = registry.create();
+		registry.emplace<Hedge::Mesh>(cube2, mesh);
+		auto& cube2Transform = registry.emplace<Hedge::Transform>(cube2);
+		cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
+		cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
+		cube2Transform.UniformScale(1.5f);
+
+		auto cube3 = registry.create();
+		registry.emplace<Hedge::Mesh>(cube3, mesh);
+		auto& cube3Transform = registry.emplace<Hedge::Transform>(cube3);
+		cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
+		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
+		cube3Transform.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
 
 		squareMesh = Hedge::Mesh(vertices, sizeof(vertices) / 2,
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, vertexBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, constBufferDesc,
 								 textureFilename);
-		squareMesh.transform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
+		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			squareMesh.GetShader()->UploadConstant("u_texture", 0);
 		}
 
-
 		// Lights
 		// Directional Lights
-		directionalLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
-		directionalLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+		dirLightEntity = registry.create();
+		auto& dirLightLight = registry.emplace<Hedge::DirectionalLight>(dirLightEntity);
+		dirLightLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
+		dirLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
 		// Pointlights
-		pointLight[0].color = (glm::vec3(1.0f, 1.0f, 1.0f));
-		pointLight[0].attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
-		pointLight[0].position = (glm::vec3(0.0f, 0.0f, 1.0f));
-
-		pointLight[1].color = (glm::vec3(0.0f, 1.0f, 0.0f));
-		pointLight[1].attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
-		pointLight[1].position = (glm::vec3(0.0f, 2.0f, 0.0f));
-
 		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\koule.tri";
 
 		auto lightPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
@@ -224,29 +240,52 @@ public:
 			lightFragmentSrc = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
 		}
 
-		pointLightMeshes[0] = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
-		pointLightMeshes[0].transform.SetUniformScale(0.1f);
+		auto pointLight1 = registry.create();
+		auto& pointLight1Light = registry.emplace<Hedge::PointLight>(pointLight1);
+		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
+		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
+		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
+		auto& pointLightMesh = registry.emplace<Hedge::Mesh>(pointLight1,
+															 modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
+															 lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+		registry.emplace<Hedge::Transform>(pointLight1).SetUniformScale(0.1f);
 
+		auto pointLight2 = registry.create();
+		auto& pointLight2Light = registry.emplace<Hedge::PointLight>(pointLight2);
+		pointLight2Light.color = (glm::vec3(0.0f, 1.0f, 0.0f));
+		pointLight2Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
+		pointLight2Light.position = (glm::vec3(0.0f, 2.0f, 0.0f));
+		registry.emplace<Hedge::Mesh>(pointLight2, pointLightMesh);
+		registry.emplace<Hedge::Transform>(pointLight2).SetUniformScale(0.1f);
 
-		pointLightMeshes[1] = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
-		pointLightMeshes[1].transform.SetUniformScale(0.1f);
+		auto pointLight3 = registry.create();
+		registry.emplace<Hedge::Mesh>(pointLight3,
+									  modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
+									  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+		auto& newLight = registry.emplace<Hedge::PointLight>(pointLight3);
+		newLight.color = glm::vec3(0.0f, 0.0f, 1.0f);
+		newLight.position = glm::vec3(0.0f, -2.0f, 0.0f);
+		auto& newTransform = registry.emplace<Hedge::Transform>(pointLight3);
+		newTransform.SetTranslation(newLight.position);
+		newTransform.SetUniformScale(0.1f);
 
 
 		// Spotlight
-		spotLight.color = (glm::vec3(1.0f, 1.0f, 1.0f));
-		//spotLight.SetAttenuation(glm::vec3(1.0f, 0.027f, 0.0028f));
-		spotLight.position = (glm::vec3(0.0f, 0.0f, 2.0f));
-		spotLight.direction = (glm::vec3(0.0f, 0.0f, -1.0f));
-
 		modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\valec.tri";
 
-		spotLightMesh = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-									lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
-		spotLightMesh.transform.SetUniformScale(0.1f);
-		spotLightMesh.transform.SetTranslation(glm::vec3(0.0f));
-		spotLightMesh.transform.SetRotation(glm::vec3(0.0f));
+		spotlight = registry.create();
+		auto& spotLightLight = registry.emplace<Hedge::SpotLight>(spotlight);
+		spotLightLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightLight.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
+		spotLightLight.position = glm::vec3(0.0f, 0.0f, 2.0f);
+		spotLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+		registry.emplace<Hedge::Mesh>(spotlight,
+									  modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
+									  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+		auto& spotLightTransform = registry.emplace<Hedge::Transform>(spotlight);
+		spotLightTransform.SetUniformScale(0.1f);
+		spotLightTransform.SetTranslation(glm::vec3(0.0f));
+		spotLightTransform.SetRotation(glm::vec3(0.0f));
 
 		spotLightBaseRotation = glm::mat4(1.0f);
 		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(9.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -263,11 +302,6 @@ public:
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
 		};
 
-		struct Vertex
-		{
-			float x, y, z, w, r, g, b, a, u, v;
-		};
-
 		Vertex axesVertices[6] =
 		{
 			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f }, // X axis
@@ -280,8 +314,6 @@ public:
 
 		unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
 
-		const int numVertices = 804;
-		Vertex gridVertices[numVertices];
 		int index = 0;
 
 		for (int x = -100; x <= 100; x++)
@@ -322,15 +354,21 @@ public:
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 		};
 
-		axesMesh = Hedge::Mesh(&axesVertices[0].x, sizeof(axesVertices),
-							   axesIndices, sizeof(axesIndices) / sizeof(unsigned int),
-							   axesPrimitiveTopology, axesBL,
-							   vertexSrc, fragmentSrc, constBufferDesc);
-
-		gridMesh = Hedge::Mesh(&gridVertices[0].x, sizeof(gridVertices),
-							   gridIndices, sizeof(gridIndices) / sizeof(unsigned int),
-							   axesPrimitiveTopology, axesBL,
-							   vertexSrc, fragmentSrc, constBufferDesc);
+		axesEntity = registry.create();
+		registry.emplace<Hedge::Mesh>(axesEntity,
+									  &axesVertices[0].x, (unsigned int)sizeof(axesVertices),
+									  axesIndices, (unsigned int)(sizeof(axesIndices) / sizeof(unsigned int)),
+									  axesPrimitiveTopology, axesBL,
+									  vertexSrc, fragmentSrc, constBufferDesc);
+		registry.emplace<Hedge::Transform>(axesEntity);
+		
+		gridEntity = registry.create();
+		registry.emplace<Hedge::Mesh>(gridEntity,
+									  &gridVertices[0].x, (unsigned int)sizeof(gridVertices),
+									  gridIndices, (unsigned int)(sizeof(gridIndices) / sizeof(unsigned int)),
+									  axesPrimitiveTopology, axesBL,
+									  vertexSrc, fragmentSrc, constBufferDesc);
+		registry.emplace<Hedge::Transform>(gridEntity);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -399,37 +437,49 @@ public:
 
 		Hedge::Renderer::BeginScene(camera);
 		{
-			if (showGrid)
+			auto view = registry.view<Hedge::Mesh, Hedge::Transform>();
+
+			auto view3 = registry.view<Hedge::PointLight>();
+			auto view3size = view3.size();
+			auto view3raw = view3.raw();
+			
+			for (auto [entity, mesh, transform] : view.each())
 			{
-				Hedge::Renderer::Submit(gridMesh.Get());
+				if (mesh.enabled)
+				{
+					mesh.GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
+					mesh.GetShader()->UploadConstant("u_directionalLight", registry.get<Hedge::DirectionalLight>(dirLightEntity));
+					mesh.GetShader()->UploadConstant("u_numberOfPointLights", plUsed);
+					mesh.GetShader()->UploadConstant("u_pointLight", view3raw, (int)view3size);
+					mesh.GetShader()->UploadConstant("u_spotLight", registry.get<Hedge::SpotLight>(spotlight));
+
+					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
+				}
 			}
 
-			if (showAxes)
+			auto view2 = registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
+			for (auto [entity, mesh, transform, light] : view2.each())
 			{
-				Hedge::Renderer::Submit(axesMesh.Get());
+				if (mesh.enabled)
+				{
+					mesh.GetShader()->UploadConstant("u_lightColor", light.color);
+					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
+				}
 			}
-
-			//Hedge::Renderer::Submit(mesh.Get(), mesh.transform.Get());
-			//Hedge::Renderer::Submit(mesh.Get(), transform2.Get());
-			//Hedge::Renderer::Submit(mesh.Get(), transform3.Get());
 			
-			pointLightMeshes[0].GetShader()->UploadConstant("u_lightColor", pointLight[0].color);
-			Hedge::Renderer::Submit(pointLightMeshes[0].Get(), pointLightMeshes[0].transform.Get());
-			
-			pointLightMeshes[1].GetShader()->UploadConstant("u_lightColor", pointLight[1].color);
-			Hedge::Renderer::Submit(pointLightMeshes[1].Get(), pointLightMeshes[1].transform.Get());
-			
-			spotLightMesh.GetShader()->UploadConstant("u_lightColor", spotLight.color);
-			Hedge::Renderer::Submit(spotLightMesh.Get(), spotLightMesh.transform.Get());
-			
-			modelMesh.GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
-			modelMesh.GetShader()->UploadConstant("u_directionalLight", directionalLight);
-			modelMesh.GetShader()->UploadConstant("u_pointLight", pointLight, 2);
-			modelMesh.GetShader()->UploadConstant("u_spotLight", spotLight);
-			Hedge::Renderer::Submit(modelMesh.Get(), modelMesh.transform.Get());
+			auto view4 = registry.view<Hedge::Mesh, Hedge::Transform, Hedge::SpotLight>();
+			for (auto [entity, mesh, transform, light] : view4.each())
+			{
+				if (mesh.enabled)
+				{
+					mesh.GetShader()->UploadConstant("u_lightColor", light.color);
+					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
+				}
+			}
 			
 			// Order matters when we want to blend
-			//Hedge::Renderer::Submit(squareMesh.Get(), squareMesh.transform.Get());
+			// TODO there needs to be a way to sort meshes for blending, especially when using the EnTT registry
+			Hedge::Renderer::Submit(squareMesh.Get(), squareTransform.Get());
 		}
 		Hedge::Renderer::EndScene();
 
@@ -467,16 +517,17 @@ public:
 		if (updatePSO)
 		{
 			// TODO obviously, this is just temporary
+			// But seriously, this needs to be done properly, when iterating meshes through the registry, shared meshes are updated multiple times
+			// per frame which breaks the pipelines in flight unless the buffer of PSOs is large enough
 			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 			{
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(mesh.Get())->UpdateRenderSettings();
 				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(squareMesh.Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(modelMesh.Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(pointLightMeshes[0].Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(pointLightMeshes[1].Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(spotLightMesh.Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(axesMesh.Get())->UpdateRenderSettings();
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(gridMesh.Get())->UpdateRenderSettings();
+
+				auto view = registry.view<Hedge::Mesh>();
+				for (auto [entity, mesh] : view.each())
+				{
+					std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(mesh.Get())->UpdateRenderSettings();
+				}
 			}
 		}
 	}
@@ -551,60 +602,78 @@ public:
 
 
 		ImGui::Begin("Scene");
-		ImGui::Checkbox("Show Axes", &showAxes);
-		ImGui::Checkbox("Show Grid", &showGrid);
+		ImGui::Checkbox("Show Axes", &registry.get<Hedge::Mesh>(axesEntity).enabled);
+		ImGui::Checkbox("Show Grid", &registry.get<Hedge::Mesh>(gridEntity).enabled);
 
 		ImGui::Text("\nModel transform:");
+		auto& modelTransform = registry.get<Hedge::Transform>(modelEntity);
 		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
-		rotate = modelMesh.transform.GetRotation();
+		rotate = modelTransform.GetRotation();
 		ImGui::SliderFloat3("rotate", glm::value_ptr(rotate), -360.0, 360.0);
 		ImGui::SliderFloat("scale", &scale, 0.01f, 10.0f);
-		modelMesh.transform.SetTranslation(translation);
-		modelMesh.transform.SetRotation(rotate);
-		modelMesh.transform.SetUniformScale(scale);
+		modelTransform.SetTranslation(translation);
+		modelTransform.SetRotation(rotate);
+		modelTransform.SetUniformScale(scale);
 		ImGui::End();
 
 
 		ImGui::Begin("Lights");
 		ImGui::Text("Directional light");
-		ImGui::ColorEdit3("Color", glm::value_ptr(directionalLight.color));
-		ImGui::DragFloat3("Direction", glm::value_ptr(directionalLight.direction), 0.01f, -10.0, 10.0f);
+		auto& dle = registry.get<Hedge::DirectionalLight>(dirLightEntity);
+		ImGui::ColorEdit3("Color", glm::value_ptr(dle.color));
+		ImGui::DragFloat3("Direction", glm::value_ptr(dle.direction), 0.01f, -10.0, 10.0f);
 
-		ImGui::Text("\nPoint light");
-		ImGui::ColorEdit3("Color##2", glm::value_ptr(pointLight[0].color));
-		ImGui::DragFloat3("Position##2", glm::value_ptr(pointLight[0].position), 0.01f, -20.0f, 20.0f);
-		pointLightMeshes[0].transform.SetTranslation(pointLight[0].position);
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-		ImGui::DragFloat("##2x", &pointLight[0].attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-		ImGui::DragFloat("##2y", &pointLight[0].attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-		ImGui::DragFloat("Attenuation##2z", &pointLight[0].attenuation.z, 0.001f, 0.0f, 0.1f);
-		ImGui::PopItemWidth();
 
-		ImGui::Text("\nPoint light 2");
-		ImGui::ColorEdit3("Color##22", glm::value_ptr(pointLight[1].color));
-		ImGui::DragFloat3("Position##22", glm::value_ptr(pointLight[1].position), 0.01f, -20.0f, 20.0f);
-		pointLightMeshes[1].transform.SetTranslation(pointLight[1].position);
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-		ImGui::DragFloat("##22x", &pointLight[1].attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-		ImGui::DragFloat("##22y", &pointLight[1].attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-		ImGui::DragFloat("Attenuation##22z", &pointLight[1].attenuation.z, 0.001f, 0.0f, 0.1f);
-		ImGui::PopItemWidth();
+		auto view = registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
+		int i = 0;
+		for (auto [entity, mesh, transform, light] : view.each())
+		{
+			char buffer[1024];
+			sprintf_s(buffer, "\nPoint light %d", i);
+			ImGui::Text(buffer);
+
+			sprintf_s(buffer, "Render Mesh##%d", i);
+			ImGui::Checkbox(buffer, &mesh.enabled);
+
+			sprintf_s(buffer, "Color##2%d", i);
+			ImGui::ColorEdit3(buffer, glm::value_ptr(light.color));
+
+			sprintf_s(buffer, "Position##2%d", i);
+			ImGui::DragFloat3(buffer, glm::value_ptr(light.position), 0.01f, -20.0f, 20.0f);
+			transform.SetTranslation(light.position);
+
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
+			sprintf_s(buffer, "##2%dx", i);
+			ImGui::DragFloat(buffer, &light.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
+			sprintf_s(buffer, "##2%dy", i);
+			ImGui::DragFloat(buffer, &light.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
+			sprintf_s(buffer, "Attenuation##2%dz", i);
+			ImGui::DragFloat(buffer, &light.attenuation.z, 0.001f, 0.0f, 0.1f);
+			ImGui::PopItemWidth();
+
+			i++;
+		}
+		ImGui::SliderInt("# of PLights used", &plUsed, 0, 3);
 
 		ImGui::Text("\nSpot light");
-		ImGui::ColorEdit3("Color##3", glm::value_ptr(spotLight.color));
-		ImGui::DragFloat3("Position##3", glm::value_ptr(spotLight.position), 0.01f, -20.0f, 20.0f);
-		spotLightMesh.transform.SetTranslation(spotLight.position);
-		ImGui::DragFloat3("Direction##3", glm::value_ptr(spotLight.direction), 0.01f, -1.0, 1.0f);
-		auto dir2rot = glm::lookAt(glm::vec3(0.0f), spotLight.direction, glm::vec3(0.0f, 1.0f, 0.0f));
-		spotLightMesh.transform.SetRotation(spotLightBaseRotation * glm::inverse(dir2rot));
-		glm::vec2 cutoffAngle = glm::degrees(glm::acos(spotLight.cutoffAngle));
+		auto& sl = registry.get<Hedge::SpotLight>(spotlight);
+		auto& slt = registry.get<Hedge::Transform>(spotlight);
+		auto& slm = registry.get<Hedge::Mesh>(spotlight);
+		ImGui::Checkbox("Render Mesh", &slm.enabled);
+		ImGui::ColorEdit3("Color##3", glm::value_ptr(sl.color));
+		ImGui::DragFloat3("Position##3", glm::value_ptr(sl.position), 0.01f, -20.0f, 20.0f);
+		slt.SetTranslation(sl.position);
+		ImGui::DragFloat3("Direction##3", glm::value_ptr(sl.direction), 0.01f, -1.0, 1.0f);
+		auto dir2rot = glm::lookAt(glm::vec3(0.0f), sl.direction, glm::vec3(0.0f, 1.0f, 0.0f));
+		slt.SetRotation(spotLightBaseRotation * glm::inverse(dir2rot));
+		glm::vec2 cutoffAngle = glm::degrees(glm::acos(sl.cutoffAngle));
 		ImGui::DragFloat("Inner cutoff angle", &cutoffAngle.x, 0.1f, cutoffAngle.y - 20.0f, cutoffAngle.y);
 		ImGui::DragFloat("Outer cutoff angle", &cutoffAngle.y, 0.1f, cutoffAngle.x, 180.0f);
-		spotLight.cutoffAngle = glm::cos(glm::radians(cutoffAngle));
+		sl.cutoffAngle = glm::cos(glm::radians(cutoffAngle));
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-		ImGui::DragFloat("##3x", &spotLight.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-		ImGui::DragFloat("##3y", &spotLight.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-		ImGui::DragFloat("Attenuation##3z", &spotLight.attenuation.z, 0.001f, 0.0f, 0.1f);
+		ImGui::DragFloat("##3x", &sl.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
+		ImGui::DragFloat("##3y", &sl.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
+		ImGui::DragFloat("Attenuation##3z", &sl.attenuation.z, 0.001f, 0.0f, 0.1f);
 		ImGui::PopItemWidth();
 		ImGui::End();
 	}
@@ -652,6 +721,14 @@ public:
 	}
 
 private:
+	entt::registry registry;
+
+	entt::entity dirLightEntity;
+	entt::entity spotlight;
+	entt::entity axesEntity;
+	entt::entity gridEntity;
+	entt::entity modelEntity;
+
 	// Cameras
 	float aspectRatio;
 	float cameraFOV = 56.0f;
@@ -675,32 +752,19 @@ private:
 	bool showAxes = true;
 	bool showGrid = true;
 
+	static const int numVertices = 804;
+	Vertex gridVertices[numVertices];
 
-	// Meshes
-	Hedge::Mesh axesMesh;
-	Hedge::Mesh gridMesh;
-
-	Hedge::Mesh mesh;
-	Hedge::Transform transform2;
-	Hedge::Transform transform3;
 
 	Hedge::Mesh squareMesh;
+	Hedge::Transform squareTransform;
 
-	Hedge::Mesh modelMesh;
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
 	float scale = 1.0f;
-
-
-	// Lights
-	Hedge::DirectionalLight directionalLight;
-
-	Hedge::PointLight pointLight[2];
-	Hedge::Mesh pointLightMeshes[2];
-
-	Hedge::SpotLight spotLight;
-	Hedge::Mesh spotLightMesh;
 	glm::mat4 spotLightBaseRotation;
+	
+	int plUsed = 0;
 
 
 	// Mouse and Keyboard controls
