@@ -1,6 +1,5 @@
 #include <Renderer/DirectX12Shader.h>
 
-#include <Renderer/DirectX12Context.h>
 #include <Application/Application.h>
 
 #include <d3dx12.h>
@@ -65,47 +64,32 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 	if (size == 0)
 	{
 		constBuffersSkipped++;
-		return { 0, nullptr, nullptr, 0 };
+		return {};
 	}
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
-	Microsoft::WRL::ComPtr<ID3D12Resource> constantBuffer;
-	UINT8* mappedData = nullptr;
+	ConstantBuffer constantBuffer = { rootParamIndex - constBuffersSkipped, {}, {}, size };
 
-	// TODO we should really have one buffer per frame in flight instead of just one
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(1024 * 64); // TODO any reason the example puts here 64KB? Seems that buffers need to be 64KB aligned
-	ThrowIfFailed(dx12context->g_pd3dDevice->CreateCommittedResource(
-		&heapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&desc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&constantBuffer)));
-
-	//// Create constant buffer views for all frames in flight and all objects
-	//for (int frameIndex = 0; frameIndex < dx12context->NUM_FRAMES_IN_FLIGHT; frameIndex++)
-	//{
-	//	for (int object = 0; object < 2; object++)
-	//	{
-	//		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	//		cbvDesc.SizeInBytes = (description.size + 255) & ~255;    // CB size is required to be 256-byte aligned.
-	//		cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress() + (long long)object * cbvDesc.SizeInBytes;
-
-	//		CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle(CBVDescHeap->GetCPUDescriptorHandleForHeapStart(),
-	//												frameIndex * 4 + object * 2 + (int)constantBuffers.size(),
-	//												dx12context->g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-	//		dx12context->g_pd3dDevice->CreateConstantBufferView(&cbvDesc, cbvHandle);
-	//	}
-	//}
+	for (int i = 0; i < DirectX12Context::NUM_FRAMES_IN_FLIGHT; i++)
+	{
+		ThrowIfFailed(dx12context->g_pd3dDevice->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constantBuffer.buffer[i])));
 
 	// Map and initialize the constant buffer. We don't unmap this until the
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
 	CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mappedData)));
+	ThrowIfFailed(constantBuffer.buffer[i]->Map(0, &readRange, reinterpret_cast<void**>(&constantBuffer.mappedData[i])));
 	// Any reason to zero the newly created constant buffer?
+	}
 
-	return { rootParamIndex - constBuffersSkipped, constantBuffer, mappedData, size };
+	return constantBuffer;
 }
 
 unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage usage)
@@ -127,7 +111,10 @@ unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage us
 DirectX12Shader::ConstantBufferView DirectX12Shader::CreateConstantBufferView(ConstantBufferDescriptionElement element)
 {
 	ConstantBufferView newBuffer;
-	newBuffer.mappedData = constantBuffers[element.usage].mappedData + dataOffsets[element.usage];
+	for (int i = 0; i < DirectX12Context::NUM_FRAMES_IN_FLIGHT; i++)
+	{
+		newBuffer.mappedData[i] = constantBuffers[element.usage].mappedData[i] + dataOffsets[element.usage];
+	}
 	newBuffer.size = element.size * element.count;
 	newBuffer.totalSize = constantBuffers[element.usage].totalSize;
 	constantBufferViews.emplace(element.name, newBuffer);
@@ -172,11 +159,10 @@ void DirectX12Shader::Bind()
 	//dx12context->g_pd3dCommandList->SetGraphicsRootDescriptorTable(0, gpuHandle);
 
 	// TODO assert we're not going outside of allocated buffer
-	//int rootParamIndex = 0;
 	for (auto const& [key, constBuffer] : constantBuffers)
 	{
 		dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
-																		  constBuffer.buffer->GetGPUVirtualAddress() + objectNum * constBuffer.totalSize);
+																		  constBuffer.buffer[frameIndex]->GetGPUVirtualAddress() + objectNum * constBuffer.totalSize);
 	}
 
 	objectNum++;
@@ -208,7 +194,7 @@ void DirectX12Shader::SetupConstantBuffers(ConstantBufferDescription constBuffer
 	for (auto usage : usages)
 	{
 		ConstantBuffer newBuffer = CreateConstantBuffer(usage);
-		if (newBuffer.buffer) constantBuffers.emplace(usage, newBuffer);
+		if (newBuffer.totalSize != 0) constantBuffers.emplace(usage, newBuffer);
 	}
 
 	for (auto& element : description)
@@ -288,11 +274,16 @@ void DirectX12Shader::UploadConstant(const std::string& name, const SpotLight* c
 
 void DirectX12Shader::UploadConstant(const std::string& name, const void* constant, unsigned long long size)
 {
-	assert(constantBufferViews.contains(name));
-	assert(size == constantBufferViews.at(name).size);
+	if (constantBufferViews.contains(name))
+	{
+		assert(size == constantBufferViews.at(name).size);
 
-	// TODO assert no overflow
-	memcpy(constantBufferViews.at(name).mappedData + objectNum * constantBufferViews.at(name).totalSize, constant, size);
+		DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+		int frameIndex = (dx12context->g_frameIndex % dx12context->NUM_FRAMES_IN_FLIGHT);
+
+		// TODO assert no overflow
+		memcpy(constantBufferViews.at(name).mappedData[frameIndex] + objectNum * constantBufferViews.at(name).totalSize, constant, size);
+	}
 }
 
 const D3D12_SHADER_BYTECODE DirectX12Shader::GetVSBytecode() const

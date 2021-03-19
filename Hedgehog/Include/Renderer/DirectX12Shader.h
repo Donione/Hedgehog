@@ -2,6 +2,8 @@
 
 #include <Renderer/Shader.h>
 
+#include <Renderer/DirectX12Context.h>
+
 #include <d3d12.h>
 
 #include <unordered_map>
@@ -67,7 +69,7 @@ private:
 
 	struct ConstantBufferView
 	{
-		UINT8* mappedData = nullptr;
+		UINT8* mappedData[DirectX12Context::NUM_FRAMES_IN_FLIGHT] = {};
 		unsigned long long size = 0;
 		unsigned long long totalSize = 0;
 	};
@@ -75,14 +77,15 @@ private:
 	struct ConstantBuffer
 	{
 		unsigned int rootParamIndex = 0;
-		Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
-		UINT8* mappedData = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Resource> buffer[DirectX12Context::NUM_FRAMES_IN_FLIGHT];
+		UINT8* mappedData[DirectX12Context::NUM_FRAMES_IN_FLIGHT] = {};
 		unsigned long long totalSize = 0;
 	};
 
 	DirectX12Shader::ConstantBuffer CreateConstantBuffer(ConstantBufferUsage usage);
 	unsigned long long GetConstantBufferSize(ConstantBufferUsage usage);
 	DirectX12Shader::ConstantBufferView CreateConstantBufferView(ConstantBufferDescriptionElement element);
+
 
 private:
 	ID3DBlob* vertexShader = nullptr;
@@ -95,9 +98,10 @@ private:
 	std::unordered_map<std::string, ConstantBufferView> constantBufferViews;
 	std::unordered_map <ConstantBufferUsage, unsigned long long> dataOffsets =
 	{
-		{ConstantBufferUsage::Scene, 0},
-		{ConstantBufferUsage::Object, 0},
-		{ConstantBufferUsage::Other, 0}
+		{ ConstantBufferUsage::Scene, 0 },
+		{ ConstantBufferUsage::Light, 0 },
+		{ ConstantBufferUsage::Object, 0 },
+		{ ConstantBufferUsage::Other, 0 }
 	};
 
 	long long int objectNum = 0;
