@@ -12,12 +12,12 @@
 cbuffer SceneConstantBuffer : register(b0)
 {
     float4x4 u_ViewProjection;
-    float3 u_lightColor;
 };
 
 cbuffer ObjectConstantBuffer : register(b1)
 {
     float4x4 u_Transform;
+    float3 u_lightColor;
 }
 
 struct PSInput
