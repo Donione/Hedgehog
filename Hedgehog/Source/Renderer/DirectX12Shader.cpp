@@ -161,8 +161,17 @@ void DirectX12Shader::Bind()
 	// TODO assert we're not going outside of allocated buffer
 	for (auto const& [key, constBuffer] : constantBuffers)
 	{
-		dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
-																		  constBuffer.buffer[frameIndex]->GetGPUVirtualAddress() + objectNum * constBuffer.totalSize);
+		// Scene constant buffers are (should) be updated once per frame at most, so no need to offset
+		if (key == ConstantBufferUsage::Scene)
+		{
+			dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
+																			  constBuffer.buffer[frameIndex]->GetGPUVirtualAddress());
+		}
+		else
+		{
+			dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
+																			  constBuffer.buffer[frameIndex]->GetGPUVirtualAddress() + objectNum * constBuffer.totalSize);
+		}
 	}
 
 	objectNum++;

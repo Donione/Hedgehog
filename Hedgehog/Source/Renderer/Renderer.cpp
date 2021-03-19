@@ -48,13 +48,16 @@ void Renderer::EndScene()
 void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 					  const glm::mat4x4& transform)
 {
-	// Keep track of different shaders that are being used so they can be cleared at the end of the scene
-	usedShaders.insert(vertexArray->GetShader());
-
-	vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera->GetProjectionView());
+	if (!usedShaders.contains(vertexArray->GetShader()))
+	{
+		vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera->GetProjectionView());
+	}
 	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 
 	RenderCommand::DrawIndexed(vertexArray);
+
+	// Keep track of different shaders that are being used so they can be cleared at the end of the scene
+	usedShaders.insert(vertexArray->GetShader());
 }
 
 } // namespace Hedge

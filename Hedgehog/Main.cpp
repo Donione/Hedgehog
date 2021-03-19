@@ -208,7 +208,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene, },
+			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Object },
 		};
 
 		std::string lightVertexSrc;
