@@ -245,6 +245,7 @@ public:
 		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
+		// Here, we are again sharing the mesh, only we just grab the new mesh from the registry
 		auto& pointLightMesh = registry.emplace<Hedge::Mesh>(pointLight1,
 															 modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 															 lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
@@ -259,9 +260,7 @@ public:
 		registry.emplace<Hedge::Transform>(pointLight2).SetUniformScale(0.1f);
 
 		auto pointLight3 = registry.create();
-		registry.emplace<Hedge::Mesh>(pointLight3,
-									  modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-									  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+		registry.emplace<Hedge::Mesh>(pointLight3, pointLightMesh);
 		auto& newLight = registry.emplace<Hedge::PointLight>(pointLight3);
 		newLight.color = glm::vec3(0.0f, 0.0f, 1.0f);
 		newLight.position = glm::vec3(0.0f, -2.0f, 0.0f);
@@ -437,13 +436,13 @@ public:
 
 		Hedge::Renderer::BeginScene(camera);
 		{
-			auto view = registry.view<Hedge::Mesh, Hedge::Transform>();
+			auto group = registry.group<Hedge::Mesh, Hedge::Transform>();
 
 			auto view3 = registry.view<Hedge::PointLight>();
 			auto view3size = view3.size();
 			auto view3raw = view3.raw();
 			
-			for (auto [entity, mesh, transform] : view.each())
+			for (auto [entity, mesh, transform] : group.each())
 			{
 				if (mesh.enabled)
 				{
@@ -453,26 +452,15 @@ public:
 					mesh.GetShader()->UploadConstant("u_pointLight", view3raw, (int)view3size);
 					mesh.GetShader()->UploadConstant("u_spotLight", registry.get<Hedge::SpotLight>(spotlight));
 
-					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
-				}
-			}
+					if (registry.has<Hedge::PointLight>(entity))
+					{
+						mesh.GetShader()->UploadConstant("u_lightColor", registry.get<Hedge::PointLight>(entity).color);
+					}
+					else if (registry.has<Hedge::SpotLight>(entity))
+					{
+						mesh.GetShader()->UploadConstant("u_lightColor", registry.get<Hedge::SpotLight>(entity).color);
+					}
 
-			auto view2 = registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
-			for (auto [entity, mesh, transform, light] : view2.each())
-			{
-				if (mesh.enabled)
-				{
-					mesh.GetShader()->UploadConstant("u_lightColor", light.color);
-					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
-				}
-			}
-			
-			auto view4 = registry.view<Hedge::Mesh, Hedge::Transform, Hedge::SpotLight>();
-			for (auto [entity, mesh, transform, light] : view4.each())
-			{
-				if (mesh.enabled)
-				{
-					mesh.GetShader()->UploadConstant("u_lightColor", light.color);
 					Hedge::Renderer::Submit(mesh.Get(), transform.Get());
 				}
 			}
@@ -764,7 +752,7 @@ private:
 	float scale = 1.0f;
 	glm::mat4 spotLightBaseRotation;
 	
-	int plUsed = 0;
+	int plUsed = 3;
 
 
 	// Mouse and Keyboard controls
