@@ -41,7 +41,7 @@ void Scene::OnUpdate()
 
 		if (mesh.enabled)
 		{
-			mesh.GetShader()->UploadConstant("u_viewPos", camera->GetPosition());
+			mesh.GetShader()->UploadConstant("u_viewPos", cameraTransform->GetTranslation());
 			mesh.GetShader()->UploadConstant("u_directionalLight", directionalLights.raw(), (int)directionalLights.size());
 			mesh.GetShader()->UploadConstant("u_numberOfPointLights", plUsed);
 			mesh.GetShader()->UploadConstant("u_pointLight", pointLights.raw(), (int)pointLights.size());

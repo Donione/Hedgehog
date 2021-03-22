@@ -26,6 +26,7 @@ public:
 	int plUsed = 3;
 
 	Camera* camera = nullptr;
+	Transform* cameraTransform = nullptr;
 
 
 public:
