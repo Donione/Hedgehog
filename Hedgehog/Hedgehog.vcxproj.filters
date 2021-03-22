@@ -165,6 +165,9 @@
     <ClInclude Include="Include\Component\Mesh.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Component\Scene.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
     <ClInclude Include="Include\Component\Entity.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
@@ -252,6 +255,9 @@
       <Filter>Source\Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\Component\Mesh.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Scene.cpp">
       <Filter>Source\Component</Filter>
     </ClCompile>
   </ItemGroup>

@@ -165,6 +165,7 @@
     <ClInclude Include="Include\Component\Entity.h" />
     <ClInclude Include="Include\Component\Light.h" />
     <ClInclude Include="Include\Component\Mesh.h" />
+    <ClInclude Include="Include\Component\Scene.h" />
     <ClInclude Include="Include\Component\Transform.h" />
     <ClInclude Include="Include\ImGui\ImGuiComponent.h" />
     <ClInclude Include="Include\Layer\Layer.h" />
@@ -200,6 +201,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Component\Mesh.cpp" />
+    <ClCompile Include="Source\Component\Scene.cpp" />
     <ClCompile Include="Source\Component\Transform.cpp" />
     <ClCompile Include="Source\ImGui\ImGuiComponent.cpp" />
     <ClCompile Include="Source\Layer\LayerStack.cpp" />
