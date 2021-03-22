@@ -165,6 +165,9 @@
     <ClInclude Include="Include\Component\Mesh.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Component\Entity.h">
+      <Filter>Include\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">

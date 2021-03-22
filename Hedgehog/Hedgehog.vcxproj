@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Include\Application\Application.h" />
+    <ClInclude Include="Include\Component\Entity.h" />
     <ClInclude Include="Include\Component\Light.h" />
     <ClInclude Include="Include\Component\Mesh.h" />
     <ClInclude Include="Include\Component\Transform.h" />
