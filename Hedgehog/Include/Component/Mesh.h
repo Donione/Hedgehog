@@ -34,8 +34,7 @@ public:
 	const std::shared_ptr<Shader> GetShader() const { return shader; }
 
 public:
-	// TODO transform will go away from the mesh component and will be handled by ECS
-	Transform transform;
+	bool enabled = true;
 
 
 private:

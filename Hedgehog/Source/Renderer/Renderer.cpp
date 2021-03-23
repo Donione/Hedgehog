@@ -27,7 +27,7 @@ void Renderer::SetBlending(bool enable)
 	RenderCommand::SetBlending(enable);
 }
 
-void Renderer::BeginScene(Camera* camera)
+void Renderer::BeginScene(Entity camera)
 {
 	sceneCamera = camera;
 }
@@ -50,7 +50,8 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 {
 	if (!usedShaders.contains(vertexArray->GetShader()))
 	{
-		vertexArray->GetShader()->UploadConstant("u_ViewProjection", sceneCamera->GetProjectionView());
+		auto projectionView = sceneCamera.Get<Camera>().GetProjection() * glm::inverse(sceneCamera.Get<Transform>().Get());
+		vertexArray->GetShader()->UploadConstant("u_ViewProjection", projectionView);
 	}
 	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 

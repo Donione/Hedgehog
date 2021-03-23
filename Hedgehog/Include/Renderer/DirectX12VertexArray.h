@@ -41,7 +41,9 @@ private:
 	void CreatePSO();
 
 private:
-	static const int MAX_PSOS = 3;
+	// TODO this should be just the number of frames in flight
+	// increasing this as a workaround for multiple PSO updates per frame
+	static const int MAX_PSOS = 32;
 	int currentPSO = -1;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
 	// We're keeping a circular buffer of PSOs because when a render setting changes
