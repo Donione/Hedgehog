@@ -242,7 +242,7 @@ public:
 		
 		auto pointLight1 = scene.CreateEntity("Point Light 1");
 		auto& pointLight1Light = pointLight1.Add<Hedge::PointLight>();
-		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
+		pointLight1Light.color = (glm::vec3(1.0f, 0.0f, 0.0f));
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
 		pointLight1.Add<Hedge::Mesh>(pointLightMesh);
@@ -570,36 +570,45 @@ public:
 		ImGui::ColorEdit3("Color", glm::value_ptr(dle.color));
 		ImGui::DragFloat3("Direction", glm::value_ptr(dle.direction), 0.01f, -10.0, 10.0f);
 
-
-		auto view = scene.registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
-		int i = 0;
-		for (auto [entity, mesh, transform, light] : view.each())
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode("Point Lights"))
 		{
-			char buffer[1024];
-			sprintf_s(buffer, "\nPoint light %d", i);
-			ImGui::Text(buffer);
+			auto view = scene.registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
+			int i = 0;
+			for (auto [entity, mesh, transform, light] : view.each())
+			{
+				char buffer[1024];
+				sprintf_s(buffer, "Point light %d", i);
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::TreeNode(buffer))
+				{
+					sprintf_s(buffer, "Render Mesh##%d", i);
+					ImGui::Checkbox(buffer, &mesh.enabled);
 
-			sprintf_s(buffer, "Render Mesh##%d", i);
-			ImGui::Checkbox(buffer, &mesh.enabled);
+					sprintf_s(buffer, "Color##2%d", i);
+					ImGui::ColorEdit3(buffer, glm::value_ptr(light.color));
 
-			sprintf_s(buffer, "Color##2%d", i);
-			ImGui::ColorEdit3(buffer, glm::value_ptr(light.color));
+					sprintf_s(buffer, "Position##2%d", i);
+					ImGui::DragFloat3(buffer, glm::value_ptr(light.position), 0.01f, -20.0f, 20.0f);
+					transform.SetTranslation(light.position);
 
-			sprintf_s(buffer, "Position##2%d", i);
-			ImGui::DragFloat3(buffer, glm::value_ptr(light.position), 0.01f, -20.0f, 20.0f);
-			transform.SetTranslation(light.position);
+					ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
+					sprintf_s(buffer, "##2%dx", i);
+					ImGui::DragFloat(buffer, &light.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
+					sprintf_s(buffer, "##2%dy", i);
+					ImGui::DragFloat(buffer, &light.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
+					sprintf_s(buffer, "Attenuation##2%dz", i);
+					ImGui::DragFloat(buffer, &light.attenuation.z, 0.001f, 0.0f, 0.1f);
+					ImGui::PopItemWidth();
 
-			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-			sprintf_s(buffer, "##2%dx", i);
-			ImGui::DragFloat(buffer, &light.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-			sprintf_s(buffer, "##2%dy", i);
-			ImGui::DragFloat(buffer, &light.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-			sprintf_s(buffer, "Attenuation##2%dz", i);
-			ImGui::DragFloat(buffer, &light.attenuation.z, 0.001f, 0.0f, 0.1f);
-			ImGui::PopItemWidth();
+					ImGui::TreePop();
+				}
+				i++;
+			}
 
-			i++;
+		ImGui::TreePop();
 		}
+
 		ImGui::SliderInt("# of PLights used", &scene.plUsed, 0, 3);
 
 		ImGui::Text("\nSpot light");
