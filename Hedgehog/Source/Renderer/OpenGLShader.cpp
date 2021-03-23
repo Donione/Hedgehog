@@ -201,32 +201,53 @@ void OpenGLShader::UploadConstant(const std::string& name, const SpotLight& cons
 
 void OpenGLShader::UploadConstant(const std::string& name, const DirectionalLight* constant, int count)
 {
-	for (int i = 0; i < count; i++)
+	if (count == 1)
 	{
-		UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
-		UploadConstant(name + "[" + std::to_string(i) + "].direction", constant[i].direction);
+		UploadConstant(name, *constant);
+	}
+	else
+	{
+		for (int i = 0; i < count; i++)
+		{
+			UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
+			UploadConstant(name + "[" + std::to_string(i) + "].direction", constant[i].direction);
+		}
 	}
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, const PointLight* constant, int count)
 {
-	for (int i = 0; i < count; i++)
+	if (count == 1)
 	{
-		UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
-		UploadConstant(name + "[" + std::to_string(i) + "].position", constant[i].position);
-		UploadConstant(name + "[" + std::to_string(i) + "].attenuation", constant[i].attenuation);
+		UploadConstant(name, *constant);
+	}
+	else
+	{
+		for (int i = 0; i < count; i++)
+		{
+			UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
+			UploadConstant(name + "[" + std::to_string(i) + "].position", constant[i].position);
+			UploadConstant(name + "[" + std::to_string(i) + "].attenuation", constant[i].attenuation);
+		}
 	}
 }
 
 void OpenGLShader::UploadConstant(const std::string& name, const SpotLight* constant, int count)
 {
-	for (int i = 0; i < count; i++)
+	if (count == 1)
 	{
-		UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
-		UploadConstant(name + "[" + std::to_string(i) + "].position", constant[i].position);
-		UploadConstant(name + "[" + std::to_string(i) + "].attenuation", constant[i].attenuation);
-		UploadConstant(name + "[" + std::to_string(i) + "].direction", constant[i].direction);
-		UploadConstant(name + "[" + std::to_string(i) + "].cutoffAngle", constant[i].cutoffAngle);
+		UploadConstant(name, *constant);
+	}
+	else
+	{
+		for (int i = 0; i < count; i++)
+		{
+			UploadConstant(name + "[" + std::to_string(i) + "].color", constant[i].color);
+			UploadConstant(name + "[" + std::to_string(i) + "].position", constant[i].position);
+			UploadConstant(name + "[" + std::to_string(i) + "].attenuation", constant[i].attenuation);
+			UploadConstant(name + "[" + std::to_string(i) + "].direction", constant[i].direction);
+			UploadConstant(name + "[" + std::to_string(i) + "].cutoffAngle", constant[i].cutoffAngle);
+		}
 	}
 }
 
