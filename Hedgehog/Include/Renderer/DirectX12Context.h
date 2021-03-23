@@ -1,5 +1,13 @@
 #pragma once
 
+// EnTT uses std::max and/or std::min, but windows.h defines these as macros which breaks things
+// see https://github.com/skypjack/entt/wiki/Frequently-Asked-Questions#warning-c4003-the-min-the-max-and-the-macro
+// see https://github.com/skypjack/entt/issues/96
+// see https://github.com/TheCherno/Hazel/pull/305
+#ifndef NOMINMAX
+	#define NOMINMAX
+#endif
+
 #include <Renderer/RenderContext.h>
 
 #include <Windows.h>
