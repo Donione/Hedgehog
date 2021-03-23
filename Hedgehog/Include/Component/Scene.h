@@ -15,7 +15,6 @@ public:
 	Scene();
 
 	Entity CreateEntity(const std::string& name);
-
 	void DestroyEntity(Entity entity);
 
 	void OnUpdate();
@@ -24,13 +23,13 @@ public:
 
 public:
 	int plUsed = 3;
-
-	Camera* camera = nullptr;
-	Transform* cameraTransform = nullptr;
-
-
-public:
+	
+	// TODO this should be private
+	// temporarily public so OnImGuiUpdate function can iterate over entities
+	// TODO provide API for such things
 	entt::registry registry;
+
+private:
 };
 
 } // namespace Hedge

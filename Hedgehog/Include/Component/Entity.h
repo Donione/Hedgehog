@@ -18,6 +18,13 @@ public:
 		return registry->emplace<Component>(entity, std::forward<Args>(args)...);
 	}
 
+	template<typename Component, typename... Args>
+	Component& Replace(Args &&... args)
+	{
+		assert(Has<Component>());
+		return registry->replace<Component>(entity, std::forward<Args>(args)...);
+	}
+
 	template<typename Component>
 	void Remove()
 	{
@@ -41,7 +48,7 @@ public:
 		return registry->has<Component>(entity);
 	}
 
-public:
+private:
 	entt::entity entity = entt::null;
 	entt::registry* registry = nullptr;
 

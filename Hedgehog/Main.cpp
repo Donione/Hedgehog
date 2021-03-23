@@ -1,4 +1,3 @@
-
 // TODO: Applications using the Hedgehog engine should just include some Hedgehog.h header
 //       and then create a concrete application class inheriting from the Hedgehog Application class
 //       altough so far everything needed is in the Application anyway
@@ -46,14 +45,13 @@ public:
 		previousBlending = blending = Hedge::RenderCommand::GetBlending();
 
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
-		
-		camera = Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f); // camera space, +z goes into the screen
-		//camera = Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f);
+
+		camera = scene.CreateEntity("Scene Camera");
+		camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f)); // camera space, +z goes into the screen
+		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f));
+		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
-
-		scene.camera = &camera;
-		scene.cameraTransform = &cameraTransform;
 
 
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
@@ -408,12 +406,12 @@ public:
 
 		if (GetKeyState(VK_SPACE) < 0)
 		{
-			cameraTransform.SetTranslation({ 0.0f, 0.0f, 0.0f });
-			cameraTransform.SetRotation({ 0.0f, 0.0f, 0.0f });
+			camera.Get<Hedge::Transform>().SetTranslation({ 0.0f, 0.0f, 0.0f });
+			camera.Get<Hedge::Transform>().SetRotation({ 0.0f, 0.0f, 0.0f });
 		}
 
-		cameraTransform.Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
-		cameraTransform.Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		camera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+		camera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
 
 		xOffset = 0;
 		yOffset = 0;
@@ -424,7 +422,7 @@ public:
 		zRotation = 0;
 
 
-		Hedge::Renderer::BeginScene(&camera, &cameraTransform);
+		Hedge::Renderer::BeginScene(camera);
 		{
 			scene.OnUpdate();
 			
@@ -491,28 +489,29 @@ public:
 		ImGui::Combo("Camera Type", &cameraType, "Orthographic\0Perspective\0\0");
 		if (cameraType == 0)
 		{
-			camera = Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f);
+			camera.Replace<Hedge::Camera>(Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f));
 
 		}
 		else
 		{
-			camera = Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f);
+			camera.Replace<Hedge::Camera>(Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f));
 		}
 
-		glm::vec3 position = cameraTransform.GetTranslation();
-		glm::vec3 rotation = cameraTransform.GetRotation();
+		glm::vec3 position = camera.Get<Hedge::Transform>().GetTranslation();
+		glm::vec3 rotation = camera.Get<Hedge::Transform>().GetRotation();
 		ImGui::Text("Position: %f %f %f", position.x, position.y, position.z);
 		ImGui::Text("Rotation: %f %f %f", rotation.x, rotation.y, rotation.z);
 
-		if (camera.GetType() == Hedge::CameraType::Orthographic)
+		auto& cam = camera.Get<Hedge::Camera>();
+		if (cam.GetType() == Hedge::CameraType::Orthographic)
 		{
 			ImGui::SliderFloat("Zoom", &cameraZoom, 0.1f, 10.0f);
-			camera.SetZoom(cameraZoom);
+			cam.SetZoom(cameraZoom);
 		}
-		else if (camera.GetType() == Hedge::CameraType::Perspective)
+		else if (cam.GetType() == Hedge::CameraType::Perspective)
 		{
 			ImGui::SliderFloat("vFOV", &cameraFOV, 20.0f, 150.0f);
-			camera.SetFOV(cameraFOV);
+			cam.SetFOV(cameraFOV);
 			ImGui::SameLine();
 			ImGui::Text("(hFOV: %f)", cameraFOV * aspectRatio);
 		}
@@ -663,13 +662,14 @@ public:
 			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
 			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
-			camera.SetAspectRatio(aspectRatio);
+			camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
 		}
 	}
 
 private:
 	Hedge::Scene scene;
 
+	Hedge::Entity camera;
 	Hedge::Entity dirLightEntity;
 	Hedge::Entity spotlight;
 	Hedge::Entity axesEntity;
@@ -681,8 +681,6 @@ private:
 	float aspectRatio;
 	float cameraFOV = 56.0f;
 	float cameraZoom = 1.0f;
-	Hedge::Camera camera;
-	Hedge::Transform cameraTransform;
 
 
 	// Render settings

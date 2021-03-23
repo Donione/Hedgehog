@@ -12,6 +12,8 @@ namespace Hedge
 
 Scene::Scene()
 {
+	// As per recommendation in https://github.com/skypjack/entt/wiki/Crash-Course:-entity-component-system#groups
+	// prepare groups that will be used while the registry is still empty
 	auto group = registry.group<Hedge::Mesh, Hedge::Transform>();
 }
 
@@ -29,6 +31,8 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::OnUpdate()
 {
+	auto& cameraTransform = registry.get<Transform>(registry.view<Camera>().front());
+
 	auto group = registry.group<Hedge::Mesh, Hedge::Transform>();
 
 	auto directionalLights = registry.view<Hedge::DirectionalLight>();
@@ -41,7 +45,7 @@ void Scene::OnUpdate()
 
 		if (mesh.enabled)
 		{
-			mesh.GetShader()->UploadConstant("u_viewPos", cameraTransform->GetTranslation());
+			mesh.GetShader()->UploadConstant("u_viewPos", cameraTransform.GetTranslation());
 			mesh.GetShader()->UploadConstant("u_directionalLight", directionalLights.raw(), (int)directionalLights.size());
 			mesh.GetShader()->UploadConstant("u_numberOfPointLights", plUsed);
 			mesh.GetShader()->UploadConstant("u_pointLight", pointLights.raw(), (int)pointLights.size());
