@@ -33,7 +33,9 @@ public:
 	virtual bool GetFaceCulling() const = 0;
 	virtual bool GetBlending() const = 0;
 
-	virtual void SetViewport(int width, int height) = 0;
+	virtual void Resize(int width, int height, bool fillViewport = true) = 0;
+	virtual void SetViewport(int x, int y, int width, int height) = 0;
+	virtual void SetScissor(int x, int y, int width, int height) = 0;
 
 	virtual void SetClearColor(const glm::vec4& color) = 0;
 	virtual void Begin() = 0;

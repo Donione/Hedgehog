@@ -14,7 +14,7 @@ void DirectX12RendererAPI::Init(RenderContext* renderContext)
 	this->renderContext = dynamic_cast<DirectX12Context*>(renderContext);
 }
 
-void DirectX12RendererAPI::SetViewport(int width, int height)
+void DirectX12RendererAPI::Resize(int width, int height, bool fillViewport)
 {
 	if (width == viewport.Width
 		&& height == viewport.Height)
@@ -30,8 +30,21 @@ void DirectX12RendererAPI::SetViewport(int width, int height)
 	renderContext->CreateRenderTarget();
 	ImGui_ImplDX12_CreateDeviceObjects();
 
-	viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
-	scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+	if (fillViewport)
+	{
+		SetViewport(0, 0, width, height);
+		SetScissor(0, 0, width, height);
+	}
+}
+
+void DirectX12RendererAPI::SetViewport(int x, int y, int width, int height)
+{
+	viewport = CD3DX12_VIEWPORT(static_cast<float>(x), static_cast<float>(y), static_cast<float>(width), static_cast<float>(height));
+}
+
+void DirectX12RendererAPI::SetScissor(int x, int y, int width, int height)
+{
+	scissorRect = CD3DX12_RECT(x, y, static_cast<LONG>(x + width), static_cast<LONG>(y + height));
 }
 
 void DirectX12RendererAPI::Begin()

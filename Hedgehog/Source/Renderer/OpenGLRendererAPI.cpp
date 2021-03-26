@@ -1,3 +1,4 @@
+#include <Application/Application.h>
 #include <Renderer/OpenGLRendererAPI.h>
 
 #include <Renderer/OpenGLVertexArray.h>
@@ -85,9 +86,23 @@ void OpenGLRendererAPI::SetBlending(bool enable)
 	}
 }
 
-void OpenGLRendererAPI::SetViewport(int width, int height)
+void OpenGLRendererAPI::Resize(int width, int height, bool fillViewport)
 {
-	glViewport(0, 0, width, height);
+	if (fillViewport)
+	{
+		SetViewport(0, 0, width, height);
+		SetScissor(0, 0, width, height);
+	}
+}
+
+void OpenGLRendererAPI::SetViewport(int x, int y, int width, int height)
+{
+	glViewport(x, Application::GetInstance().GetWindow().GetHeight() - height - y, width, height);
+}
+
+void OpenGLRendererAPI::SetScissor(int x, int y, int width, int height)
+{
+	glScissor(x, Application::GetInstance().GetWindow().GetHeight() - height - y, width, height);
 }
 
 void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
@@ -97,7 +112,20 @@ void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
 
 void OpenGLRendererAPI::BeginFrame()
 {
+	// The scissor box bounds the cleared region
+	// So we want to temporarily extend the scissor box to the whole viewport and/or window for clearing and then restore it
+	int scissorBox[4];
+	glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	//glScissor(0, 0, Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
+	glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
 }
 
 void OpenGLRendererAPI::EndFrame()
