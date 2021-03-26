@@ -92,6 +92,8 @@ OpenGLContext::OpenGLContext(HWND windowHandle)
 	{
 		printf("Error gladLoadWGL()\n");
 	}
+
+	glEnable(GL_SCISSOR_TEST);
 }
 
 OpenGLContext::~OpenGLContext()

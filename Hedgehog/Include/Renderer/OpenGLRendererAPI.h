@@ -24,7 +24,9 @@ public:
 	virtual bool GetFaceCulling() const override { return faceCulling; }
 	virtual bool GetBlending() const override { return blending; }
 
-	virtual void SetViewport(int width, int height) override;
+	virtual void Resize(int width, int height, bool fillViewport = true) override;
+	virtual void SetViewport(int x, int y, int width, int height) override;
+	virtual void SetScissor(int x, int y, int width, int height) override;
 
 	virtual void SetClearColor(const glm::vec4& color) override;
 	virtual void End() override { /* do nothing */ }

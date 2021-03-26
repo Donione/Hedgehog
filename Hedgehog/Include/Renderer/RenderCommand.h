@@ -40,9 +40,19 @@ public:
 	static bool GetBlending() { return rendererAPI->GetBlending(); }
 
 
-	static void SetViewport(int width, int height)
+	static void Resize(int width, int height, bool fillViewport = true)
 	{
-		rendererAPI->SetViewport(width, height);
+		rendererAPI->Resize(width, height, fillViewport);
+	}
+
+	static void SetViewport(int x, int y, int width, int height)
+	{
+		rendererAPI->SetViewport(x, y, width, height);
+	}
+
+	static void SetScissor(int x, int y, int width, int height)
+	{
+		rendererAPI->SetScissor(x, y, width, height);
 	}
 
 
