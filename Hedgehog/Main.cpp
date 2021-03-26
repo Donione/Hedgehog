@@ -1,30 +1,25 @@
+#include <iostream>
+
 // TODO: Applications using the Hedgehog engine should just include some Hedgehog.h header
 //       and then create a concrete application class inheriting from the Hedgehog Application class
 //       altough so far everything needed is in the Application anyway
 // TODECIDE: Should the main function/entry point be a part of the engine or should it be up to the application (as it is here)?
 #include <Application/Application.h>
 
-//#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-//#include <spdlog/spdlog.h>
-//#include "spdlog/sinks/stdout_color_sinks.h"
-
-#include <iostream>
-
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <glad/glad.h>
-
-#include <imgui_internal.h>
-
 #include <Renderer/DirectX12VertexArray.h>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <Component/Transform.h>
 #include <Component/Light.h>
 #include <Component/Mesh.h>
 
 #include <Component/Scene.h>
-#include <entt.hpp>
+
+//#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+//#include <spdlog/spdlog.h>
+//#include "spdlog/sinks/stdout_color_sinks.h"
+
+//#include <imgui_internal.h> // for ImGui::PushItemFlag
+#include <glm/gtc/type_ptr.hpp>
 
 
 struct Vertex
@@ -43,6 +38,8 @@ public:
 		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
 		previousFaceCulling = faceCulling = Hedge::RenderCommand::GetFaceCulling();
 		previousBlending = blending = Hedge::RenderCommand::GetBlending();
+
+		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
 
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
@@ -479,6 +476,44 @@ public:
 
 	void OnGuiUpdate() override
 	{
+		// 2nd part of workaround for docked viewport layout
+		// By pushing these style colors before calling the DockSpace and poping them after we begin the viewport window
+		// we get the desired output of transparent viewport window and other windows with their original background colors
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
+		static bool viewportWindowOpen = false;
+		ImGui::Begin("Viewport", &viewportWindowOpen, ImGuiWindowFlags_NoMove);
+
+		ImGui::PopStyleColor(2);
+
+		auto vpPos = ImGui::GetWindowViewport()->Pos;
+		auto vpSize = ImGui::GetWindowViewport()->Size;
+		auto pos = ImGui::GetWindowPos();
+		auto size = ImGui::GetWindowSize();
+		ViewportDesc currentViewportDec =
+		{
+			(int)(pos.x - vpPos.x),
+			(int)(pos.y - vpPos.y),
+			(int)size.x,
+			(int)size.y
+		};
+		// TODO we're getting a flicker on the first frame since the viewport isn't set to the viewport window size
+		// might want to clean this up
+		if (currentViewportDec != viewportDesc)
+		{
+			viewportDesc = currentViewportDec;
+
+			Hedge::RenderCommand::SetViewport(viewportDesc.x, viewportDesc.y, viewportDesc.width, viewportDesc.height);
+			Hedge::RenderCommand::SetScissor(viewportDesc.x, viewportDesc.y, viewportDesc.width, viewportDesc.height);
+			aspectRatio = (float)size.x / (float)size.y;
+			camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
+		}
+		
+		ImGui::End();
+
 		ImGui::Begin("Window");
 		ImGui::Text("Client Area Size: %u %u", Hedge::Application::GetInstance().GetWindow().GetWidth(), Hedge::Application::GetInstance().GetWindow().GetHeight());
 		ImGui::End();
@@ -542,9 +577,9 @@ public:
 		//}
 
 		ImGui::Checkbox("Wireframe Mode", &wireframeMode);
-		ImGui::Checkbox("Depth Test", &depthTest);
-		ImGui::Checkbox("Face Culling", &faceCulling);
-		ImGui::Checkbox("Blending", &blending);
+		ImGui::SameLine(); ImGui::Checkbox("Depth Test", &depthTest);
+		ImGui::SameLine(); ImGui::Checkbox("Face Culling", &faceCulling);
+		ImGui::SameLine(); ImGui::Checkbox("Blending", &blending);
 		ImGui::End();
 
 
@@ -665,14 +700,15 @@ public:
 				lastY = mouseMoveMessage.GetY();
 			}
 		}
+		
+		// Viewport resizing is done within OnGuiUpdate
+		//if (message.GetMessageType() == Hedge::MessageType::WindowSize)
+		//{
+		//	const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
-		if (message.GetMessageType() == Hedge::MessageType::WindowSize)
-		{
-			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
-
-			aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
-			camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
-		}
+		//	aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
+		//	camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
+		//}
 	}
 
 private:
@@ -684,6 +720,22 @@ private:
 	Hedge::Entity axesEntity;
 	Hedge::Entity gridEntity;
 	Hedge::Entity modelEntity;
+
+
+	struct ViewportDesc
+	{
+		int x;
+		int y;
+		int width;
+		int height;
+
+		bool operator!=(const ViewportDesc& other)
+		{
+			return x != other.x || y != other.y || width != other.width || height != other.height;
+		}
+	};
+
+	ViewportDesc viewportDesc;
 
 
 	// Cameras
@@ -751,33 +803,12 @@ public:
 
 			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 			Hedge::RenderCommand::SetClearColor({ clear_color.x, clear_color.y, clear_color.z, 1.0f });
 
-			if (ImGui::Button("+"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			if (ImGui::Button("-"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter--;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
 			ImGui::End();
 		}
 	}
@@ -789,9 +820,7 @@ public:
 private:
 	// Our state
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	int counter = 1;
 	bool show_demo_window = false;
-	bool show_another_window = false;
 };
 
 class Sandbox : public Hedge::Application

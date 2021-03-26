@@ -29,6 +29,15 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
+	ImGuiStyle* style = &ImGui::GetStyle();
+	ImVec4* colors = style->Colors;
+	// 1st part of workaround for docked viewport layout
+	// Docked windows use ChildBg for their background color or something
+	// see https://github.com/ocornut/imgui/issues/2700
+	// I'm not sure exactly how this works but this combination of WindowBg and ChildBg colors and the second part works
+	// This is temporary anyways since the desired output will be accomplished by rendering to a texture and displaying that in the viewport window
+	colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 0.94f); // same as ImGuiCol_WindowBg
+
 	// Setup Platform/Renderer bindings
 	switch (Renderer::GetAPI())
 	{

@@ -135,7 +135,7 @@ void Application::OnMessage(Message& message)
 
 		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
-		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight(), false);
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 
 		// TODO for continuously update the window while it's being resized (mouse button is down and dragging)

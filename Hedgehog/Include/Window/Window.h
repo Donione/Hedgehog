@@ -20,8 +20,8 @@ public:
 		unsigned int height;
 
 		WindowProperties(const std::string& title = "Hedgehog Window",
-						 unsigned int width = 1280,
-						 unsigned int height = 720)
+						 unsigned int width = 1920,
+						 unsigned int height = 1200)
 			:
 			title(title),
 			width(width),
