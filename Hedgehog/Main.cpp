@@ -50,7 +50,6 @@ public:
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
 
-
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 
 		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
@@ -84,10 +83,10 @@ public:
 			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
 
-		modelEntity = scene.CreateEntity("Bunny");
-		modelEntity.Add<Hedge::Mesh>(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
+		auto bunnyEntity = scene.CreateEntity("Bunny");
+		bunnyEntity.Add<Hedge::Mesh>(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
 									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
-		auto& bunnyEntityTransform = modelEntity.Add<Hedge::Transform>();
+		auto& bunnyEntityTransform = bunnyEntity.Add<Hedge::Transform>();
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
 		bunnyEntityTransform.SetUniformScale(scale);
@@ -198,7 +197,7 @@ public:
 
 		// Lights
 		// Directional Lights
-		dirLightEntity = scene.CreateEntity("Directional Light");
+		auto dirLightEntity = scene.CreateEntity("Directional Light");
 		auto& dirLightLight = dirLightEntity.Add<Hedge::DirectionalLight>();
 		dirLightLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
 		dirLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -243,7 +242,9 @@ public:
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
 		pointLight1.Add<Hedge::Mesh>(pointLightMesh);
-		pointLight1.Add<Hedge::Transform>().SetUniformScale(0.1f);
+		auto& pointLight1Transform = pointLight1.Add<Hedge::Transform>();
+		pointLight1Transform.SetUniformScale(0.1f);
+		pointLight1Transform.SetTranslation(pointLight1Light.position);
 		
 		auto pointLight2 = scene.CreateEntity("Point Light 2");
 		auto& pointLight2Light = pointLight2.Add<Hedge::PointLight>();
@@ -251,7 +252,9 @@ public:
 		pointLight2Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight2Light.position = (glm::vec3(0.0f, 2.0f, 0.0f));
 		pointLight2.Add<Hedge::Mesh>(pointLightMesh);
-		pointLight2.Add<Hedge::Transform>().SetUniformScale(0.1f);
+		auto& pointLight2Transform = pointLight2.Add<Hedge::Transform>();
+		pointLight2Transform.SetUniformScale(0.1f);
+		pointLight2Transform.SetTranslation(pointLight2Light.position);
 		
 		auto pointLight3 = scene.CreateEntity("Point Light 3");
 		auto& newLight = pointLight3.Add<Hedge::PointLight>();
@@ -265,7 +268,7 @@ public:
 		// Spotlight
 		modelFilename = "..\\Hedgehog\\Asset\\Model\\valec.tri";
 
-		spotlight = scene.CreateEntity("Spotlight");
+		auto spotlight = scene.CreateEntity("Spotlight");
 		auto& spotLightLight = spotlight.Add<Hedge::SpotLight>();
 		spotLightLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
 		spotLightLight.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
@@ -275,12 +278,13 @@ public:
 								lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		auto& spotLightTransform = spotlight.Add<Hedge::Transform>();
 		spotLightTransform.SetUniformScale(0.1f);
-		spotLightTransform.SetTranslation(glm::vec3(0.0f));
-		spotLightTransform.SetRotation(glm::vec3(0.0f));
+		spotLightTransform.SetTranslation(spotLightLight.position);
 
 		spotLightBaseRotation = glm::mat4(1.0f);
 		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(9.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(-13.75f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		spotLightTransform.SetRotation(spotLightBaseRotation);
 
 
 		// Axes lines
@@ -479,6 +483,7 @@ public:
 		// 2nd part of workaround for docked viewport layout
 		// By pushing these style colors before calling the DockSpace and poping them after we begin the viewport window
 		// we get the desired output of transparent viewport window and other windows with their original background colors
+		// Again, not exactly sure why and how this works
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 		
@@ -486,8 +491,8 @@ public:
 
 		static bool viewportWindowOpen = false;
 		ImGui::Begin("Viewport", &viewportWindowOpen, ImGuiWindowFlags_NoMove);
-
 		ImGui::PopStyleColor(2);
+
 
 		auto vpPos = ImGui::GetWindowViewport()->Pos;
 		auto vpSize = ImGui::GetWindowViewport()->Size;
@@ -500,7 +505,7 @@ public:
 			(int)size.x,
 			(int)size.y
 		};
-		// TODO we're getting a flicker on the first frame since the viewport isn't set to the viewport window size
+		// TODO in OpenGL we're getting a flicker on the first frame since the viewport isn't set to the viewport window size
 		// might want to clean this up
 		if (currentViewportDec != viewportDesc)
 		{
@@ -511,6 +516,8 @@ public:
 			aspectRatio = (float)size.x / (float)size.y;
 			camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
 		}
+
+		viewportHovered = ImGui::IsMouseHoveringRect(pos, ImVec2(pos.x + size.x, pos.y + size.y));
 		
 		ImGui::End();
 
@@ -584,94 +591,121 @@ public:
 
 
 		ImGui::Begin("Scene");
+
 		ImGui::Checkbox("Show Axes", &axesEntity.Get<Hedge::Mesh>().enabled);
 		ImGui::Checkbox("Show Grid", &gridEntity.Get<Hedge::Mesh>().enabled);
 
-		ImGui::Text("\nModel transform:");
-		auto& modelTransform = modelEntity.Get<Hedge::Transform>();
-		ImGui::SliderFloat3("translate", glm::value_ptr(translation), -30.0f, 30.0f);
-		rotate = modelTransform.GetRotation();
-		ImGui::SliderFloat3("rotate", glm::value_ptr(rotate), -360.0, 360.0);
-		ImGui::SliderFloat("scale", &scale, 0.01f, 10.0f);
-		modelTransform.SetTranslation(translation);
-		modelTransform.SetRotation(rotate);
-		modelTransform.SetUniformScale(scale);
-		ImGui::End();
-
-
-		ImGui::Begin("Lights");
-		ImGui::Text("Directional light");
-		auto& dle = dirLightEntity.Get<Hedge::DirectionalLight>();
-		ImGui::ColorEdit3("Color", glm::value_ptr(dle.color));
-		ImGui::DragFloat3("Direction", glm::value_ptr(dle.direction), 0.01f, -10.0, 10.0f);
+		ImGui::Separator();
 
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-		if (ImGui::TreeNode("Point Lights"))
+		if (ImGui::TreeNode("Meshes"))
 		{
-			auto view = scene.registry.view<Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
-			int i = 0;
-			for (auto [entity, mesh, transform, light] : view.each())
+			auto view = scene.registry.view <std::string, Hedge::Mesh, Hedge::Transform>(entt::exclude<Hedge::DirectionalLight, Hedge::SpotLight, Hedge::PointLight>);
+			for (auto [entity, name, mesh, transform] : view.each())
 			{
-				char buffer[1024];
-				sprintf_s(buffer, "Point light %d", i);
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				if (ImGui::TreeNode(buffer))
+				if (axesEntity.Is(entity)
+					|| gridEntity.Is(entity))
 				{
-					sprintf_s(buffer, "Render Mesh##%d", i);
-					ImGui::Checkbox(buffer, &mesh.enabled);
+					continue;
+				}
 
-					sprintf_s(buffer, "Color##2%d", i);
-					ImGui::ColorEdit3(buffer, glm::value_ptr(light.color));
+				char label[256] = {};
 
-					sprintf_s(buffer, "Position##2%d", i);
-					ImGui::DragFloat3(buffer, glm::value_ptr(light.position), 0.01f, -20.0f, 20.0f);
-					transform.SetTranslation(light.position);
+				sprintf_s(label, "Show %s", name.c_str());
+				if (ImGui::TreeNode(label))
+				{
+					ImGui::Checkbox(label, &mesh.enabled);
 
-					ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-					sprintf_s(buffer, "##2%dx", i);
-					ImGui::DragFloat(buffer, &light.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-					sprintf_s(buffer, "##2%dy", i);
-					ImGui::DragFloat(buffer, &light.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-					sprintf_s(buffer, "Attenuation##2%dz", i);
-					ImGui::DragFloat(buffer, &light.attenuation.z, 0.001f, 0.0f, 0.1f);
-					ImGui::PopItemWidth();
+					transform.CreateGuiControls();
 
 					ImGui::TreePop();
 				}
-				i++;
 			}
-
-		ImGui::TreePop();
+			ImGui::TreePop();
 		}
 
-		ImGui::SliderInt("# of PLights used", &scene.plUsed, 0, 3);
+		ImGui::Separator();
 
-		ImGui::Text("\nSpot light");
-		auto& sl = spotlight.Get<Hedge::SpotLight>();
-		auto& slt = spotlight.Get<Hedge::Transform>();
-		auto& slm = spotlight.Get<Hedge::Mesh>();
-		ImGui::Checkbox("Render Mesh", &slm.enabled);
-		ImGui::ColorEdit3("Color##3", glm::value_ptr(sl.color));
-		ImGui::DragFloat3("Position##3", glm::value_ptr(sl.position), 0.01f, -20.0f, 20.0f);
-		slt.SetTranslation(sl.position);
-		ImGui::DragFloat3("Direction##3", glm::value_ptr(sl.direction), 0.01f, -1.0, 1.0f);
-		auto dir2rot = glm::lookAt(glm::vec3(0.0f), sl.direction, glm::vec3(0.0f, 1.0f, 0.0f));
-		slt.SetRotation(spotLightBaseRotation * glm::inverse(dir2rot));
-		glm::vec2 cutoffAngle = glm::degrees(glm::acos(sl.cutoffAngle));
-		ImGui::DragFloat("Inner cutoff angle", &cutoffAngle.x, 0.1f, cutoffAngle.y - 20.0f, cutoffAngle.y);
-		ImGui::DragFloat("Outer cutoff angle", &cutoffAngle.y, 0.1f, cutoffAngle.x, 180.0f);
-		sl.cutoffAngle = glm::cos(glm::radians(cutoffAngle));
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * (1.0f / 4.0f));
-		ImGui::DragFloat("##3x", &sl.attenuation.x, 0.1f, 0.0f, 10.f); ImGui::SameLine();
-		ImGui::DragFloat("##3y", &sl.attenuation.y, 0.01f, 0.0f, 1.f); ImGui::SameLine();
-		ImGui::DragFloat("Attenuation##3z", &sl.attenuation.z, 0.001f, 0.0f, 0.1f);
-		ImGui::PopItemWidth();
-		ImGui::End();
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::TreeNode("Lights"))
+		{
+			if (ImGui::TreeNode("Directional Lights"))
+			{
+				auto view = scene.registry.view<std::string, Hedge::DirectionalLight>();
+
+				for (auto [entity, name, light] : view.each())
+				{
+					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+					if (ImGui::TreeNode(name.c_str()))
+					{
+						light.CreateGuiControls();
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			} // Directional Lights node
+
+			if (ImGui::TreeNode("Point Lights"))
+			{
+				ImGui::SliderInt("# of PLights used", &scene.plUsed, 0, 3);
+
+				auto view = scene.registry.view<std::string, Hedge::Mesh, Hedge::Transform, Hedge::PointLight>();
+				for (auto [entity, name, mesh, transform, light] : view.each())
+				{
+					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+					if (ImGui::TreeNode(name.c_str()))
+					{
+						ImGui::Checkbox("Render Mesh", &mesh.enabled);
+
+						if (light.CreateGuiControls())
+						{
+							transform.SetTranslation(light.position);
+						}
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			} // Point Lights node
+
+			if (ImGui::TreeNode("Spot Lights"))
+			{
+				auto view = scene.registry.view<std::string, Hedge::Mesh, Hedge::Transform, Hedge::SpotLight>();
+
+				for (auto [entity, name, mesh, transform, light] : view.each())
+				{
+					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+					if (ImGui::TreeNode(name.c_str()))
+					{
+						ImGui::Checkbox("Render Mesh", &mesh.enabled);
+
+						if (light.CreateGuiControls())
+						{
+							transform.SetTranslation(light.position);
+							auto dir2rot = glm::lookAt(glm::vec3(0.0f), light.direction, glm::vec3(0.0f, 1.0f, 0.0f));
+							transform.SetRotation(spotLightBaseRotation * glm::inverse(dir2rot));
+						}
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			} // Spot Lights node
+
+			ImGui::TreePop();
+		} // Lights node
+		
+		ImGui::End(); // Scene window
 	}
 
 	void OnMessage(const Hedge::Message& message) override
 	{
-		if (message.GetMessageType() == Hedge::MessageType::MouseScrolled)
+		if (message.GetMessageType() == Hedge::MessageType::MouseScrolled
+			&& viewportHovered)
 		{
 			const Hedge::MouseScrollMessage& mouseScrollMessage = dynamic_cast<const Hedge::MouseScrollMessage&>(message);
 
@@ -714,12 +748,11 @@ public:
 private:
 	Hedge::Scene scene;
 
-	Hedge::Entity camera;
-	Hedge::Entity dirLightEntity;
-	Hedge::Entity spotlight;
 	Hedge::Entity axesEntity;
 	Hedge::Entity gridEntity;
-	Hedge::Entity modelEntity;
+	Hedge::Entity camera;
+
+	bool viewportHovered = false;
 
 
 	struct ViewportDesc
