@@ -12,6 +12,8 @@ public:
 	Entity() = default;
 	Entity(entt::entity entity, entt::registry* registry) : entity(entity), registry(registry) {}
 
+	bool Is(const entt::entity& other) const { return entity == other; }
+
 	template<typename Component, typename... Args>
 	Component& Add(Args &&... args)
 	{

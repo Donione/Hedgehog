@@ -200,6 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\Component\Light.cpp" />
     <ClCompile Include="Source\Component\Mesh.cpp" />
     <ClCompile Include="Source\Component\Scene.cpp" />
     <ClCompile Include="Source\Component\Transform.cpp" />

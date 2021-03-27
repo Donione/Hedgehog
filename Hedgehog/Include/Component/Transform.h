@@ -16,6 +16,9 @@ public:
 	const glm::vec3& GetRotation() const { return rotation; }
 	const glm::vec3& GetScale() const { return scale; }
 
+	// TODECIDE consider returning a reference to itself from all these transformation functions
+	// so they can be chained
+
 	// Set transformation components absolutely
 	void SetTranslation(const glm::vec3& translation);
 	void SetRotation(const glm::vec3& rotation);
@@ -34,6 +37,10 @@ public:
 	void ScaleAbsolute(const glm::vec3& scale);
 	void UniformScaleAbsolute(float scale);
 
+	void CreateGuiControls(bool controlTranslation = true,
+						   bool controlRotation = true,
+						   bool controlScale = true);
+
 private:
 	bool updateTransform = true;
 	glm::mat4 transform = glm::mat4(1.0f);
@@ -46,6 +53,8 @@ private:
 	glm::mat4 translationMatrix;
 	glm::mat4 rotationMatrix;
 	glm::mat4 scaleMatrix;
+
+	bool GUIuniformScale = false;
 };
 
 } // namespace Hedge

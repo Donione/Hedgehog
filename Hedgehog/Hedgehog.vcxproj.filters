@@ -260,6 +260,9 @@
     <ClCompile Include="Source\Component\Scene.cpp">
       <Filter>Source\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Component\Light.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">
