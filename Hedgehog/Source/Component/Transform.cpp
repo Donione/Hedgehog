@@ -2,6 +2,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <imgui.h>
 
 
 namespace Hedge
@@ -123,6 +126,52 @@ void Transform::UniformScale(float scale)
 void Transform::UniformScaleAbsolute(float scale)
 {
 	SetScale(this->scale + glm::vec3(scale, scale, scale));
+}
+
+void Transform::CreateGuiControls(bool controlTranslation,
+								  bool controlRotation,
+								  bool controlScale)
+{
+	ImGui::PushID(this);
+	if (controlTranslation)
+	{
+		auto tempTranslation = translation;
+		if (ImGui::SliderFloat3("translate", glm::value_ptr(tempTranslation), -30.0f, 30.0f))
+		{
+			SetTranslation(tempTranslation);
+		}
+	}
+
+	if (controlRotation)
+	{
+		auto tempRotation = rotation;
+		if (ImGui::SliderFloat3("rotate", glm::value_ptr(tempRotation), -360.0, 360.0))
+		{
+			SetRotation(tempRotation);
+		}
+	}
+
+	if (controlScale)
+	{
+		auto tempScale = scale;
+		bool valueChanged = false;
+		if (GUIuniformScale)
+		{
+			valueChanged = ImGui::SliderFloat("scale", &tempScale.x, 0.0f, 10.0f);
+			tempScale.y = tempScale.z = tempScale.x;
+		}
+		else
+		{
+			valueChanged = ImGui::SliderFloat3("scale", glm::value_ptr(tempScale), 0.0f, 10.0f);
+		}
+		ImGui::SameLine();
+		ImGui::Checkbox("Uniform", &GUIuniformScale);
+		if (valueChanged)
+		{
+			SetScale(tempScale);
+		}
+	}
+	ImGui::PopID();
 }
 
 } // namespace Hedge
