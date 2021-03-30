@@ -44,8 +44,8 @@ public:
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
 		camera = scene.CreateEntity("Scene Camera");
-		camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f)); // camera space, +z goes into the screen
-		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f));
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 1.0f, 25.0f)); // camera space, +z goes into the screen
+		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
