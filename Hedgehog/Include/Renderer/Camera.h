@@ -8,22 +8,27 @@ namespace Hedge
 
 struct Frustum
 {
-	float left;
-	float right;
-	float bottom;
-	float top;
+	// Input values, always supplied
+	float aspectRatio;
+
 	// Fun Fact: near and far are defined as nothing through windows.h (minwindef.h)
 	float nearClip;
 	float farClip;
-
-	// zoom applies only for orthographic camera
-	float zoom;
-
-	// fov applies only for perspective camera
-	float fov;
-	float aspectRatio;
-
-	Frustum() = default;
+	
+	// Input values, camera type specific
+	float zoom = 1.0f; // applies only for orthographic camera
+	float fov = 56.0f; // applies only for perspective camera
+	
+	// coordinates of the clip face
+	// these values are computed from inputs
+	float nearLeft;
+	float nearRight;
+	float nearBottom;
+	float nearTop;
+	float farLeft;
+	float farRight;
+	float farBottom;
+	float farTop;
 };
 
 enum class CameraType
@@ -39,9 +44,8 @@ class Camera
 public:
 	Camera() = default;
 
-	static Camera CreateOrthographic(float left, float right, float bottom, float top, float nearClip = 0.0f, float farClip = 1.0f);
-	static Camera CreatePerspective(float fov, float aspectRatio, float nearClip = 0.01f, float farClip = 1.0f);
-
+	static Camera CreateOrthographic(float aspectRatio, float zoom = 1.0f, float nearClip = 0.0f, float farClip = 1.0f);
+	static Camera CreatePerspective(float aspectRatio, float fov = 56.0f, float nearClip = 0.01f, float farClip = 1.0f);
 
 	CameraType GetType() const { return type; }
 
@@ -52,15 +56,24 @@ public:
 	void SetZoom(float zoom);
 	void SetFOV(float FOV);
 
+	bool IsPrimary() const { return primary; }
+	void SetPrimary(bool primary) { this->primary = primary; }
+
+	const Frustum& GetFrustum() const { return frustum; }
+
 private:
-	glm::mat4 CreateOrthographicMatrix();
-	glm::mat4 CreatePerspectiveMatrix();
+	void CalculateClipFaces();
+
+	void CreateProjectionMatrix();
+	void CreateOrthographicMatrix();
+	void CreatePerspectiveMatrix();
 
 
 private:
 	CameraType type = CameraType::Unknown;
 	glm::mat4x4 projection{1.0f};
 	Frustum frustum = Frustum();
+	bool primary = true;
 };
 
 } // namespace Hedge
