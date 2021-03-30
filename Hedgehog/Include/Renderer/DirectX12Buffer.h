@@ -25,7 +25,8 @@ public:
 	virtual const PrimitiveTopology GetPrimitiveType() const override { return primitiveTopology; }
 	virtual const BufferLayout& GetLayout() const override { return layout; }
 
-	const D3D12_VERTEX_BUFFER_VIEW* const GetView() const { return &vertexBufferView; }
+	virtual void SetData(const float* vertices, unsigned int size) override;
+	
 
 private:
 	D3D12_PRIMITIVE_TOPOLOGY GetDirectX12PrimitiveTopology(PrimitiveTopology type) const { return DirectX12PrimitiveTopologies[(int)type]; }

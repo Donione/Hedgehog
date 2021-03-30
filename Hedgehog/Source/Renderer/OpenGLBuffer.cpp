@@ -35,6 +35,12 @@ void OpenGLVertexBuffer::Unbind() const
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+void OpenGLVertexBuffer::SetData(const float* vertices, unsigned int size)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, rendererID);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+}
+
 
 OpenGLIndexBuffer::OpenGLIndexBuffer(const unsigned int* indices, unsigned int count)
 {

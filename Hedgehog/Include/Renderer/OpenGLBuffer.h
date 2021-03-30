@@ -22,6 +22,8 @@ public:
 	virtual const PrimitiveTopology GetPrimitiveType() const override { return primitiveTopology; }
 	virtual const BufferLayout& GetLayout() const override { return layout; }
 
+	virtual void SetData(const float* vertices, unsigned int size) override;
+
 private:
 	unsigned int rendererID = 0;
 	PrimitiveTopology primitiveTopology;

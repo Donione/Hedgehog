@@ -111,6 +111,8 @@ public:
 
 	virtual const PrimitiveTopology GetPrimitiveType() const = 0;
 	virtual const BufferLayout& GetLayout() const = 0;
+
+	virtual void SetData(const float* vertices, unsigned int size) = 0;
 };
 
 class IndexBuffer
