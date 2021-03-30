@@ -58,6 +58,17 @@ void DirectX12VertexBuffer::Bind() const
 	dx12context->g_pd3dCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 }
 
+void DirectX12VertexBuffer::SetData(const float* vertices, unsigned int size)
+{
+	assert(size == vertexBufferView.SizeInBytes);
+
+	UINT8* pVertexDataBegin = nullptr;
+	CD3DX12_RANGE readRange(0, 0);
+	vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+	memcpy(pVertexDataBegin, vertices, size);
+	vertexBuffer->Unmap(0, nullptr);
+}
+
 
 DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned int count)
 {
