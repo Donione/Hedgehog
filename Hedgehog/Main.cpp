@@ -87,7 +87,7 @@ public:
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
 		auto camera = scene.CreateEntity("Scene Camera");
-		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 1.0f, 25.0f)); // camera space, +z goes into the screen
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f)); // camera space, +z goes into the screen
 		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
@@ -102,7 +102,7 @@ public:
 								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
 
 		auto camera2 = scene.CreateEntity("Camera 2");
-		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 1.0f, 25.0f));
+		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f));
 		//auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		camera2camera.SetPrimary(false);
 		auto& camera2Transform = camera2.Add<Hedge::Transform>();
@@ -743,12 +743,12 @@ public:
 
 		ImGui::Separator();
 
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 		if (ImGui::TreeNode("Cameras"))
 		{
 			auto view = scene.registry.view<std::string, Hedge::Camera, Hedge::Transform, Hedge::Mesh>();
 			for (auto [entity, name, camera, transform, mesh] : view.each())
 			{
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 				if (ImGui::TreeNode(name.c_str()))
 				{
 					if (camera.CreateGuiControls())
@@ -804,15 +804,6 @@ public:
 				lastY = mouseMoveMessage.GetY();
 			}
 		}
-		
-		// Viewport resizing is done within OnGuiUpdate
-		//if (message.GetMessageType() == Hedge::MessageType::WindowSize)
-		//{
-		//	const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
-
-		//	aspectRatio = (float)windowSizeMessage.GetWidth() / (float)windowSizeMessage.GetHeight();
-		//	camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
-		//}
 	}
 
 private:
@@ -820,9 +811,6 @@ private:
 
 	Hedge::Entity axesEntity;
 	Hedge::Entity gridEntity;
-
-	//Hedge::Entity camera;
-	//Hedge::Entity camera2;
 
 	bool viewportHovered = false;
 
