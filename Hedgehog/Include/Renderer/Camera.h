@@ -59,6 +59,8 @@ public:
 	bool IsPrimary() const { return primary; }
 	void SetPrimary(bool primary) { this->primary = primary; }
 
+	bool CreateGuiControls();
+
 	const Frustum& GetFrustum() const { return frustum; }
 
 private:

@@ -21,6 +21,8 @@ public:
 
 	void UpdateRenderSettings();
 
+	const Entity GetPrimaryCamera();
+
 public:
 	int plUsed = 3;
 	

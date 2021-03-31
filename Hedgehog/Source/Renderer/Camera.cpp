@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
+#include <imgui.h>
+
 
 namespace Hedge
 {
@@ -85,15 +87,77 @@ void Camera::SetFOV(float FOV)
 	}
 }
 
+bool Camera::CreateGuiControls()
+{
+	bool cameraChanged = false;
+
+	ImGui::PushID(this);
+
+	ImGui::Checkbox("Primary Camera", &primary);
+
+	int cameraType = type == CameraType::Orthographic ? 0 : 1;
+	if (cameraChanged |= ImGui::Combo("Camera Type", &cameraType, "Orthographic\0Perspective\0\0"))
+	{
+		if (cameraType == 0)
+		{
+			type = CameraType::Orthographic;
+		}
+		else
+		{
+			type = CameraType::Perspective;
+		}
+
+		CalculateClipFaces();
+		CreateProjectionMatrix();
+	}
+
+	auto tempAspectRatio = frustum.aspectRatio;
+	if (cameraChanged |= ImGui::SliderFloat("Aspect Ratio", &tempAspectRatio, 0.0f, 3.0f))
+	{
+		SetAspectRatio(tempAspectRatio);
+	}
+
+	float clip[2] = { frustum.nearClip, frustum.farClip };
+	if (cameraChanged |= ImGui::SliderFloat2("Near/Far Clip Plane", clip, 0.01f, 100.0f))
+	{
+		frustum.nearClip = clip[0];
+		frustum.farClip = clip[1];
+
+		CalculateClipFaces();
+		CreateProjectionMatrix();
+	}
+
+	if (type == Hedge::CameraType::Orthographic)
+	{
+		if (cameraChanged |= ImGui::SliderFloat("Zoom", &frustum.zoom, 0.1f, 10.0f))
+		{
+			SetZoom(frustum.zoom);
+		}
+	}
+	else if (type == Hedge::CameraType::Perspective)
+	{
+		if (cameraChanged |= ImGui::SliderFloat("vFOV", &frustum.fov, 20.0f, 150.0f))
+		{
+			SetFOV(frustum.fov);
+		}
+		ImGui::SameLine();
+		ImGui::Text("(hFOV: %f)", frustum.fov * frustum.aspectRatio);
+	}
+
+	ImGui::PopID();
+
+	return cameraChanged;
+}
+
 void Camera::CalculateClipFaces()
 {
 	if (type == CameraType::Orthographic)
 	{
 		// near and far face both have the same x and y coordinates
-		frustum.farLeft = frustum.nearLeft = -frustum.aspectRatio;
-		frustum.farRight = frustum.nearRight = frustum.aspectRatio;
-		frustum.farBottom = frustum.nearBottom = -1.0;
-		frustum.farTop = frustum.nearTop = 1.0;
+		frustum.farLeft = frustum.nearLeft = -frustum.aspectRatio * frustum.zoom;
+		frustum.farRight = frustum.nearRight = frustum.aspectRatio * frustum.zoom;
+		frustum.farBottom = frustum.nearBottom = -1.0f * frustum.zoom;
+		frustum.farTop = frustum.nearTop = 1.0f * frustum.zoom;
 	}
 	else if(type == Hedge::CameraType::Perspective)
 	{

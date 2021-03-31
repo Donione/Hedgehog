@@ -48,6 +48,11 @@ void Renderer::EndScene()
 void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 					  const glm::mat4x4& transform)
 {
+	if (!sceneCamera)
+	{
+		return;
+	}
+
 	if (!usedShaders.contains(vertexArray->GetShader()))
 	{
 		auto projectionView = sceneCamera.Get<Camera>().GetProjection() * glm::inverse(sceneCamera.Get<Transform>().Get());
