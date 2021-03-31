@@ -27,6 +27,20 @@ struct Vertex
 	float x, y, z, w, r, g, b, a, u, v;
 };
 
+void CreateFrustumVertices(Hedge::Frustum frustum, Vertex (&vertices)[8])
+{
+	// near clip face
+	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
+	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
+	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
+	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
+	// far clip face
+	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
+	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
+	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
+	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
+}
+
 
 class ExampleLayer : public Hedge::Layer
 {
@@ -41,14 +55,68 @@ public:
 
 		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
 
+		Hedge::ConstantBufferDescription frustumConstBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		};
+
+		auto frustumPrimitiveTopology = Hedge::PrimitiveTopology::Line;
+
+		Hedge::BufferLayout frustumVertexBufferLayout =
+		{
+			{ Hedge::ShaderDataType::Float4, "a_position" },
+			{ Hedge::ShaderDataType::Float4, "a_color" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		};
+
+
+		std::string frustumVertexSrc;
+		std::string frustumFragmentSrc;
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		{
+			frustumVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			frustumFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		}
+		else
+		{
+			frustumVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			frustumFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
-		camera = scene.CreateEntity("Scene Camera");
+		auto camera = scene.CreateEntity("Scene Camera");
 		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 1.0f, 25.0f)); // camera space, +z goes into the screen
 		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+
+		// Now it seems obvious, but after emplacing more components into the registry, the references we got in the previous step might become
+		// invalid because underlying containers might be reallocated
+		CreateFrustumVertices(camera1camera.GetFrustum(), frustumVertices);
+		camera.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
+								frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
+								frustumPrimitiveTopology, frustumVertexBufferLayout,
+								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+
+		auto camera2 = scene.CreateEntity("Camera 2");
+		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 1.0f, 25.0f));
+		//auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
+		camera2camera.SetPrimary(false);
+		auto& camera2Transform = camera2.Add<Hedge::Transform>();
+		camera2Transform.SetTranslation(glm::vec3(-1.0f, 1.0f, 3.0f));
+		camera2Transform.SetRotation(glm::vec3(-10.0f, -20.0f, 0.0f));
+
+		CreateFrustumVertices(camera2camera.GetFrustum(), frustumVertices);
+		camera2.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
+								 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
+								 frustumPrimitiveTopology, frustumVertexBufferLayout,
+								 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+
+
+
 
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 
@@ -405,14 +473,22 @@ public:
 			zRotation++;
 		}
 
+		auto primaryCamera = scene.GetPrimaryCamera();
+
 		if (GetKeyState(VK_SPACE) < 0)
 		{
-			camera.Get<Hedge::Transform>().SetTranslation({ 0.0f, 0.0f, 0.0f });
-			camera.Get<Hedge::Transform>().SetRotation({ 0.0f, 0.0f, 0.0f });
+			if (primaryCamera)
+			{
+				primaryCamera.Get<Hedge::Transform>().SetTranslation({ 0.0f, 0.0f, 0.0f });
+				primaryCamera.Get<Hedge::Transform>().SetRotation({ 0.0f, 0.0f, 0.0f });
+			}
 		}
 
-		camera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
-		camera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		if (primaryCamera)
+		{
+			primaryCamera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+			primaryCamera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		}
 
 		xOffset = 0;
 		yOffset = 0;
@@ -422,8 +498,7 @@ public:
 		yRotation = 0;
 		zRotation = 0;
 
-
-		Hedge::Renderer::BeginScene(camera);
+		Hedge::Renderer::BeginScene(primaryCamera);
 		{
 			scene.OnUpdate();
 			
@@ -514,49 +589,16 @@ public:
 			Hedge::RenderCommand::SetViewport(viewportDesc.x, viewportDesc.y, viewportDesc.width, viewportDesc.height);
 			Hedge::RenderCommand::SetScissor(viewportDesc.x, viewportDesc.y, viewportDesc.width, viewportDesc.height);
 			aspectRatio = (float)size.x / (float)size.y;
-			camera.Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
+			scene.GetPrimaryCamera().Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
 		}
 
 		viewportHovered = ImGui::IsMouseHoveringRect(pos, ImVec2(pos.x + size.x, pos.y + size.y));
 		
 		ImGui::End();
 
+
 		ImGui::Begin("Window");
 		ImGui::Text("Client Area Size: %u %u", Hedge::Application::GetInstance().GetWindow().GetWidth(), Hedge::Application::GetInstance().GetWindow().GetHeight());
-		ImGui::End();
-
-
-		ImGui::Begin("Camera");
-		static int cameraType = 1;
-		ImGui::Combo("Camera Type", &cameraType, "Orthographic\0Perspective\0\0");
-		if (cameraType == 0)
-		{
-			camera.Replace<Hedge::Camera>(Hedge::Camera::CreateOrthographic(-aspectRatio, aspectRatio, -1.0f, 1.0f, 0.01f, 25.0f));
-
-		}
-		else
-		{
-			camera.Replace<Hedge::Camera>(Hedge::Camera::CreatePerspective(cameraFOV, aspectRatio, 0.01f, 100.0f));
-		}
-
-		glm::vec3 position = camera.Get<Hedge::Transform>().GetTranslation();
-		glm::vec3 rotation = camera.Get<Hedge::Transform>().GetRotation();
-		ImGui::Text("Position: %f %f %f", position.x, position.y, position.z);
-		ImGui::Text("Rotation: %f %f %f", rotation.x, rotation.y, rotation.z);
-
-		auto& cam = camera.Get<Hedge::Camera>();
-		if (cam.GetType() == Hedge::CameraType::Orthographic)
-		{
-			ImGui::SliderFloat("Zoom", &cameraZoom, 0.1f, 10.0f);
-			cam.SetZoom(cameraZoom);
-		}
-		else if (cam.GetType() == Hedge::CameraType::Perspective)
-		{
-			ImGui::SliderFloat("vFOV", &cameraFOV, 20.0f, 150.0f);
-			cam.SetFOV(cameraFOV);
-			ImGui::SameLine();
-			ImGui::Text("(hFOV: %f)", cameraFOV * aspectRatio);
-		}
 		ImGui::End();
 
 
@@ -600,7 +642,7 @@ public:
 		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 		if (ImGui::TreeNode("Meshes"))
 		{
-			auto view = scene.registry.view <std::string, Hedge::Mesh, Hedge::Transform>(entt::exclude<Hedge::DirectionalLight, Hedge::SpotLight, Hedge::PointLight>);
+			auto view = scene.registry.view <std::string, Hedge::Mesh, Hedge::Transform>(entt::exclude<Hedge::DirectionalLight, Hedge::SpotLight, Hedge::PointLight, Hedge::Camera>);
 			for (auto [entity, name, mesh, transform] : view.each())
 			{
 				if (axesEntity.Is(entity)
@@ -698,6 +740,34 @@ public:
 
 			ImGui::TreePop();
 		} // Lights node
+
+		ImGui::Separator();
+
+		if (ImGui::TreeNode("Cameras"))
+		{
+			auto view = scene.registry.view<std::string, Hedge::Camera, Hedge::Transform, Hedge::Mesh>();
+			for (auto [entity, name, camera, transform, mesh] : view.each())
+			{
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				if (ImGui::TreeNode(name.c_str()))
+				{
+					if (camera.CreateGuiControls())
+					{
+						auto& frustum = camera.GetFrustum();
+						CreateFrustumVertices(frustum, frustumVertices);
+
+						mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
+					}
+					transform.CreateGuiControls(true, true, false);
+					
+					ImGui::Checkbox("Render Frustum", &mesh.enabled);
+
+					ImGui::TreePop();
+				}
+			}
+
+			ImGui::TreePop();
+		} // Cameras node
 		
 		ImGui::End(); // Scene window
 	}
@@ -750,7 +820,9 @@ private:
 
 	Hedge::Entity axesEntity;
 	Hedge::Entity gridEntity;
-	Hedge::Entity camera;
+
+	//Hedge::Entity camera;
+	//Hedge::Entity camera2;
 
 	bool viewportHovered = false;
 
@@ -787,6 +859,14 @@ private:
 	bool previousDepthTest;
 	bool previousFaceCulling;
 	bool previousBlending;
+
+	Vertex frustumVertices[8];
+	unsigned int frustumIndices[8*3] =
+	{
+		0, 1, 1, 3, 3, 2, 2, 0, // near clip face
+		4, 5, 5, 7, 7, 6, 6, 4, // far clip face
+		0, 4, 1, 5, 2, 6, 3, 7, // connecting lines
+	};
 
 	static const int numVertices = 804;
 	Vertex gridVertices[numVertices];
