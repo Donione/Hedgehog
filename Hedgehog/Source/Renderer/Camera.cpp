@@ -154,10 +154,10 @@ void Camera::CalculateClipFaces()
 	if (type == CameraType::Orthographic)
 	{
 		// near and far face both have the same x and y coordinates
-		frustum.farLeft = frustum.nearLeft = -frustum.aspectRatio;
-		frustum.farRight = frustum.nearRight = frustum.aspectRatio;
-		frustum.farBottom = frustum.nearBottom = -1.0;
-		frustum.farTop = frustum.nearTop = 1.0;
+		frustum.farLeft = frustum.nearLeft = -frustum.aspectRatio * frustum.zoom;
+		frustum.farRight = frustum.nearRight = frustum.aspectRatio * frustum.zoom;
+		frustum.farBottom = frustum.nearBottom = -1.0f * frustum.zoom;
+		frustum.farTop = frustum.nearTop = 1.0f * frustum.zoom;
 	}
 	else if(type == Hedge::CameraType::Perspective)
 	{
