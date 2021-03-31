@@ -189,20 +189,20 @@ void Camera::CreateOrthographicMatrix()
 	if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 	{
 		// DirectX clip volume z normalized device coordinates go from 0 to 1
-		projection = glm::orthoRH_ZO(frustum.nearLeft * frustum.zoom,
-									 frustum.nearRight * frustum.zoom,
-									 frustum.nearBottom * frustum.zoom,
-									 frustum.nearTop * frustum.zoom,
+		projection = glm::orthoRH_ZO(frustum.nearLeft,
+									 frustum.nearRight,
+									 frustum.nearBottom,
+									 frustum.nearTop,
 									 frustum.nearClip,
 									 frustum.farClip);
 	}
 	else
 	{
 		// OpenGL clip volume z normalized device coordinate go from -1 to 1
-		projection = glm::ortho(frustum.nearLeft * frustum.zoom,
-								frustum.nearRight * frustum.zoom,
-								frustum.nearBottom * frustum.zoom,
-								frustum.nearTop * frustum.zoom,
+		projection = glm::ortho(frustum.nearLeft,
+								frustum.nearRight,
+								frustum.nearBottom,
+								frustum.nearTop,
 								frustum.nearClip,
 								frustum.farClip);
 	}
