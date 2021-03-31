@@ -13,6 +13,7 @@ public:
 	Entity(entt::entity entity, entt::registry* registry) : entity(entity), registry(registry) {}
 
 	bool Is(const entt::entity& other) const { return entity == other; }
+	operator bool() const { return entity != entt::null && registry != nullptr; }
 
 	template<typename Component, typename... Args>
 	Component& Add(Args &&... args)
