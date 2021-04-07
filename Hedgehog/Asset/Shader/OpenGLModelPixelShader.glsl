@@ -40,7 +40,6 @@ vec3 CalculateDirectionalLight(vec3 lightDirection, // normalized direction from
                                vec3 normal)         // normalized pixel normal vector
 {
     //vec3 objectColor = vec3(0.333f, 0.125f, 0.024f);
-
     vec3 objectColor = vec3(1.0f, 1.0f, 1.0f);
     
     vec3 ambient = vec3(0.0f, 0.0f, 0.0f);
@@ -48,7 +47,7 @@ vec3 CalculateDirectionalLight(vec3 lightDirection, // normalized direction from
     float diff = max(dot(normal, lightDirection), 0.0f);
     vec3 diffuse = diff * lightColor;
 
-    float specularStrength = 0.2;
+    float specularStrength = 0.2f;
     vec3 viewDirection = normalize(u_viewPos - position);
     vec3 reflectDirection = reflect(-lightDirection, normal);
     float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
