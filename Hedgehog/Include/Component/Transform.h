@@ -54,7 +54,7 @@ private:
 	glm::mat4 rotationMatrix;
 	glm::mat4 scaleMatrix;
 
-	bool GUIuniformScale = false;
+	bool GUIuniformScale = true;
 };
 
 } // namespace Hedge
