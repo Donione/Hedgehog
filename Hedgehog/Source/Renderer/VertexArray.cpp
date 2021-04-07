@@ -9,15 +9,16 @@ namespace Hedge
 
 VertexArray* VertexArray::Create(const std::shared_ptr<Shader>& inputShader,
 								 PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
-								 const std::shared_ptr<Texture>& inputTexture)
+								 const std::shared_ptr<Texture>& inputTexture,
+								 const std::shared_ptr<Texture>& normalMap)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexArray(inputShader, primitiveTopology, inputTexture);
+		return new OpenGLVertexArray(inputShader, primitiveTopology, inputTexture, normalMap);
 
 	case RendererAPI::API::DirectX12:
-		return new DirectX12VertexArray(inputShader, primitiveTopology, inputLayout, inputTexture);
+		return new DirectX12VertexArray(inputShader, primitiveTopology, inputLayout, inputTexture, normalMap);
 
 	case RendererAPI::API::None:
 		return nullptr;

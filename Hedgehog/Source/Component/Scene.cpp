@@ -31,7 +31,7 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::OnUpdate()
 {
-	auto& cameraTransform = registry.get<Transform>(registry.view<Camera>().front());
+	auto& cameraTransform = GetPrimaryCamera().Get<Transform>();
 
 	auto group = registry.group<Mesh, Transform>();
 

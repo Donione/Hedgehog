@@ -66,8 +66,8 @@ PSInput VSMain(float3 position : a_position, float3 normal : a_normal)
     float4 pos = mul(u_Transform, float4(position, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
-    result.pos = pos;
-    result.normal = mul(u_Transform, float4(normal, 0.0f));
+    result.pos = pos.xyz;
+    result.normal = mul(u_Transform, float4(normal, 0.0f)).xyz;
 
     return result;
 }
@@ -171,8 +171,6 @@ float4 PSMain(PSInput input) : SV_TARGET
     {
         result += CalculatePointLight(u_pointLight[i].position, u_pointLight[i].color, u_pointLight[i].attenuation, input.pos, norm);
     }
-    //result += CalculatePointLight(u_pointLight[1].position, u_pointLight[1].color, u_pointLight[1].attenuation, input.pos, norm);
-    //result += CalculatePointLight(u_pointLight[2].position, u_pointLight[2].color, u_pointLight[2].attenuation, input.pos, norm);
     result += CalculateSpotLight(u_spotLight.position,
                                  u_spotLight.color,
                                  normalize(-u_spotLight.direction),

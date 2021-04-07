@@ -16,12 +16,13 @@ public:
 	DirectX12Texture2D(const std::string& filename);
 	virtual ~DirectX12Texture2D() { /* nothing to do */ }
 
-	virtual void Bind(unsigned int slot = 0) const override;
+	virtual void Bind(unsigned int slot = 0) const override { /* Do nothing */ };
 
 	virtual unsigned int GetWidth() const override { return width; }
 	virtual unsigned int GetHeight() const override { return height; }
 
-	void SetRootParamIndex(unsigned int index) { rootParamIndex = index; }
+	const D3D12_RESOURCE_DESC& GetDesc() const { return textureDesc; }
+	ID3D12Resource* Get() const { return texture.Get(); }
 
 private:
 	std::string filename;
@@ -29,10 +30,12 @@ private:
 	unsigned int width;
 	unsigned int height;
 
-	unsigned int rootParamIndex = 0;
+	//unsigned int rootParamIndex = 0;
+	D3D12_RESOURCE_DESC textureDesc{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> texture;
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
+	Microsoft::WRL::ComPtr<ID3D12Resource> normalMap;
+	Microsoft::WRL::ComPtr<ID3D12Resource> normalMapUploadHeap;
 };
 
 } // namespace Hedge

@@ -289,6 +289,12 @@
     <None Include="Asset\Shader\OpenGLModelExampleVertexShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
+    <None Include="Asset\Shader\OpenGLNormalMapPixelShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
+    <None Include="Asset\Shader\OpenGLNormalMapVertexShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\DirectX12ModelShader.hlsl">
@@ -301,6 +307,9 @@
       <Filter>Assets\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\DirectX12ModelExampleShader.hlsl">
+      <Filter>Assets\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\DirectX12NormalMapShader.hlsl">
       <Filter>Assets\Shader</Filter>
     </FxCompile>
   </ItemGroup>

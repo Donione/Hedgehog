@@ -17,7 +17,8 @@ class DirectX12VertexArray : public VertexArray
 public:
 	DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
 						 PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
-						 const std::shared_ptr<Texture>& inputTexture);
+						 const std::shared_ptr<Texture>& inputTexture,
+						 const std::shared_ptr<Texture>& normalMap);
 	virtual ~DirectX12VertexArray() override;
 
 	virtual void Bind() const override;
@@ -59,7 +60,10 @@ private:
 	std::shared_ptr<DirectX12Shader> shader;
 	PrimitiveTopology primitiveTopology;
 	BufferLayout bufferLayout;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
+	unsigned int texturesRootParamIndex;
 	std::shared_ptr<Texture> texture;
+	std::shared_ptr<Texture> normalMap;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
 

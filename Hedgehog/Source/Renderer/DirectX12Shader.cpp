@@ -24,6 +24,7 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 	UINT compileFlags = 0;
 	#endif
 
+	ID3DBlob* pErrorBlob;
 	HRESULT isOK = D3DCompileFromFile(VSFilePath.c_str(),
 									  nullptr,
 									  nullptr,
@@ -32,8 +33,13 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 									  compileFlags,
 									  0,
 									  &vertexShader,
-									  nullptr);
+									  &pErrorBlob);
 
+	if (pErrorBlob != nullptr)
+	{
+		printf("%s\n", (char*)pErrorBlob->GetBufferPointer());
+		pErrorBlob->Release();
+	}
 	assert(SUCCEEDED(isOK));
 
 	isOK = D3DCompileFromFile(PSFilePath.c_str(),
@@ -45,6 +51,12 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 							  0,
 							  &pixelShader,
 							  nullptr);
+
+	if (pErrorBlob != nullptr)
+	{
+		printf("%s\n", (char*)pErrorBlob->GetBufferPointer());
+		pErrorBlob->Release();
+	}
 	assert(SUCCEEDED(isOK));
 }
 
@@ -194,7 +206,7 @@ void DirectX12Shader::SetupConstantBuffers(ConstantBufferDescription constBuffer
 	//// Create heap descriptors for the constant buffers
 	//D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 	//desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	//desc.NumDescriptors = (UINT)description.Size() * dx12context->NUM_FRAMES_IN_FLIGHT * 2;
+	//desc.NumDescriptors = (UINT)description.Size() * dx12context->NUM_FRAMES_IN_FLIGHT * numObjects;
 	//desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
 	//dx12context->g_pd3dDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&CBVDescHeap));

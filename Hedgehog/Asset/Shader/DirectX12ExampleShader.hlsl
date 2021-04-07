@@ -32,7 +32,7 @@ PSInput VSMain(float4 position : a_position, float4 color : a_color, float2 texC
 
     matrix VPM = mul(u_ViewProjection, u_Transform);
     result.position = mul(VPM, position);
-    result.pos = position;
+    result.pos = position.xyz;
     result.color = color;
 
     return result;

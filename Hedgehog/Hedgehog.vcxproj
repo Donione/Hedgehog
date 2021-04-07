@@ -245,6 +245,8 @@
     <None Include="Asset\Shader\OpenGLModelExampleVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelPixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelVertexShader.glsl" />
+    <None Include="Asset\Shader\OpenGLNormalMapPixelShader.glsl" />
+    <None Include="Asset\Shader\OpenGLNormalMapVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLTexturePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLTextureVertexShader.glsl" />
   </ItemGroup>
@@ -257,6 +259,12 @@
       <FileType>Document</FileType>
     </FxCompile>
     <FxCompile Include="Asset\Shader\DirectX12ModelExampleShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\DirectX12NormalMapShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

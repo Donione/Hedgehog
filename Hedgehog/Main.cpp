@@ -18,7 +18,7 @@
 //#include <spdlog/spdlog.h>
 //#include "spdlog/sinks/stdout_color_sinks.h"
 
-//#include <imgui_internal.h> // for ImGui::PushItemFlag
+#include <imgui_internal.h> // for ImGui::PushItemFlag
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -30,14 +30,14 @@ struct Vertex
 void CreateFrustumVertices(Hedge::Frustum frustum, Vertex (&vertices)[8])
 {
 	// near clip face
-	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
+	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
 	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
-	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
-	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,	0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
+	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
+	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
 	// far clip face
 	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
-	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
-	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
+	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
+	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
 	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
 }
 
@@ -99,7 +99,7 @@ public:
 		camera.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
 								frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
 								frustumPrimitiveTopology, frustumVertexBufferLayout,
-								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
 
 		auto camera2 = scene.CreateEntity("Camera 2");
 		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f));
@@ -113,7 +113,7 @@ public:
 		camera2.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
 								 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
 								 frustumPrimitiveTopology, frustumVertexBufferLayout,
-								 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+								 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
 
 
 
@@ -158,6 +158,8 @@ public:
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
 		bunnyEntityTransform.SetUniformScale(scale);
+
+
 
 
 		Hedge::ConstantBufferDescription constBufferDesc =
@@ -208,20 +210,21 @@ public:
 		std::string fragmentSrcTexture;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLTextureVertexShader.glsl";
-			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLTexturePixelShader.glsl";
+			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapVertexShader.glsl";
+			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapPixelShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
-			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12TextureShader.hlsl";
+			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
+			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
 		}
 
 		// Textures
-		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\ezi.png";
+		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
+		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
+		//std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
 
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 
 
 		// We want to share this mesh for multiple render objects
@@ -251,17 +254,101 @@ public:
 		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
 		cube3Transform.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
 
-		squareMesh = Hedge::Mesh(vertices, sizeof(vertices) / 2,
+
+
+		Hedge::BufferLayout squareBufferLayout =
+		{
+			{ Hedge::ShaderDataType::Float3, "a_position" },
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+			{ Hedge::ShaderDataType::Float3, "a_tangent" },
+			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
+		};
+
+		Hedge::ConstantBufferDescription squareConstBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene },
+			{ "u_normalMapping", sizeof(int), Hedge::ConstantBufferUsage::Scene },
+			{ "u_directionalLight", sizeof(Hedge::DirectionalLight), Hedge::ConstantBufferUsage::Light },
+			{ "u_numberOfPointLights", sizeof(int), Hedge::ConstantBufferUsage::Light },
+			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
+			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		};
+
+		float squareVertices[] =
+		{
+			-0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
+			 0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
+			-0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
+		};
+		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
+
+		for (int i = 0; i < 6; i+=3)
+		{
+			glm::vec3 pos1, pos2, pos3;
+			glm::vec2 uv1, uv2, uv3;
+
+			pos1 = { squareVertices[indicesSquare[i + 0] * 14 + 0], squareVertices[indicesSquare[i + 0] * 14 + 1], squareVertices[indicesSquare[i + 0] * 14 + 2] };
+			pos2 = { squareVertices[indicesSquare[i + 1] * 14 + 0], squareVertices[indicesSquare[i + 1] * 14 + 1], squareVertices[indicesSquare[i + 1] * 14 + 2] };
+			pos3 = { squareVertices[indicesSquare[i + 2] * 14 + 0], squareVertices[indicesSquare[i + 2] * 14 + 1], squareVertices[indicesSquare[i + 2] * 14 + 2] };
+
+			uv1 = { squareVertices[indicesSquare[i + 0] * 14 + 6], squareVertices[indicesSquare[i + 0] * 14 + 7] };
+			uv2 = { squareVertices[indicesSquare[i + 1] * 14 + 6], squareVertices[indicesSquare[i + 1] * 14 + 7] };
+			uv3 = { squareVertices[indicesSquare[i + 2] * 14 + 6], squareVertices[indicesSquare[i + 2] * 14 + 7] };
+
+			glm::vec3 edge1 = pos2 - pos1;
+			glm::vec3 edge2 = pos3 - pos1;
+			glm::vec2 deltaUV1 = uv2 - uv1;
+			glm::vec2 deltaUV2 = uv3 - uv1;
+
+			float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+			// tangent
+			squareVertices[indicesSquare[i + 0] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			// bitangent
+			squareVertices[indicesSquare[i + 0] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+			// tangent
+			squareVertices[indicesSquare[i + 1] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			// bitangent
+			squareVertices[indicesSquare[i + 1] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+			// tangent
+			squareVertices[indicesSquare[i + 2] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			// bitangent
+			squareVertices[indicesSquare[i + 2] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		}
+
+
+		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
-								 PrimitiveTopology, vertexBufferLayout,
-								 vertexSrcTexture, fragmentSrcTexture, constBufferDesc,
-								 textureFilename);
+								 PrimitiveTopology, squareBufferLayout,
+								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+								 textureFilename,
+								 normalMapFilename);
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
-		{
-			squareMesh.GetShader()->UploadConstant("u_texture", 0);
-		}
+		auto square = scene.CreateEntity("Square");
+		square.Add<Hedge::Mesh>(squareMesh);
+		square.Add<Hedge::Transform>(squareTransform);
 
 		// Lights
 		// Directional Lights
@@ -306,7 +393,8 @@ public:
 		
 		auto pointLight1 = scene.CreateEntity("Point Light 1");
 		auto& pointLight1Light = pointLight1.Add<Hedge::PointLight>();
-		pointLight1Light.color = (glm::vec3(1.0f, 0.0f, 0.0f));
+		//pointLight1Light.color = (glm::vec3(1.0f, 0.0f, 0.0f));
+		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
 		pointLight1.Add<Hedge::Mesh>(pointLightMesh);
@@ -500,11 +588,14 @@ public:
 
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
+			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+			//squareMesh.GetShader()->UploadConstant("u_specularStrength", specularStrength);
+
 			scene.OnUpdate();
 			
 			// Order matters when we want to blend
 			// TODO there needs to be a way to sort meshes for blending, especially when using the EnTT registry
-			Hedge::Renderer::Submit(squareMesh.Get(), squareTransform.Get());
+			//Hedge::Renderer::Submit(squareMesh.Get(), squareTransform.Get());
 		}
 		Hedge::Renderer::EndScene();
 
@@ -629,13 +720,17 @@ public:
 		ImGui::SameLine(); ImGui::Checkbox("Depth Test", &depthTest);
 		ImGui::SameLine(); ImGui::Checkbox("Face Culling", &faceCulling);
 		ImGui::SameLine(); ImGui::Checkbox("Blending", &blending);
+
+		ImGui::Checkbox("Use Normal Mapping", &normalMapping);
+		ImGui::SliderFloat("Use Specular Strength", &specularStrength, 0.0f, 1.0f);
+
 		ImGui::End();
 
 
 		ImGui::Begin("Scene");
 
 		ImGui::Checkbox("Show Axes", &axesEntity.Get<Hedge::Mesh>().enabled);
-		ImGui::Checkbox("Show Grid", &gridEntity.Get<Hedge::Mesh>().enabled);
+		ImGui::SameLine(); ImGui::Checkbox("Show Grid", &gridEntity.Get<Hedge::Mesh>().enabled);
 
 		ImGui::Separator();
 
@@ -700,6 +795,11 @@ public:
 					if (ImGui::TreeNode(name.c_str()))
 					{
 						ImGui::Checkbox("Render Mesh", &mesh.enabled);
+
+						ImGui::SameLine();
+						ImGui::PushItemWidth(150.0f);
+						transform.CreateGuiControls(false, false, true);
+						ImGui::PopItemWidth();
 
 						if (light.CreateGuiControls())
 						{
@@ -885,6 +985,11 @@ private:
 	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep
+
+	bool normalMapping = true;
+	float specularStrength = 0.2f;
+	std::shared_ptr<Hedge::Texture> normalMap;
+	std::shared_ptr<Hedge::Texture> specularMap;
 };
 
 class ExampleOverlay : public Hedge::Layer
