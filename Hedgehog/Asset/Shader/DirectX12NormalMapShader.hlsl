@@ -142,7 +142,7 @@ float3 CalculateDirectionalLight(float3 objectColor,
 
     float3 ambient = float3(0.0f, 0.0f, 0.0f);
 
-    float diff = 1.5f * max(dot(lightDirection, normal), 0.0f);
+    float diff = max(dot(lightDirection, normal), 0.0f);
     float3 diffuse = diff * lightColor;
 
     float specularStrength = 0.0f;

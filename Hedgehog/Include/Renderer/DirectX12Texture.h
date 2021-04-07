@@ -30,7 +30,6 @@ private:
 	unsigned int width;
 	unsigned int height;
 
-	//unsigned int rootParamIndex = 0;
 	D3D12_RESOURCE_DESC textureDesc{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> texture;
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
