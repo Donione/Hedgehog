@@ -28,7 +28,7 @@ in vec3 v_Position;
 in vec2 v_textureCoordinates;
 in mat3 TBN;
 in vec3 v_positionTan;
-in vec3 v_lightPosTan;
+in vec3 v_lightPosTan[3];
 in vec3 v_viewPosTan;
 in vec3 v_normalTan;
 
@@ -170,12 +170,11 @@ void main()
     for (int i = 0; i < u_numberOfPointLights; i++)
     {
         //result += CalculatePointLight(objectColor, u_pointLight[i].position, u_pointLight[i].color, u_pointLight[i].attenuation, v_Position, normal);
-        result += CalculatePointLight(objectColor, v_lightPosTan, u_pointLight[i].color, u_pointLight[i].attenuation, v_positionTan, normal);
+        result += CalculatePointLight(objectColor, v_lightPosTan[i], u_pointLight[i].color, u_pointLight[i].attenuation, v_positionTan, normal);
     }
 
     result += CalculateSpotLight(objectColor,
-                                 u_spotLight.position,
-                                 //TBN * u_spotLight.position,
+                                 TBN * u_spotLight.position,
                                  u_spotLight.color,
                                  normalize(TBN * -u_spotLight.direction),
                                  u_spotLight.cutoffAngle,

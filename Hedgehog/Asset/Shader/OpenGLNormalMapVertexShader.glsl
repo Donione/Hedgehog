@@ -23,7 +23,7 @@ out vec3 v_Position;
 out vec2 v_textureCoordinates;
 out mat3 TBN;
 out vec3 v_positionTan;
-out vec3 v_lightPosTan;
+out vec3 v_lightPosTan[3];
 out vec3 v_viewPosTan;
 out vec3 v_normalTan;
 
@@ -49,7 +49,10 @@ void main()
 
 	// or transform all the relevant light vectors to tangent space here and pass those
 	v_positionTan = TBN * v_Position;
-	v_lightPosTan = TBN * u_pointLight[0].position;
+	for (int i = 0; i < 3; i++)
+	{
+		v_lightPosTan[i] = TBN * u_pointLight[i].position;
+	}
 	v_viewPosTan = TBN * u_viewPos;
 	v_normalTan = TBN * vec3(u_Transform * vec4(a_normal, 0.0f));
 }
