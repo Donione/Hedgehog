@@ -39,10 +39,8 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
 	if (texture)
 	{
-		// The texture doesn't know which root parameter index it should use
-		// Set it just after the CBVs
-		unsigned int textureRootParamIndex = (unsigned int)rootParameters.size();
-		std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->SetRootParamIndex(textureRootParamIndex);
+		// The textures' description table goes just after the CBVs
+		texturesRootParamIndex = (unsigned int)rootParameters.size();
 
 		CD3DX12_DESCRIPTOR_RANGE ranges[1] = {};
 		ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
@@ -64,6 +62,24 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		staticSamplers[0].ShaderRegister = 0;
 		staticSamplers[0].RegisterSpace = 0;
 		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+		// Describe and create a shader resource view (SRV) heap for the texture.
+		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+			srvHeapDesc.NumDescriptors = 1;
+		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		dx12context->g_pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
+
+
+
+		// Describe and create a SRV for the texture.
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->GetDesc().Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+
+		dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->Get(), &srvDesc, srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -102,7 +118,9 @@ void DirectX12VertexArray::Bind() const
 
 	if (texture)
 	{
-		texture->Bind();
+		ID3D12DescriptorHeap* ppHeaps[] = { srvHeap.Get() };
+		dx12context->g_pd3dCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+		dx12context->g_pd3dCommandList->SetGraphicsRootDescriptorTable(texturesRootParamIndex, srvHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 
 	shader->Bind();

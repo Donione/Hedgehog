@@ -17,7 +17,7 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	int channels;
 
 	stbi_set_flip_vertically_on_load(1);
-	stbi_uc* data = stbi_load(filename.c_str(), &width, &height, &channels, 0);
+	stbi_uc* data = stbi_load(filename.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
 	this->width = width;
 	this->height = height;
@@ -25,7 +25,6 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
 	// Describe and create a Texture2D.
-	D3D12_RESOURCE_DESC textureDesc = {};
 	textureDesc.MipLevels = 1;
 	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	textureDesc.Width = width;
@@ -69,32 +68,8 @@ DirectX12Texture2D::DirectX12Texture2D(const std::string& filename)
 	auto resBarrier = CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	dx12context->g_pd3dCommandList->ResourceBarrier(1, &resBarrier);
 
-	// Describe and create a shader resource view (SRV) heap for the texture.
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	dx12context->g_pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
-
-	// Describe and create a SRV for the texture.
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = textureDesc.Format;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	dx12context->g_pd3dDevice->CreateShaderResourceView(texture.Get(), &srvDesc, srvHeap->GetCPUDescriptorHandleForHeapStart());
-
 	// I believe that the data are copied into the intermediate upload heap by this point and so it is safe to release here
 	stbi_image_free(data);
-}
-
-void DirectX12Texture2D::Bind(unsigned int slot) const
-{
-	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
-
-	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap.Get() };
-	dx12context->g_pd3dCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-	dx12context->g_pd3dCommandList->SetGraphicsRootDescriptorTable(rootParamIndex, srvHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 } // namespace Hedge

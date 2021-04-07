@@ -59,6 +59,8 @@ private:
 	std::shared_ptr<DirectX12Shader> shader;
 	PrimitiveTopology primitiveTopology;
 	BufferLayout bufferLayout;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
+	unsigned int texturesRootParamIndex;
 	std::shared_ptr<Texture> texture;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
