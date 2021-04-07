@@ -31,7 +31,8 @@ public:
 
 	static VertexArray* Create(const std::shared_ptr<Shader>& inputShader,
 							   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
-							   const std::shared_ptr<Texture>& inputTexture = nullptr);
+							   const std::shared_ptr<Texture>& inputTexture = nullptr,
+							   const std::shared_ptr<Texture>& normalMap = nullptr);
 };
 
 } // namespace Hedge

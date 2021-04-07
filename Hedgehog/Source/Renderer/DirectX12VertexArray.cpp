@@ -12,13 +12,15 @@ namespace Hedge
 
 DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
 										   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
-										   const std::shared_ptr<Texture>& inputTexture)
+										   const std::shared_ptr<Texture>& inputTexture,
+										   const std::shared_ptr<Texture>& normalMap)
 {
 	// TODO for fun, see how the ref count changes
 	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
 	bufferLayout = inputLayout;
 	texture = inputTexture;
+	this->normalMap = normalMap;
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
@@ -43,12 +45,27 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		texturesRootParamIndex = (unsigned int)rootParameters.size();
 
 		CD3DX12_DESCRIPTOR_RANGE ranges[1] = {};
-		ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+		if (normalMap)
+		{
+			ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
+		}
+		else
+		{
+			ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+		}
 		CD3DX12_ROOT_PARAMETER param;
 		param.InitAsDescriptorTable(1, ranges, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters.push_back(param);
 
-		staticSamplers.resize(1);
+		if (normalMap)
+		{
+			staticSamplers.resize(2);
+		}
+		else
+		{
+			staticSamplers.resize(1);
+		}
+
 		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -63,9 +80,22 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		staticSamplers[0].RegisterSpace = 0;
 		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+		if (normalMap)
+		{
+			staticSamplers[1] = staticSamplers[0];
+			staticSamplers[1].ShaderRegister = 1;
+		}
+		
 		// Describe and create a shader resource view (SRV) heap for the texture.
 		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+		if (normalMap)
+		{
+			srvHeapDesc.NumDescriptors = 2;
+		}
+		else
+		{
 			srvHeapDesc.NumDescriptors = 1;
+		}
 		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		dx12context->g_pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
@@ -80,6 +110,15 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		srvDesc.Texture2D.MipLevels = 1;
 
 		dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->Get(), &srvDesc, srvHeap->GetCPUDescriptorHandleForHeapStart());
+		
+		if (normalMap)
+		{
+			srvDesc.Format = std::dynamic_pointer_cast<DirectX12Texture2D>(normalMap)->GetDesc().Format;
+			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(srvHeap->GetCPUDescriptorHandleForHeapStart(),
+													1,
+													dx12context->g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+			dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(normalMap)->Get(), &srvDesc, cpuHandle);
+		}
 	}
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =

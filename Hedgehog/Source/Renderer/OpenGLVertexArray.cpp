@@ -6,11 +6,16 @@ namespace Hedge
 
 OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
 									 PrimitiveTopology primitiveTopology,
-									 const std::shared_ptr<Texture>& inputTexture)
+									 const std::shared_ptr<Texture>& inputTexture,
+									 const std::shared_ptr<Texture>& normalMap)
 {
 	shader = std::dynamic_pointer_cast<OpenGLShader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
-	texture = inputTexture;
+	this->texture = inputTexture;
+	shader->UploadConstant("t_texture", 0);
+	this->normalMap = normalMap;
+	shader->UploadConstant("t_normalMap", 1);
+	//squareMesh.GetShader()->UploadConstant("t_specularMap", 2);
 
 	glCreateVertexArrays(1, &rendererID);
 	// Unbind the vertex array so if a vertex of index buffer intended for a different VA isn't bound to this one upon creation.
@@ -26,7 +31,8 @@ OpenGLVertexArray::~OpenGLVertexArray()
 void OpenGLVertexArray::Bind() const
 {
 	glBindVertexArray(rendererID);
-	if (texture) texture->Bind();
+	if (texture) texture->Bind(0);
+	if (normalMap) normalMap->Bind(1);
 	shader->Bind();
 }
 
