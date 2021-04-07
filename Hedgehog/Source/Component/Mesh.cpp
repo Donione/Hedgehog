@@ -67,28 +67,14 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 	unsigned int* indices = NULL;
 	loadModel(modelFilename, numberOfVertices, vertices, numberOfIndices, indices);
 
-	shader.reset(Hedge::Shader::Create(VSfilename, PSfilename));
-	shader->SetupConstantBuffers(constBufferDesc);
-
-	if (!textureFilename.empty())
-	{
-		texture.reset(Hedge::Texture2D::Create(textureFilename));
-	}
-
-	if (!normalMapFilename.empty())
-	{
-		normalMap.reset(Hedge::Texture2D::Create(normalMapFilename));
-	}
-
-	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, texture, normalMap));
-
-	vertexBuffer.reset(Hedge::VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeof(float) * 6 * (int)numberOfVertices));
+	CrateMesh(vertices, sizeof(float) * 6U * (unsigned int)numberOfVertices,
+			  indices, 3 * (unsigned int)numberOfIndices,
+			  primitiveTopology, bufferLayout,
+			  VSfilename, PSfilename, constBufferDesc,
+			  textureFilename, normalMapFilename);
+	
 	delete vertices;
-	vertexArray->AddVertexBuffer(vertexBuffer);
-
-	indexBuffer.reset(Hedge::IndexBuffer::Create(indices, 3 * (int)numberOfIndices));
 	delete indices;
-	vertexArray->AddIndexBuffer(indexBuffer);
 }
 
 Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
@@ -96,6 +82,20 @@ Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::string& textureFilename, const std::string& normalMapFilename)
+{
+	CrateMesh(vertices, sizeOfVertices,
+			  indices, numberOfIndices,
+			  primitiveTopology, bufferLayout,
+			  VSfilename, PSfilename, constBufferDesc,
+			  textureFilename, normalMapFilename);
+}
+
+void Mesh::CrateMesh(const float* vertices, unsigned int sizeOfVertices,
+					 const unsigned int* indices, unsigned int numberOfIndices,
+					 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
+					 const std::string& VSfilename, const std::string& PSfilename,
+					 ConstantBufferDescription constBufferDesc,
+					 const std::string& textureFilename, const std::string& normalMapFilename)
 {
 	shader.reset(Hedge::Shader::Create(VSfilename, PSfilename));
 	shader->SetupConstantBuffers(constBufferDesc);

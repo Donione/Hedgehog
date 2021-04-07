@@ -33,9 +33,17 @@ public:
 	const std::shared_ptr<VertexArray>& Get() const { return vertexArray; }
 	const std::shared_ptr<Shader> GetShader() const { return shader; }
 
+private:
+	void CrateMesh(const float* vertices, unsigned int sizeOfVertices,
+				   const unsigned int* indices, unsigned int numberOfIndices,
+				   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
+				   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
+				   const std::string& textureFilename = "", const std::string& normalMapFilename = "");
+				   //const std::vector<Hedge::TextureDescription>& textureDescriptions);
+
+
 public:
 	bool enabled = true;
-
 
 private:
 	std::shared_ptr<VertexArray> vertexArray;
