@@ -25,9 +25,9 @@ public:
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
 	virtual void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) override;
-	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override {}
-	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override {}
-	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override {}
+	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override;
+	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
+	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
@@ -64,8 +64,8 @@ private:
 	BufferLayout bufferLayout;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
 	unsigned int texturesRootParamIndex;
-	std::shared_ptr<Texture> texture;
-	std::shared_ptr<Texture> normalMap;
+	std::vector<Hedge::TextureDescription> textureDescriptions;
+	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
 

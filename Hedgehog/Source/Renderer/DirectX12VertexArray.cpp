@@ -15,16 +15,13 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 										   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	// TODO for fun, see how the ref count changes
-	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
+	this->shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
-	bufferLayout = inputLayout;
+	this->bufferLayout = inputLayout;
+	this->textureDescriptions = textureDescriptions;
+	textures.resize(textureDescriptions.size());
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
-
-	//CD3DX12_DESCRIPTOR_RANGE range = {};
-	//CD3DX12_ROOT_PARAMETER parameter = {};
-	//range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, (UINT)shader->GetConstBufferCount(), 0);
-	//parameter.InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_VERTEX);
 
 	std::vector<CD3DX12_ROOT_PARAMETER> rootParameters;
 	rootParameters.resize(shader->GetConstBufferCount());
@@ -36,44 +33,34 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	}
 
 	std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
-	if (texture)
+	if (!textureDescriptions.empty())
 	{
 		// The textures' description table goes just after the CBVs
 		texturesRootParamIndex = (unsigned int)rootParameters.size();
 
 		CD3DX12_DESCRIPTOR_RANGE ranges[1] = {};
-		if (normalMap)
-		{
-			ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
-		}
-		else
-		{
-			ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
-		}
+		ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureDescriptions.size(), 0, 0);
 		CD3DX12_ROOT_PARAMETER param;
 		param.InitAsDescriptorTable(1, ranges, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters.push_back(param);
 
-		staticSamplers.resize(1);
-		staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		staticSamplers[0].MipLODBias = 0;
-		staticSamplers[0].MaxAnisotropy = 0;
-		staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		staticSamplers[0].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-		staticSamplers[0].MinLOD = 0.0f;
-		staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;
-		staticSamplers[0].ShaderRegister = 0;
-		staticSamplers[0].RegisterSpace = 0;
-		staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-		if (normalMap)
+		staticSamplers.resize(textureDescriptions.size());
+		unsigned int shaderRegister = 0;
+		for (auto& staticSampler : staticSamplers)
 		{
-			staticSamplers.resize(2);
-			staticSamplers[1] = staticSamplers[0];
-			staticSamplers[1].ShaderRegister = 1;
+			staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+			staticSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+			staticSampler.MipLODBias = 0;
+			staticSampler.MaxAnisotropy = 0;
+			staticSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+			staticSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+			staticSampler.MinLOD = 0.0f;
+			staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+			staticSampler.ShaderRegister = shaderRegister++;
+			staticSampler.RegisterSpace = 0;
+			staticSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		}
 
 		CreateSRVHeap();
@@ -86,7 +73,6 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-	//rootSignatureDesc.Init(1, &parameter, 0, nullptr, rootSignatureFlags);
 	rootSignatureDesc.Init((UINT)rootParameters.size(), rootParameters.data(),
 						   (UINT)staticSamplers.size(), staticSamplers.empty() ? nullptr : staticSamplers.data(),
 						   rootSignatureFlags);
@@ -113,7 +99,7 @@ void DirectX12VertexArray::Bind() const
 	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState[currentPSO].Get());
 	dx12context->g_pd3dCommandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
-	if (texture)
+	if (!textures.empty())
 	{
 		ID3D12DescriptorHeap* ppHeaps[] = { srvHeap.Get() };
 		dx12context->g_pd3dCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -134,6 +120,45 @@ void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& 
 void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 {
 	indexBuffers.push_back(indexBuffer);
+}
+
+void DirectX12VertexArray::AddTexture(TextureType type, const std::shared_ptr<Texture>& texture)
+{
+	// TODO warn if adding a single texture when there are multiple textures of the same type described
+	AddTexture(type, 0, texture);
+}
+
+void DirectX12VertexArray::AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture)
+{
+	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
+
+	auto indices = FindIndices(type, textureDescriptions);
+	assert(indices.size() >= (position + 1));
+	int index = indices[position];
+	textures[index] = texture;
+
+	// Describe and create SRV for the texture and put it on the SRV heap.
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->GetDesc().Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(srvHeap->GetCPUDescriptorHandleForHeapStart(),
+											index,
+											dx12context->g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->Get(), &srvDesc, cpuHandle);
+}
+
+void DirectX12VertexArray::AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures)
+{
+	auto indices = FindIndices(type, textureDescriptions);
+	assert(indices.size() == textures.size());
+
+	for (int i = 0; i < textures.size(); i++)
+	{
+		AddTexture(type, i, textures[i]);
+	}
 }
 
 void DirectX12VertexArray::UpdateRenderSettings()
@@ -209,35 +234,10 @@ void DirectX12VertexArray::CreateSRVHeap()
 
 	// Describe and create a shader resource view (SRV) heap for the textures.
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	if (normalMap)
-	{
-		srvHeapDesc.NumDescriptors = 2;
-	}
-	else
-	{
-		srvHeapDesc.NumDescriptors = 1;
-	}
+	srvHeapDesc.NumDescriptors = (UINT)textureDescriptions.size();
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	dx12context->g_pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
-
-	// Describe and create SRVs for the textures and put them an the SRV heap.
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->GetDesc().Format;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->Get(), &srvDesc, srvHeap->GetCPUDescriptorHandleForHeapStart());
-
-	if (normalMap)
-	{
-		srvDesc.Format = std::dynamic_pointer_cast<DirectX12Texture2D>(normalMap)->GetDesc().Format;
-		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(srvHeap->GetCPUDescriptorHandleForHeapStart(),
-												1,
-												dx12context->g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-		dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(normalMap)->Get(), &srvDesc, cpuHandle);
-	}
 }
 
 } // namespace Hedge
