@@ -40,6 +40,7 @@ private:
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
 
 	void CreatePSO();
+	void CreateSRVHeap();
 
 private:
 	// TODO this should be just the number of frames in flight
