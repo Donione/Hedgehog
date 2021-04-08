@@ -41,8 +41,8 @@ uniform SpotLight u_spotLight;
 uniform bool u_normalMapping;
 uniform float u_specularStrength;
 
-uniform sampler2D t_texture0;
-uniform sampler2D t_normalMap0;
+uniform sampler2D t_diffuse0;
+uniform sampler2D t_normal0;
 //uniform sampler2D t_specularMap0;
 
 
@@ -142,13 +142,13 @@ void main()
 {
     vec3 result = vec3(0.0f, 0.0f, 0.0f);
 
-    vec3 objectColor = texture(t_texture0, v_textureCoordinates).rgb;
+    vec3 objectColor = texture(t_diffuse0, v_textureCoordinates).rgb;
 
     vec3 normal;
     if (u_normalMapping)
     {
     // obtain normal from normal map in range [0,1]
-    normal = texture(t_normalMap0, v_textureCoordinates).rgb;
+    normal = texture(t_normal0, v_textureCoordinates).rgb;
     // transform normal vector to range [-1,1]
     normal = normal * 2.0f - 1.0f;
     // transform normal sample from tangent space to world space

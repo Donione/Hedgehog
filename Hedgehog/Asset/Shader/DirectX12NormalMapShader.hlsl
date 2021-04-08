@@ -220,21 +220,21 @@ float3 CalculateSpotLight(float3 objectColor,
 }
 
 
-Texture2D t_texture : register(t0);
-SamplerState s_texture : register(s0);
-Texture2D t_normalMap : register(t1);
-SamplerState s_normalMap : register(s1);
+Texture2D t_diffuse : register(t0);
+SamplerState s_diffuse : register(s0);
+Texture2D t_normal : register(t1);
+SamplerState s_normal : register(s1);
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
     float3 result = float3(0.0f, 0.0f, 0.0f);
 
-    float3 objectColor = t_texture.Sample(s_texture, input.texCoords).xyz;
+    float3 objectColor = t_diffuse.Sample(s_diffuse, input.texCoords).xyz;
 
     float3 normal;
     if (u_normalMapping == 1)
     {
-        normal = t_normalMap.Sample(s_normalMap, input.texCoords).xyz;
+        normal = t_normal.Sample(s_normal, input.texCoords).xyz;
         normal = normal * 2.0f - 1.0f;
         // transform the normal sample from tangent space to world space
         //normal = mul(input.TBN, normal);

@@ -13,10 +13,6 @@ OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
 	this->textureDescriptions = textureDescriptions;
 	textures.resize(textureDescriptions.size());
 
-	//shader->UploadConstant("t_texture", 0);
-	//shader->UploadConstant("t_normalMap", 1);
-	//squareMesh.GetShader()->UploadConstant("t_specularMap", 2);
-
 	glCreateVertexArrays(1, &rendererID);
 	// Unbind the vertex array so a vertex or index buffer intended for a different VA isn't bound to this one upon creation.
 	glBindVertexArray(0);
@@ -98,10 +94,10 @@ void OpenGLVertexArray::AddTexture(TextureType type, int position, const std::sh
 	std::string name;
 	switch (type)
 	{
-	case TextureType::Diffuse: name = "t_texture" + std::to_string(position); break;
+	case TextureType::Diffuse: name = "t_diffuse" + std::to_string(position); break;
 	case TextureType::Specular: name = "t_specular" + std::to_string(position); break;
-	case TextureType::Normal: name = "t_normalMap" + std::to_string(position); break;
-	case TextureType::Generic: name = "t_generic" + std::to_string(position); break;
+	case TextureType::Normal: name = "t_normal" + std::to_string(position); break;
+	case TextureType::Generic: name = "t_texture" + std::to_string(position); break;
 	default: assert(false); break;
 	}
 
