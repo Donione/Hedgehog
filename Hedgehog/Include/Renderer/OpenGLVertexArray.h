@@ -15,8 +15,7 @@ class OpenGLVertexArray : public VertexArray
 public:
 	OpenGLVertexArray(const std::shared_ptr<Shader>& inputShader,
 					  PrimitiveTopology primitiveTopology,
-					  const std::shared_ptr<Texture>& inputTexture,
-					  const std::shared_ptr<Texture>& normalMap);
+					  const std::vector<Hedge::TextureDescription>& textureDescriptions);
 	virtual ~OpenGLVertexArray() override;
 
 	virtual void Bind() const override;
@@ -24,11 +23,13 @@ public:
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
 	virtual void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) override;
+	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override;
+	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
+	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
-	virtual const std::shared_ptr<Texture>& GetTexture() const override { return texture; }
 
 private:
 	unsigned int GetOpenGLBaseType(ShaderDataType type) const { return OpenGLBaseTypes[(int)type]; }
@@ -38,8 +39,8 @@ private:
 	unsigned int rendererID = 0;
 	std::shared_ptr<OpenGLShader> shader;
 	PrimitiveTopology primitiveTopology;
-	std::shared_ptr<Texture> texture;
-	std::shared_ptr<Texture> normalMap;
+	std::vector<TextureDescription> textureDescriptions;
+	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
 
