@@ -222,7 +222,7 @@ public:
 		// Textures
 		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
 		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
-		//std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
+		std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
 
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
 
@@ -348,8 +348,7 @@ public:
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 textureFilename,
-								 normalMapFilename);
+								 squareTextureDescriptions);
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
@@ -437,7 +436,7 @@ public:
 		spotLightLight.position = glm::vec3(0.0f, 0.0f, 2.0f);
 		spotLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 		spotlight.Add<Hedge::Mesh>(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-								lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		auto& spotLightTransform = spotlight.Add<Hedge::Transform>();
 		spotLightTransform.SetUniformScale(0.1f);
 		spotLightTransform.SetTranslation(spotLightLight.position);

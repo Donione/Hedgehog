@@ -12,15 +12,12 @@ namespace Hedge
 
 DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputShader,
 										   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
-										   const std::shared_ptr<Texture>& inputTexture,
-										   const std::shared_ptr<Texture>& normalMap)
+										   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	// TODO for fun, see how the ref count changes
 	shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
 	bufferLayout = inputLayout;
-	texture = inputTexture;
-	this->normalMap = normalMap;
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 

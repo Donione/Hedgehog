@@ -1,6 +1,7 @@
 #include <Component/Mesh.h>
 
 #include <fstream>
+#include <unordered_map>
 
 
 namespace Hedge
@@ -59,7 +60,7 @@ void loadModel(const std::string& filename,
 
 Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
-		   const std::string& textureFilename, const std::string& normalMapFilename)
+		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	long long int numberOfVertices;
 	long long int numberOfIndices;
@@ -71,7 +72,7 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 			  indices, 3 * (unsigned int)numberOfIndices,
 			  primitiveTopology, bufferLayout,
 			  VSfilename, PSfilename, constBufferDesc,
-			  textureFilename, normalMapFilename);
+			  textureDescriptions);
 	
 	delete vertices;
 	delete indices;
@@ -81,13 +82,13 @@ Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   const unsigned int* indices, unsigned int numberOfIndices,
 		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
-		   const std::string& textureFilename, const std::string& normalMapFilename)
+		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	CrateMesh(vertices, sizeOfVertices,
 			  indices, numberOfIndices,
 			  primitiveTopology, bufferLayout,
 			  VSfilename, PSfilename, constBufferDesc,
-			  textureFilename, normalMapFilename);
+			  textureDescriptions);
 }
 
 void Mesh::CrateMesh(const float* vertices, unsigned int sizeOfVertices,
@@ -95,27 +96,37 @@ void Mesh::CrateMesh(const float* vertices, unsigned int sizeOfVertices,
 					 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 					 const std::string& VSfilename, const std::string& PSfilename,
 					 ConstantBufferDescription constBufferDesc,
-					 const std::string& textureFilename, const std::string& normalMapFilename)
+					 const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
-	shader.reset(Hedge::Shader::Create(VSfilename, PSfilename));
+	auto shader = std::shared_ptr<Shader>(Hedge::Shader::Create(VSfilename, PSfilename));
 	shader->SetupConstantBuffers(constBufferDesc);
 
-	if (!textureFilename.empty())
+	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, textureDescriptions));
+
+	std::unordered_map<TextureType, int> texturePosition = 
 	{
-		texture.reset(Hedge::Texture2D::Create(textureFilename));
+		{ TextureType::Diffuse, 0 },
+		{ TextureType::Specular, 0 },
+		{ TextureType::Normal, 0 },
+		{ TextureType::Generic, 0 },
+	};
+	for (auto& textureDesc : textureDescriptions)
+	{
+		if (!textureDesc.filename.empty())
+		{
+			//auto texture = std::make_shared<Texture>(Hedge::Texture2D::Create(textureDesc.filename));
+			std::shared_ptr<Texture> texture;
+			texture.reset(Hedge::Texture2D::Create(textureDesc.filename));
+
+			//textures.push_back(texture);
+			vertexArray->AddTexture(textureDesc.type, texturePosition[textureDesc.type]++, texture);
+		}
 	}
 
-	if (!normalMapFilename.empty())
-	{
-		normalMap.reset(Hedge::Texture2D::Create(normalMapFilename));
-	}
-
-	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, texture, normalMap));
-
-	vertexBuffer.reset(Hedge::VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeOfVertices));
+	auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeOfVertices));
 	vertexArray->AddVertexBuffer(vertexBuffer);
 
-	indexBuffer.reset(Hedge::IndexBuffer::Create(indices, numberOfIndices));
+	auto indexBuffer = std::shared_ptr<IndexBuffer>(Hedge::IndexBuffer::Create(indices, numberOfIndices));
 	vertexArray->AddIndexBuffer(indexBuffer);
 }
 
