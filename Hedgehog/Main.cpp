@@ -265,6 +265,12 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
 		};
 
+		std::vector<Hedge::TextureDescription> squareTextureDescriptions =
+		{
+			{ Hedge::TextureType::Diffuse, textureFilename },
+			{ Hedge::TextureType::Normal, normalMapFilename },
+		};
+
 		Hedge::ConstantBufferDescription squareConstBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },

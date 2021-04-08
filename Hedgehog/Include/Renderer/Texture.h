@@ -6,6 +6,24 @@
 namespace Hedge
 {
 
+enum class TextureType
+{
+	Diffuse,
+	Specular,
+	Normal,
+	Generic
+};
+
+struct TextureDescription
+{
+	TextureType type;
+	std::string filename;
+
+	TextureDescription() = default;
+	TextureDescription(TextureType type, const std::string& filename = "") : type(type), filename(filename) {}
+};
+
+
 class Texture
 {
 public:
