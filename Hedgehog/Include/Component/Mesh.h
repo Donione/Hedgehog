@@ -34,7 +34,7 @@ public:
 	const std::shared_ptr<Shader> GetShader() const { return vertexArray->GetShader(); }
 
 private:
-	void CrateMesh(const float* vertices, unsigned int sizeOfVertices,
+	void CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 				   const unsigned int* indices, unsigned int numberOfIndices,
 				   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 				   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
