@@ -25,9 +25,7 @@ struct FaceVertex
 
 struct Face
 {
-	FaceVertex v0;
-	FaceVertex v1;
-	FaceVertex v2;
+	FaceVertex v[3];
 };
 
 class Model
@@ -38,15 +36,18 @@ public:
 
 	void LoadTri(const std::string& filename);
 
-	const float* const GetVertices();
+	const float* const GetVertices() const { return flatVertices; }
 	unsigned int GetSizeOfVertices() const;
-	const unsigned int* const GetIndices();
+	const unsigned int* const GetIndices() const { return flatIndices; }
 	unsigned int GetNumberOfIndices() const;
+
+private:
+	void CreateFlatArraysTri();
 
 private:
 	ModelType type = ModelType::Unknown;
 
-	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> positions;
 	std::vector<glm::vec2> textureCoordinates;
 	std::vector<glm::vec3> normals;
 

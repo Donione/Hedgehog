@@ -27,7 +27,7 @@ void Model::LoadTri(const std::string& filename)
 	for (int i = 0; i < numberOfVertices; i++)
 	{
 		in >> vertex.x >> vertex.y >> vertex.z;
-		vertices.push_back(vertex);
+		positions.push_back(vertex);
 		normals.push_back(glm::vec3(0.0f));
 	}
 
@@ -36,44 +36,21 @@ void Model::LoadTri(const std::string& filename)
 	{
 		in >> v0 >> v1 >> v2;
 
-		faces.push_back({ {(int)v0, -1, (int)v0},
-						  {(int)v1, -1, (int)v1},
-						  {(int)v2, -1, (int)v2} });
+		faces.push_back({ { {(int)v0, -1, (int)v0},
+						    {(int)v1, -1, (int)v1},
+						    {(int)v2, -1, (int)v2} } });
 
 		// calculate the face normal
-		glm::vec3 normal = glm::normalize(glm::cross(vertices[v1] - vertices[v0], vertices[v2] - vertices[v0]));
+		glm::vec3 normal = glm::normalize(glm::cross(positions[v1] - positions[v0], positions[v2] - positions[v0]));
 
-		// to estimate vertex normals, accumulate face normals in vertices
+		// to estimate vertex normals, accumulate face normals in positions
 		// (and normalizes them when all triangles were processed or in a shader)
 		normals[v0] += normal;
 		normals[v1] += normal;
 		normals[v2] += normal;
 	}
-}
 
-const float* const Model::GetVertices()
-{
-	if (!flatVertices)
-	{
-		if (type == ModelType::Tri)
-		{
-			auto numberOfVertices = vertices.size();
-			flatVertices = new float[numberOfVertices * (3 + 3)];
-
-			for (int i = 0; i < numberOfVertices; i++)
-			{
-				flatVertices[i * 6 + 0] = vertices[i].x;
-				flatVertices[i * 6 + 1] = vertices[i].y;
-				flatVertices[i * 6 + 2] = vertices[i].z;
-
-				flatVertices[i * 6 + 3] = normals[i].x;
-				flatVertices[i * 6 + 4] = normals[i].y;
-				flatVertices[i * 6 + 5] = normals[i].z;
-			}
-		}
-	}
-
-	return flatVertices;
+	CreateFlatArraysTri();
 }
 
 unsigned int Model::GetSizeOfVertices() const
@@ -82,33 +59,43 @@ unsigned int Model::GetSizeOfVertices() const
 	{
 		// Tri models don't have texture coordinates, so no tangents and bitangents either
 		// Each vertex contains only its position and normal
-		return (unsigned int)(sizeof(float) * vertices.size()) * (3 + 3);
+		return (unsigned int)(sizeof(float) * positions.size()) * (3 + 3);
 	}
 
 	return 0;
 }
 
-const unsigned int* const Model::GetIndices()
-{
-	if (!flatIndices)
-	{
-		auto numberOfFaces = faces.size();
-		flatIndices = new unsigned int[numberOfFaces * 3];
-
-		for (int i = 0; i < numberOfFaces; i++)
-		{
-			flatIndices[i * 3 + 0] = (unsigned int)faces[i].v0.vertex;
-			flatIndices[i * 3 + 1] = (unsigned int)faces[i].v1.vertex;
-			flatIndices[i * 3 + 2] = (unsigned int)faces[i].v2.vertex;
-		}
-	}
-
-	return flatIndices;
-}
-
 unsigned int Model::GetNumberOfIndices() const
 {
 	return (unsigned int)faces.size() * 3u;
+}
+
+void Model::CreateFlatArraysTri()
+{
+	size_t numberOfFaces = faces.size();
+	flatIndices = new unsigned int[numberOfFaces * 3];
+
+	for (int i = 0; i < numberOfFaces; i++)
+	{
+		flatIndices[i * 3 + 0] = (unsigned int)faces[i].v[0].vertex;
+		flatIndices[i * 3 + 1] = (unsigned int)faces[i].v[1].vertex;
+		flatIndices[i * 3 + 2] = (unsigned int)faces[i].v[2].vertex;
+	}
+
+	size_t numberOfVertices = positions.size();
+	int stride = 3 + 3;
+	flatVertices = new float[numberOfVertices * stride];
+
+	for (int i = 0; i < numberOfVertices; i++)
+	{
+		flatVertices[i * stride + 0] = positions[i].x;
+		flatVertices[i * stride + 1] = positions[i].y;
+		flatVertices[i * stride + 2] = positions[i].z;
+	
+		flatVertices[i * stride + 3] = normals[i].x;
+		flatVertices[i * stride + 4] = normals[i].y;
+		flatVertices[i * stride + 5] = normals[i].z;
+	}
 }
 
 Model::~Model()
