@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 
 namespace Hedge
@@ -157,6 +158,10 @@ void Model::LoadObj(const std::string& filename)
 			continue;
 		}
 	}
+
+	CalculateFaceNormals();
+	CalculateTangents();
+	CreateFlatArraysObj();
 }
 
 unsigned int Model::GetSizeOfVertices() const
@@ -167,6 +172,11 @@ unsigned int Model::GetSizeOfVertices() const
 		// Each vertex contains only its position and normal
 		return (unsigned int)(sizeof(float) * positions.size()) * (3 + 3);
 	}
+	else if (type == ModelType::Obj)
+	{
+		// Each vertex contains its position, texture coordinates, normal, tangent and bitangent
+		return (unsigned int)(sizeof(float) * indices.size()) * (3 + 2 + 3 + 3 + 3);
+	}
 
 	return 0;
 }
@@ -174,6 +184,87 @@ unsigned int Model::GetSizeOfVertices() const
 unsigned int Model::GetNumberOfIndices() const
 {
 	return (unsigned int)faces.size() * 3u;
+}
+
+void Model::CalculateFaceNormals()
+{
+	int faceNormalIndex = 0;
+	for (auto& face : faces)
+	{
+		glm::vec3 faceNormal = glm::normalize(glm::cross(positions[face.v[1].vertex] - positions[face.v[0].vertex],
+														 positions[face.v[2].vertex] - positions[face.v[0].vertex]));
+
+		// Check if this face normal already exists
+		auto it = std::find(faceNormals.begin(), faceNormals.end(), faceNormal);
+		if (it != faceNormals.end())
+		{
+			faceNormalIndex = (int)std::distance(faceNormals.begin(), it);
+		}
+		else
+		{
+			faceNormalIndex = (int)faceNormals.size();
+			faceNormals.push_back(faceNormal);
+		}
+
+		face.v[0].faceNormal = faceNormalIndex;
+		face.v[1].faceNormal = faceNormalIndex;
+		face.v[2].faceNormal = faceNormalIndex;
+	}
+}
+
+void Model::MapIndices()
+{
+	unsigned int index = 0;
+	for (auto& face : faces)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			auto vertex = indices.insert({ face.v[i], index });
+			if (vertex.second) index++;
+		}
+	}
+}
+
+void Model::CalculateTangents()
+{
+	assert(!faceNormals.empty());
+
+	tangents.resize(faceNormals.size());
+	bitangets.resize(faceNormals.size());
+
+	for (auto& face : faces)
+	{
+		glm::vec3 pos1, pos2, pos3;
+		glm::vec2 uv1, uv2, uv3;
+
+		pos1 = positions[face.v[0].vertex];
+		pos2 = positions[face.v[1].vertex];
+		pos3 = positions[face.v[2].vertex];
+
+		uv1 = textureCoordinates[face.v[0].texCoord];
+		uv2 = textureCoordinates[face.v[1].texCoord];
+		uv3 = textureCoordinates[face.v[2].texCoord];
+
+		glm::vec3 edge1 = pos2 - pos1;
+		glm::vec3 edge2 = pos3 - pos1;
+		glm::vec2 deltaUV1 = uv2 - uv1;
+		glm::vec2 deltaUV2 = uv3 - uv1;
+
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		for (int i = 0; i < 3; i++)
+		{
+			unsigned int index = face.v[i].faceNormal;
+
+			tangents[index].x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			tangents[index].y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			tangents[index].z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			bitangets[index].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			bitangets[index].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			bitangets[index].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		}
+	}
 }
 
 void Model::CreateFlatArraysTri()
@@ -201,6 +292,48 @@ void Model::CreateFlatArraysTri()
 		flatVertices[i * stride + 3] = normals[i].x;
 		flatVertices[i * stride + 4] = normals[i].y;
 		flatVertices[i * stride + 5] = normals[i].z;
+	}
+}
+
+void Model::CreateFlatArraysObj()
+{
+	MapIndices();
+
+	size_t numberOfFaces = faces.size();
+	flatIndices = new unsigned int[numberOfFaces * 3];
+
+	size_t numberOfVertices = indices.size();
+	int stride = 3 + 2 + 3 + 3 + 3;
+	flatVertices = new float[numberOfVertices * stride];
+
+	unsigned int flatIndex = 0;
+	for (auto& face : faces)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			auto index = indices.at(face.v[i]);
+
+			flatIndices[flatIndex++] = index;
+			
+			flatVertices[index * stride + 0] = positions[face.v[i].vertex].x;
+			flatVertices[index * stride + 1] = positions[face.v[i].vertex].y;
+			flatVertices[index * stride + 2] = positions[face.v[i].vertex].z;
+
+			flatVertices[index * stride + 3] = textureCoordinates[face.v[i].texCoord].x;
+			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].y;
+
+			flatVertices[index * stride + 5] = faceNormals[face.v[i].faceNormal].x;
+			flatVertices[index * stride + 6] = faceNormals[face.v[i].faceNormal].y;
+			flatVertices[index * stride + 7] = faceNormals[face.v[i].faceNormal].z;
+
+			flatVertices[index * stride + 8] = tangents[face.v[i].faceNormal].x;
+			flatVertices[index * stride + 9] = tangents[face.v[i].faceNormal].y;
+			flatVertices[index * stride + 10] = tangents[face.v[i].faceNormal].z;
+
+			flatVertices[index * stride + 11] = bitangets[face.v[i].faceNormal].x;
+			flatVertices[index * stride + 12] = bitangets[face.v[i].faceNormal].y;
+			flatVertices[index * stride + 13] = bitangets[face.v[i].faceNormal].z;
+		}
 	}
 }
 

@@ -14,7 +14,14 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	Model model;
-	model.LoadTri(modelFilename);
+	if (modelFilename.ends_with(".tri"))
+	{
+		model.LoadTri(modelFilename);
+	}
+	else if (modelFilename.ends_with(".obj"))
+	{
+		model.LoadObj(modelFilename);
+	}
 
 	CreateMesh(model.GetVertices(), model.GetSizeOfVertices(),
 			   model.GetIndices(), model.GetNumberOfIndices(),
