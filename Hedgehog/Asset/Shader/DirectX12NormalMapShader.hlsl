@@ -57,8 +57,8 @@ struct PSInput
 };
 
 PSInput VSMain(float3 position : a_position,
-               float3 normal : a_normal,
                float2 texCoords : a_textureCoordinates,
+               float3 normal : a_normal,
                float3 tangent : a_tangent,
                float3 bitangent : a_bitangent)
 {

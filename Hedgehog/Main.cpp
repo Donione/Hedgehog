@@ -160,8 +160,6 @@ public:
 		bunnyEntityTransform.SetUniformScale(scale);
 
 
-
-
 		Hedge::ConstantBufferDescription constBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
@@ -259,8 +257,8 @@ public:
 		Hedge::BufferLayout squareBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
-			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
 		};
@@ -285,10 +283,10 @@ public:
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
-			 0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
+			-0.5f,  0.5f,  0.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
+			 0.5f,  0.5f,  0.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
+			-0.5f, -0.5f,  0.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f,  0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
 		};
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 
@@ -301,9 +299,9 @@ public:
 			pos2 = { squareVertices[indicesSquare[i + 1] * 14 + 0], squareVertices[indicesSquare[i + 1] * 14 + 1], squareVertices[indicesSquare[i + 1] * 14 + 2] };
 			pos3 = { squareVertices[indicesSquare[i + 2] * 14 + 0], squareVertices[indicesSquare[i + 2] * 14 + 1], squareVertices[indicesSquare[i + 2] * 14 + 2] };
 
-			uv1 = { squareVertices[indicesSquare[i + 0] * 14 + 6], squareVertices[indicesSquare[i + 0] * 14 + 7] };
-			uv2 = { squareVertices[indicesSquare[i + 1] * 14 + 6], squareVertices[indicesSquare[i + 1] * 14 + 7] };
-			uv3 = { squareVertices[indicesSquare[i + 2] * 14 + 6], squareVertices[indicesSquare[i + 2] * 14 + 7] };
+			uv1 = { squareVertices[indicesSquare[i + 0] * 14 + 3], squareVertices[indicesSquare[i + 0] * 14 + 4] };
+			uv2 = { squareVertices[indicesSquare[i + 1] * 14 + 3], squareVertices[indicesSquare[i + 1] * 14 + 4] };
+			uv3 = { squareVertices[indicesSquare[i + 2] * 14 + 3], squareVertices[indicesSquare[i + 2] * 14 + 4] };
 
 			glm::vec3 edge1 = pos2 - pos1;
 			glm::vec3 edge2 = pos3 - pos1;
