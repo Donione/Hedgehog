@@ -11,8 +11,9 @@
 #include <Component/Transform.h>
 #include <Component/Light.h>
 #include <Component/Mesh.h>
-
 #include <Component/Scene.h>
+
+#include <Model/Model.h>
 
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
@@ -353,6 +354,24 @@ public:
 		square.Add<Hedge::Mesh>(squareMesh);
 		square.Add<Hedge::Transform>(squareTransform);
 
+
+
+		std::vector<Hedge::TextureDescription> sponzaTextureDescriptions =
+		{
+			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\sponza_column_b_diff.tga" },
+			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\sponza_column_b_ddn.tga" },
+		};
+
+		spozaTestEntity = scene.CreateEntity("Spozna test");
+		spozaTestEntity.Add<Hedge::Mesh>("..\\..\\Sponza-master\\sponza_236_column_b.obj",
+									  Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+									  vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+									  sponzaTextureDescriptions);
+		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
+		spozaTransform.SetUniformScale(0.1f);
+
+
+
 		// Lights
 		// Directional Lights
 		auto dirLightEntity = scene.CreateEntity("Directional Light");
@@ -592,7 +611,7 @@ public:
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
-			//squareMesh.GetShader()->UploadConstant("u_specularStrength", specularStrength);
+			spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
 			scene.OnUpdate();
 			
@@ -965,6 +984,8 @@ private:
 
 	Hedge::Mesh squareMesh;
 	Hedge::Transform squareTransform;
+
+	Hedge::Entity spozaTestEntity;
 
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
