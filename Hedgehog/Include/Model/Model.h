@@ -35,6 +35,7 @@ public:
 	~Model();
 
 	void LoadTri(const std::string& filename);
+	void LoadObj(const std::string& filename);
 
 	const float* const GetVertices() const { return flatVertices; }
 	unsigned int GetSizeOfVertices() const;

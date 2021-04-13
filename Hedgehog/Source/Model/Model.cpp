@@ -1,6 +1,7 @@
 #include <Model/Model.h>
 
 #include <fstream>
+#include <sstream>
 
 
 namespace Hedge
@@ -51,6 +52,111 @@ void Model::LoadTri(const std::string& filename)
 	}
 
 	CreateFlatArraysTri();
+}
+
+void Model::LoadObj(const std::string& filename)
+{
+	type = ModelType::Obj;
+
+	std::ifstream in(filename);
+	char buffer[256];
+	std::string line;
+	std::stringstream liness;
+	std::string text;
+	float x, y, z;
+	Face face;
+	std::string v[3];
+
+	while (!in.eof())
+	{
+		in.getline(buffer, 256);
+		line = std::string(buffer);
+		liness = std::stringstream(buffer);
+
+		if (line.starts_with('#'))
+		{
+			continue;
+		}
+
+		if (line.starts_with("mtllib"))
+		{
+			continue;
+		}
+
+		if (line.starts_with("o "))
+		{
+			continue;
+		}
+
+		if (line.starts_with("v "))
+		{
+			liness >> text >> x >> y >> z;
+
+			// Just for testing, put the sponza_236_column_b in the center-ish
+			x += 433.0f;
+			y -= 680.0f;
+			z -= 230.0f;
+
+			positions.emplace_back(x, y, z);
+
+			continue;
+		}
+
+		if (line.starts_with("vt "))
+		{
+			liness >> text >> x >> y;
+			textureCoordinates.emplace_back(x, y);
+
+			continue;
+		}
+
+		if (line.starts_with("vn "))
+		{
+			liness >> text >> x >> y >> z;
+			normals.emplace_back(x, y, z);
+
+			continue;
+		}
+
+		if (line.starts_with("g "))
+		{
+			continue;
+		}
+
+		if (line.starts_with("usemtl "))
+		{
+			continue;
+		}
+
+		if (line.starts_with("s "))
+		{
+			continue;
+		}
+
+		if (line.starts_with("f "))
+		{
+			liness >> text >> v[0] >> v[1] >> v[2];
+
+			for (int i = 0; i < 3; i++)
+			{
+				std::stringstream vss(v[i]);
+				vss.getline(buffer, 256, '/');
+				std::stringstream(buffer) >> face.v[i].vertex;
+				vss.getline(buffer, 256, '/');
+				std::stringstream(buffer) >> face.v[i].texCoord;
+				vss.getline(buffer, 256, '/');
+				std::stringstream(buffer) >> face.v[i].normal;
+
+				face.v[i].vertex--;
+				face.v[i].texCoord--;
+				face.v[i].normal--;
+			}
+
+			faces.push_back(face);
+
+			continue;
+		}
+	}
 }
 
 unsigned int Model::GetSizeOfVertices() const
