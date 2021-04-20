@@ -49,6 +49,11 @@ public:
 	const unsigned int* const GetIndices() const { return flatIndices.data(); }
 	unsigned int GetNumberOfIndices() const;
 
+	const float* const GetTBNVertices() const { return flatTBNVertices.data(); }
+	unsigned int GetSizeOfTBNVertices() const;
+	const unsigned int* const GetTBNIndices() const { return flatTBNIndices.data(); }
+	unsigned int GetNumberOfTBNIndices() const;
+
 private:
 	void CalculateFaceNormals();
 	void MapIndices();
@@ -56,6 +61,8 @@ private:
 
 	void CreateFlatArraysTri();
 	void CreateFlatArraysObj();
+
+	void CreateTBNFlatArraysObj();
 
 
 private:
@@ -120,6 +127,10 @@ private:
 	// Flat arrays of vertices and indices to be passed into the GPU (via Mesh)
 	std::vector<float> flatVertices;
 	std::vector<unsigned int> flatIndices;
+
+	// Flat arrays of vertices and indices of normal, tangent and bitangent lines to be passed into the GPU (via Mesh)
+	std::vector<float> flatTBNVertices;
+	std::vector<unsigned int> flatTBNIndices;
 };
 
 } // namespace Hedge

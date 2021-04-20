@@ -50,7 +50,7 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 							  compileFlags,
 							  0,
 							  &pixelShader,
-							  nullptr);
+							  &pErrorBlob);
 
 	if (pErrorBlob != nullptr)
 	{

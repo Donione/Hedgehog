@@ -43,5 +43,5 @@ float4 PSMain(PSInput input) : SV_TARGET
     float distance = length(input.pos);
     float att = 1.0f / (1.0f + distance * 0.027f + distance * distance * 0.0028f);
 
-    return float4(input.color.xyz, att * input.color.a);
+    return input.color;
 }

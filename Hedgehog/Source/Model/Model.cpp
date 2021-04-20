@@ -183,6 +183,7 @@ void Model::LoadObj(const std::string& filename)
 	CalculateFaceNormals();
 	CalculateTangents();
 	CreateFlatArraysObj();
+	CreateTBNFlatArraysObj();
 }
 
 unsigned int Model::GetSizeOfVertices() const
@@ -205,6 +206,16 @@ unsigned int Model::GetSizeOfVertices() const
 unsigned int Model::GetNumberOfIndices() const
 {
 	return (unsigned int)flatIndices.size();
+}
+
+unsigned int Model::GetSizeOfTBNVertices() const
+{
+	return (unsigned int)(sizeof(float) * flatTBNVertices.size());
+}
+
+unsigned int Model::GetNumberOfTBNIndices() const
+{
+	return (unsigned int)flatTBNIndices.size();
 }
 
 void Model::CalculateFaceNormals()
@@ -428,6 +439,95 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 12] = bitangents[face.v[i].tangent].y;
 			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].z;
 		}
+	}
+}
+
+void Model::CreateTBNFlatArraysObj()
+{
+	assert(!indices.empty());
+
+	size_t numberOfVertices = indices.size();
+	flatTBNIndices.resize(numberOfVertices * 3 * 2);
+	long long int stride = (long long)4 + 4 + 2;
+	flatTBNVertices.resize(numberOfVertices * 4 * stride);
+
+	int flatIndex = 0;
+	for (auto& [vertex, index] : indices)
+	{
+		flatTBNIndices[flatIndex++] = index;
+
+		flatTBNVertices[index * stride + 0] = positions[vertex.vertex].x;
+		flatTBNVertices[index * stride + 1] = positions[vertex.vertex].y;
+		flatTBNVertices[index * stride + 2] = positions[vertex.vertex].z;
+		flatTBNVertices[index * stride + 3] = 1.0f;
+
+		flatTBNVertices[index * stride + 4] = 1.0f;
+		flatTBNVertices[index * stride + 5] = 1.0f;
+		flatTBNVertices[index * stride + 6] = 1.0f;
+		flatTBNVertices[index * stride + 7] = 1.0f;
+
+		flatTBNVertices[index * stride + 8] = 0.0f;
+		flatTBNVertices[index * stride + 9] = 0.0f;
+
+
+		// Normals
+		unsigned int normalIndex = (int)numberOfVertices + index;
+		flatTBNIndices[flatIndex++] = normalIndex;
+
+		flatTBNVertices[normalIndex * stride + 0] = positions[vertex.vertex].x + normals[vertex.normal].x * 3;
+		flatTBNVertices[normalIndex * stride + 1] = positions[vertex.vertex].y + normals[vertex.normal].y * 3;
+		flatTBNVertices[normalIndex * stride + 2] = positions[vertex.vertex].z + normals[vertex.normal].z * 3;
+		flatTBNVertices[normalIndex * stride + 3] = 1.0f;
+
+		flatTBNVertices[normalIndex * stride + 4] = 0.0f;
+		flatTBNVertices[normalIndex * stride + 5] = 1.0f;
+		flatTBNVertices[normalIndex * stride + 6] = 0.0f;
+		flatTBNVertices[normalIndex * stride + 7] = 1.0f;
+
+		flatTBNVertices[normalIndex * stride + 8] = 0.0f;
+		flatTBNVertices[normalIndex * stride + 9] = 0.0f;
+
+
+		// Tangents
+		unsigned int tangentIndex = (int)numberOfVertices * 2 + index;
+		flatTBNIndices[flatIndex++] = index;
+		flatTBNIndices[flatIndex++] = tangentIndex;
+
+		glm::vec3 tangent = glm::normalize(tangents[vertex.tangent]);
+
+		flatTBNVertices[tangentIndex * stride + 0] = positions[vertex.vertex].x + tangent.x * 3;
+		flatTBNVertices[tangentIndex * stride + 1] = positions[vertex.vertex].y + tangent.y * 3;
+		flatTBNVertices[tangentIndex * stride + 2] = positions[vertex.vertex].z + tangent.z * 3;
+		flatTBNVertices[tangentIndex * stride + 3] = 1.0f;
+
+		flatTBNVertices[tangentIndex * stride + 4] = 1.0f;
+		flatTBNVertices[tangentIndex * stride + 5] = 0.0f;
+		flatTBNVertices[tangentIndex * stride + 6] = 0.0f;
+		flatTBNVertices[tangentIndex * stride + 7] = 1.0f;
+
+		flatTBNVertices[tangentIndex * stride + 8] = 0.0f;
+		flatTBNVertices[tangentIndex * stride + 9] = 0.0f;
+
+
+		// Bitangents
+		unsigned int bitangentIndex = (int)numberOfVertices * 3 + index;
+		flatTBNIndices[flatIndex++] = index;
+		flatTBNIndices[flatIndex++] = bitangentIndex;
+
+		glm::vec3 bitangent = glm::normalize(bitangents[vertex.tangent]);
+
+		flatTBNVertices[bitangentIndex * stride + 0] = positions[vertex.vertex].x + bitangent.x * 3;
+		flatTBNVertices[bitangentIndex * stride + 1] = positions[vertex.vertex].y + bitangent.y * 3;
+		flatTBNVertices[bitangentIndex * stride + 2] = positions[vertex.vertex].z + bitangent.z * 3;
+		flatTBNVertices[bitangentIndex * stride + 3] = 1.0f;
+
+		flatTBNVertices[bitangentIndex * stride + 4] = 0.0f;
+		flatTBNVertices[bitangentIndex * stride + 5] = 0.0f;
+		flatTBNVertices[bitangentIndex * stride + 6] = 1.0f;
+		flatTBNVertices[bitangentIndex * stride + 7] = 1.0f;
+
+		flatTBNVertices[bitangentIndex * stride + 8] = 0.0f;
+		flatTBNVertices[bitangentIndex * stride + 9] = 0.0f;
 	}
 }
 
