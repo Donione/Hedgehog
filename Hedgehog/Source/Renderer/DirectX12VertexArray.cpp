@@ -49,9 +49,9 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 		for (auto& staticSampler : staticSamplers)
 		{
 			staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-			staticSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			staticSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 			staticSampler.MipLODBias = 0;
 			staticSampler.MaxAnisotropy = 0;
 			staticSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
