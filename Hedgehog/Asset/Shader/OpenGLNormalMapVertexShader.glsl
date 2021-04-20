@@ -8,8 +8,8 @@ struct PointLight
 };
 
 layout(location = 0) in vec3 a_position;
-layout(location = 1) in vec3 a_normal;
-layout(location = 2) in vec2 a_textureCoordinates;
+layout(location = 1) in vec2 a_textureCoordinates;
+layout(location = 2) in vec3 a_normal;
 layout(location = 3) in vec3 a_tangent;
 layout(location = 4) in vec3 a_bitangent;
 
@@ -38,8 +38,13 @@ void main()
 
 
 	vec3 T = normalize(vec3(u_Transform * vec4(a_tangent,   0.0)));
-	vec3 B = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
+	//vec3 B = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
 	vec3 N = normalize(vec3(u_Transform * vec4(a_normal,    0.0)));
+
+	// re-orthogonalize T with respect to N
+	T = normalize(T - dot(T, N) * N);
+	// then retrieve perpendicular vector B with the cross product of T and N
+	vec3 B = cross(N, T);
 	
 	// pass the TBN matrix to pixel shader to transform normal samples to world space
 	TBN = mat3(T, B, N);
