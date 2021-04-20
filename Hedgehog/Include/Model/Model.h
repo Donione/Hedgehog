@@ -19,10 +19,14 @@ enum class ModelType
 
 struct FaceVertex
 {
+	int group = 0;
+	int smoothingGroup = 0;
+
 	int vertex = -1;
 	int texCoord = -1;
 	int normal = -1;
 
+	int tangent = 0;
 	int faceNormal = -1;
 };
 
@@ -40,9 +44,9 @@ public:
 	void LoadTri(const std::string& filename);
 	void LoadObj(const std::string& filename);
 
-	const float* const GetVertices() const { return flatVertices; }
+	const float* const GetVertices() const { return flatVertices.data(); }
 	unsigned int GetSizeOfVertices() const;
-	const unsigned int* const GetIndices() const { return flatIndices; }
+	const unsigned int* const GetIndices() const { return flatIndices.data(); }
 	unsigned int GetNumberOfIndices() const;
 
 private:
@@ -63,9 +67,11 @@ private:
 
 	std::vector<glm::vec3> faceNormals;
 	std::vector<glm::vec3> tangents;
-	std::vector<glm::vec3> bitangets;
+	std::vector<glm::vec3> bitangents;
 
 	std::vector<Face> faces;
+
+	std::map<std::string, int> groups;
 
 	struct cmpByFaceVertex {
 		bool operator()(const FaceVertex& first, const FaceVertex& second) const {
@@ -81,16 +87,39 @@ private:
 				}
 				else
 				{
-					return first.faceNormal < second.faceNormal;
+					if (first.normal != second.normal)
+					{
+						return first.normal < second.normal;
+					}
+					else
+					{
+						return first.tangent < second.tangent;
+					}
 				}
 			}
 		}
 	};
 	std::map<FaceVertex, unsigned int, cmpByFaceVertex> indices;
 
-	// Flat, heap allocated arrays of vertices and indices to be passed into the GPU (via Mesh)
-	float* flatVertices = nullptr;
-	unsigned int* flatIndices = nullptr;
+	struct cmpByGroup
+	{
+		bool operator()(const FaceVertex& a, const FaceVertex& b) const
+		{
+			if (a.group != b.group)
+			{
+				return a.group < b.group;
+			}
+			else
+			{
+				return a.vertex < b.vertex;
+			}
+		}
+	};
+	std::map<FaceVertex, int, cmpByGroup> groupIndices;
+
+	// Flat arrays of vertices and indices to be passed into the GPU (via Mesh)
+	std::vector<float> flatVertices;
+	std::vector<unsigned int> flatIndices;
 };
 
 } // namespace Hedge

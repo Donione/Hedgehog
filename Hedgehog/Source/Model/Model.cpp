@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <algorithm>
 
 
 namespace Hedge
@@ -38,9 +37,11 @@ void Model::LoadTri(const std::string& filename)
 	{
 		in >> v0 >> v1 >> v2;
 
-		faces.push_back({ { {(int)v0, -1, (int)v0},
-						    {(int)v1, -1, (int)v1},
-						    {(int)v2, -1, (int)v2} } });
+		Face f;
+		f.v[0].vertex = f.v[0].normal = (int)v0;
+		f.v[1].vertex = f.v[1].normal = (int)v1;
+		f.v[2].vertex = f.v[2].normal = (int)v2;
+		faces.push_back(f);
 
 		// calculate the face normal
 		glm::vec3 normal = glm::normalize(glm::cross(positions[v1] - positions[v0], positions[v2] - positions[v0]));
@@ -64,9 +65,12 @@ void Model::LoadObj(const std::string& filename)
 	std::string line;
 	std::stringstream liness;
 	std::string text;
+	std::string value;
 	float x, y, z;
 	Face face;
 	std::string v[3];
+	int currentGroup = 0;
+	int currentSmoothingGroup = 0;
 
 	while (!in.eof())
 	{
@@ -93,11 +97,6 @@ void Model::LoadObj(const std::string& filename)
 		{
 			liness >> text >> x >> y >> z;
 
-			// Just for testing, put the sponza_236_column_b in the center-ish
-			x += 433.0f;
-			y -= 680.0f;
-			z -= 230.0f;
-
 			positions.emplace_back(x, y, z);
 
 			continue;
@@ -121,6 +120,14 @@ void Model::LoadObj(const std::string& filename)
 
 		if (line.starts_with("g "))
 		{
+			liness >> text >> value;
+
+			if (!groups.contains(value))
+			{
+				groups.emplace(value, (int)groups.size());
+			}
+			currentGroup = groups.at(value);
+
 			continue;
 		}
 
@@ -131,6 +138,17 @@ void Model::LoadObj(const std::string& filename)
 
 		if (line.starts_with("s "))
 		{
+			liness >> text >> value;
+
+			if (value == "off")
+			{
+				currentSmoothingGroup = 0;
+			}
+			else
+			{
+				currentSmoothingGroup = std::stoi(value);
+			}
+
 			continue;
 		}
 
@@ -151,6 +169,9 @@ void Model::LoadObj(const std::string& filename)
 				face.v[i].vertex--;
 				face.v[i].texCoord--;
 				face.v[i].normal--;
+
+				face.v[i].group = currentGroup;
+				face.v[i].smoothingGroup = currentSmoothingGroup;
 			}
 
 			faces.push_back(face);
@@ -170,12 +191,12 @@ unsigned int Model::GetSizeOfVertices() const
 	{
 		// Tri models don't have texture coordinates, so no tangents and bitangents either
 		// Each vertex contains only its position and normal
-		return (unsigned int)(sizeof(float) * positions.size()) * (3 + 3);
+		return (unsigned int)(sizeof(float) * flatVertices.size());
 	}
 	else if (type == ModelType::Obj)
 	{
 		// Each vertex contains its position, texture coordinates, normal, tangent and bitangent
-		return (unsigned int)(sizeof(float) * indices.size()) * (3 + 2 + 3 + 3 + 3);
+		return (unsigned int)(sizeof(float) * flatVertices.size());
 	}
 
 	return 0;
@@ -183,11 +204,32 @@ unsigned int Model::GetSizeOfVertices() const
 
 unsigned int Model::GetNumberOfIndices() const
 {
-	return (unsigned int)faces.size() * 3u;
+	return (unsigned int)flatIndices.size();
 }
 
 void Model::CalculateFaceNormals()
 {
+	auto comp = [](const glm::vec3& a, const glm::vec3& b)
+	{
+		if (a.x != b.x)
+		{
+			return a.x < b.x;
+		}
+		else
+		{
+			if (a.y != b.y)
+			{
+				return a.y < b.y;
+			}
+			else
+			{
+				return a.z < b.z;
+			}
+		}
+	};
+
+	std::map<glm::vec3, int, decltype(comp)> faceNormalMap(comp);
+
 	int faceNormalIndex = 0;
 	for (auto& face : faces)
 	{
@@ -195,14 +237,14 @@ void Model::CalculateFaceNormals()
 														 positions[face.v[2].vertex] - positions[face.v[0].vertex]));
 
 		// Check if this face normal already exists
-		auto it = std::find(faceNormals.begin(), faceNormals.end(), faceNormal);
-		if (it != faceNormals.end())
+		if (faceNormalMap.contains(faceNormal))
 		{
-			faceNormalIndex = (int)std::distance(faceNormals.begin(), it);
+			faceNormalIndex = faceNormalMap.at(faceNormal);
 		}
 		else
 		{
 			faceNormalIndex = (int)faceNormals.size();
+			faceNormalMap.emplace(faceNormal, faceNormalIndex);
 			faceNormals.push_back(faceNormal);
 		}
 
@@ -227,10 +269,7 @@ void Model::MapIndices()
 
 void Model::CalculateTangents()
 {
-	assert(!faceNormals.empty());
-
-	tangents.resize(faceNormals.size());
-	bitangets.resize(faceNormals.size());
+	assert(!faces.empty());
 
 	for (auto& face : faces)
 	{
@@ -251,28 +290,83 @@ void Model::CalculateTangents()
 		glm::vec2 deltaUV2 = uv3 - uv1;
 
 		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		// When two of the texture coordinates are the same (the face is mapped onto the texture as a line)
+		// the f is infinity and breaks the TBN calculations
+		// Just put zero here so T and B are also zero and hope for the best for now
+		// TODO handle this gracefully
+		if (isinf(f))
+		{
+			f = 0.0f;
+		}
+
+		// We still have an issue when faces meet in a vertex with opposite B and T
+		// When accumulated together they mangle or completely cancel each other
+		// causing jarring lighting differences between faces or no lighting at all.
+		// We need to either detect these cases and not smooth the tangents or change the model to include hard edges
+		// Until we resolve that issue, the tangent smoothing and handedness fix is disabled
+		// This works around the edge cases (hehe, "Edge cases", get it?) with the cost of visible edges between larger faces
+		// and increase in the number of vertices that are uploaded into the GPU
 
 		for (int i = 0; i < 3; i++)
 		{
-			unsigned int index = face.v[i].faceNormal;
+			int index;
+			//if (face.v[i].smoothingGroup == 0)
+			// Disable tangent smoothing for now
+			if (true)
+			{
+				index = (int)tangents.size();
+				tangents.emplace_back(0.0f, 0.0f, 0.0f);
+				bitangents.emplace_back(0.0f, 0.0f, 0.0f);
+			}
+			else
+			{
+				if (groupIndices.contains(face.v[i]))
+				{
+					index = groupIndices.at(face.v[i]);
+				}
+				else
+				{
+					index = (int)tangents.size();
+					tangents.emplace_back(0.0f, 0.0f, 0.0f);
+					bitangents.emplace_back(0.0f, 0.0f, 0.0f);
+					groupIndices.emplace(face.v[i], index);
+				}
+			}
 
-			tangents[index].x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			tangents[index].y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			tangents[index].z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			face.v[i].tangent = index;
 
-			bitangets[index].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			bitangets[index].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			bitangets[index].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			glm::vec3 T = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+			glm::vec3 B = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+			glm::vec3 N = normals[face.v[i].normal];
+
+			// When symmetric models are used, UVs are oriented in the wrong way, and the T has the wrong orientation.
+			// TBN must form a right-handed coordinate system, i.e. cross(N,T) must have the same orientation as B.
+			// Disable handedness fix for now
+			//if (glm::dot(glm::cross(N, T), B) < 0.0f)
+			//{
+			//	T = T * -1.0f;
+			//}
+
+			tangents[index] += T;
+			bitangents[index] += B;
 		}
 	}
+
+	// When we're accumulating the tangents for shared vertices, the TBN system might become not orthogonal
+	// We can re-orthogonalize T with respect to N and retrieve the B
+	// At the moment, we're doing this in the vertex shader
+	//{
+	//	T = glm::normalize(T - N * glm::dot(N, T));
+	//	B = cross(N, T);
+	//}
 }
 
 void Model::CreateFlatArraysTri()
 {
 	size_t numberOfFaces = faces.size();
-	flatIndices = new unsigned int[numberOfFaces * 3];
+	flatIndices.resize(numberOfFaces * 3);
 
-	for (int i = 0; i < numberOfFaces; i++)
+	for (size_t i = 0; i < numberOfFaces; i++)
 	{
 		flatIndices[i * 3 + 0] = (unsigned int)faces[i].v[0].vertex;
 		flatIndices[i * 3 + 1] = (unsigned int)faces[i].v[1].vertex;
@@ -281,9 +375,9 @@ void Model::CreateFlatArraysTri()
 
 	size_t numberOfVertices = positions.size();
 	int stride = 3 + 3;
-	flatVertices = new float[numberOfVertices * stride];
+	flatVertices.resize(numberOfVertices * stride);
 
-	for (int i = 0; i < numberOfVertices; i++)
+	for (size_t i = 0; i < numberOfVertices; i++)
 	{
 		flatVertices[i * stride + 0] = positions[i].x;
 		flatVertices[i * stride + 1] = positions[i].y;
@@ -300,11 +394,11 @@ void Model::CreateFlatArraysObj()
 	MapIndices();
 
 	size_t numberOfFaces = faces.size();
-	flatIndices = new unsigned int[numberOfFaces * 3];
+	flatIndices.resize(numberOfFaces * 3);
 
 	size_t numberOfVertices = indices.size();
-	int stride = 3 + 2 + 3 + 3 + 3;
-	flatVertices = new float[numberOfVertices * stride];
+	long long stride = (long long)3 + 2 + 3 + 3 + 3;
+	flatVertices.resize(numberOfVertices * stride);
 
 	unsigned int flatIndex = 0;
 	for (auto& face : faces)
@@ -322,25 +416,23 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 3] = textureCoordinates[face.v[i].texCoord].x;
 			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].y;
 
-			flatVertices[index * stride + 5] = faceNormals[face.v[i].faceNormal].x;
-			flatVertices[index * stride + 6] = faceNormals[face.v[i].faceNormal].y;
-			flatVertices[index * stride + 7] = faceNormals[face.v[i].faceNormal].z;
+			flatVertices[index * stride + 5] = normals[face.v[i].normal].x;
+			flatVertices[index * stride + 6] = normals[face.v[i].normal].y;
+			flatVertices[index * stride + 7] = normals[face.v[i].normal].z;
 
-			flatVertices[index * stride + 8] = tangents[face.v[i].faceNormal].x;
-			flatVertices[index * stride + 9] = tangents[face.v[i].faceNormal].y;
-			flatVertices[index * stride + 10] = tangents[face.v[i].faceNormal].z;
+			flatVertices[index * stride +  8] = tangents[face.v[i].tangent].x;
+			flatVertices[index * stride +  9] = tangents[face.v[i].tangent].y;
+			flatVertices[index * stride + 10] = tangents[face.v[i].tangent].z;
 
-			flatVertices[index * stride + 11] = bitangets[face.v[i].faceNormal].x;
-			flatVertices[index * stride + 12] = bitangets[face.v[i].faceNormal].y;
-			flatVertices[index * stride + 13] = bitangets[face.v[i].faceNormal].z;
+			flatVertices[index * stride + 11] = bitangents[face.v[i].tangent].x;
+			flatVertices[index * stride + 12] = bitangents[face.v[i].tangent].y;
+			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].z;
 		}
 	}
 }
 
 Model::~Model()
 {
-	if (flatVertices) delete flatVertices;
-	if (flatIndices) delete flatIndices;
 }
 
 } // namespace Hedge

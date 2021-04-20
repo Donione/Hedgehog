@@ -44,6 +44,15 @@ cbuffer ObjectConstantBuffer : register(b2)
     float4x4 u_Transform;
 }
 
+struct VSInput
+{
+    float3 position : a_position;
+    float2 texCoords : a_textureCoordinates;
+    float3 normal : a_normal;
+    float3 tangent : a_tangent;
+    float3 bitangent : a_bitangent;
+};
+
 struct PSInput
 {
     float4 position : SV_POSITION;
@@ -56,23 +65,29 @@ struct PSInput
     float3 lightPosTan[3] : POSITION3;
 };
 
-PSInput VSMain(float3 position : a_position,
-               float2 texCoords : a_textureCoordinates,
-               float3 normal : a_normal,
-               float3 tangent : a_tangent,
-               float3 bitangent : a_bitangent)
+
+PSInput VSMain(VSInput input)
 {
     PSInput result;
 
-    float4 pos = mul(u_Transform, float4(position, 1.0f));
+    float4 pos = mul(u_Transform, float4(input.position, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
-    result.texCoords = texCoords;
+    result.texCoords = input.texCoords;
 
-    float3 T = normalize(mul(u_Transform, float4(tangent, 0.0)).xyz);
-    float3 B = normalize(mul(u_Transform, float4(bitangent, 0.0)).xyz);
-    float3 N = normalize(mul(u_Transform, float4(normal, 0.0)).xyz);
+    float3 T;
+    float3 B;
+    float3 N;
+
+    T = normalize(mul(u_Transform, float4(input.tangent, 0.0)).xyz);
+    N = normalize(mul(u_Transform, float4(input.normal, 0.0)).xyz);
+    //B = normalize(mul(u_Transform, float4(input.bitangent, 0.0)).xyz);
+
+    // re-orthogonalize T with respect to N
+    T = normalize(T - mul(dot(T, N), N));
+    // then retrieve perpendicular vector B with the cross product of T and N
+    B = cross(N, T);
 
     // pass the TBN matrix to pixel shader to transform normal samples to world space
     float3x3 TBN = float3x3(T, B, N);
@@ -117,7 +132,7 @@ PSInput VSMain(float3 position : a_position,
     result.viewPosTan = mul(TBN, u_viewPos);
 
     // We're transforming and passing the normal as well in case we want to disable the normal mapping at runtime
-    result.normalTan = mul(TBN, mul(u_Transform, float4(normal, 0.0f)).xyz);
+    result.normalTan = mul(TBN, mul(u_Transform, float4(input.normal, 0.0f)).xyz);
 
     return result;
 }
@@ -136,22 +151,21 @@ float3 CalculateDirectionalLight(float3 objectColor,
     {
         return float3(0.0f, 0.0f, 0.0f);
     }
+    else
+    {
+        float3 ambient = float3(0.0f, 0.0f, 0.0f);
 
-    //float3 objectColor = float3(0.333f, 0.125f, 0.024f);
-    //float3 objectColor = float3(1.0f, 1.0f, 1.0f);
+        float diff = max(dot(lightDirection, normal), 0.0f);
+        float3 diffuse = diff * lightColor;
 
-    float3 ambient = float3(0.0f, 0.0f, 0.0f);
+        float specularStrength = 0.0f;
+        float3 viewDirection = normalize(u_viewPos - position);
+        float3 reflectDirection = reflect(-lightDirection, normal);
+        float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+        float3 specular = specularStrength * spec * lightColor;
 
-    float diff = max(dot(lightDirection, normal), 0.0f);
-    float3 diffuse = diff * lightColor;
-
-    float specularStrength = 0.0f;
-    float3 viewDirection = normalize(u_viewPos - position);
-    float3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
-    float3 specular = specularStrength * spec * lightColor;
-
-    return (ambient + diffuse + specular) * objectColor;
+        return (ambient + diffuse + specular) * objectColor;
+    }
 }
 
 // PointLight is basically a directional light with attenuation and the light position is taken into account
@@ -174,8 +188,6 @@ float3 CalculatePointLight(float3 objectColor,
     //       Kq = quadratic component
     float lightDistance = length(lightPosition - position);
     float att = 1.0f / (attenuation.x + lightDistance * attenuation.y + lightDistance * lightDistance * attenuation.z);
-
-    att = 1.0f;
 
     return att * result;
 }
