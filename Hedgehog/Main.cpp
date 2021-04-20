@@ -88,7 +88,7 @@ public:
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
 		auto camera = scene.CreateEntity("Scene Camera");
-		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f)); // camera space, +z goes into the screen
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f)); // camera space, +z goes into the screen
 		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
@@ -103,7 +103,7 @@ public:
 								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
 
 		auto camera2 = scene.CreateEntity("Camera 2");
-		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f));
+		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f));
 		//auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		camera2camera.SetPrimary(false);
 		auto& camera2Transform = camera2.Add<Hedge::Transform>();
@@ -154,7 +154,7 @@ public:
 
 		auto bunnyEntity = scene.CreateEntity("Bunny");
 		bunnyEntity.Add<Hedge::Mesh>(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
-									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
+									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc).enabled = false;
 		auto& bunnyEntityTransform = bunnyEntity.Add<Hedge::Transform>();
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
@@ -235,19 +235,19 @@ public:
 								vertexSrc, fragmentSrc, constBufferDesc);
 
 		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(mesh);
+		cube1.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
 		auto cube2 = scene.CreateEntity("Cube 2");
-		cube2.Add<Hedge::Mesh>(mesh);
+		cube2.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube2Transform = cube2.Add<Hedge::Transform>();
 		cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
 		cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
 		cube2Transform.UniformScale(1.5f);
 
 		auto cube3 = scene.CreateEntity("Cube 3");
-		cube3.Add<Hedge::Mesh>(mesh);
+		cube3.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube3Transform = cube3.Add<Hedge::Transform>();
 		cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
 		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
@@ -351,7 +351,7 @@ public:
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh);
+		square.Add<Hedge::Mesh>(squareMesh).enabled = false;
 		square.Add<Hedge::Transform>(squareTransform);
 
 
@@ -362,13 +362,49 @@ public:
 			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\sponza_column_b_ddn.tga" },
 		};
 
-		spozaTestEntity = scene.CreateEntity("Spozna test");
-		spozaTestEntity.Add<Hedge::Mesh>("..\\..\\Sponza-master\\sponza_236_column_b.obj",
-									  Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-									  vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-									  sponzaTextureDescriptions);
+		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+
+		Hedge::Model sponzaModel;
+		sponzaModel.LoadObj(sponzaFilename);
+
+		spozaTestEntity = scene.CreateEntity("Sponza");
+		spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
+										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
+										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+										 sponzaTextureDescriptions);
 		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
-		spozaTransform.SetUniformScale(0.1f);
+		spozaTransform.SetUniformScale(0.01f);
+
+		Hedge::BufferLayout TBNBL =
+		{
+			{ Hedge::ShaderDataType::Float4, "a_position" },
+			{ Hedge::ShaderDataType::Float4, "a_color" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		};
+
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		{
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		{
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		}
+
+		constBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		};
+		auto sponzaDebug = scene.CreateEntity("Sponza Debug");
+		sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
+									 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
+									 Hedge::PrimitiveTopology::Line, TBNBL,
+									 vertexSrc, fragmentSrc, constBufferDesc);
+		sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
 
 
@@ -376,7 +412,7 @@ public:
 		// Directional Lights
 		auto dirLightEntity = scene.CreateEntity("Directional Light");
 		auto& dirLightLight = dirLightEntity.Add<Hedge::DirectionalLight>();
-		dirLightLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
+		dirLightLight.color = glm::vec3(0.0f); // glm::vec3(1.0f, 0.8f, 0.0f);
 		dirLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
 		// Pointlights
@@ -413,32 +449,31 @@ public:
 		auto pointLightMesh = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		
-		auto pointLight1 = scene.CreateEntity("Point Light 1");
+		pointLight1 = scene.CreateEntity("Point Light 1");
 		auto& pointLight1Light = pointLight1.Add<Hedge::PointLight>();
-		//pointLight1Light.color = (glm::vec3(1.0f, 0.0f, 0.0f));
 		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
-		pointLight1.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight1.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& pointLight1Transform = pointLight1.Add<Hedge::Transform>();
 		pointLight1Transform.SetUniformScale(0.1f);
 		pointLight1Transform.SetTranslation(pointLight1Light.position);
 		
 		auto pointLight2 = scene.CreateEntity("Point Light 2");
 		auto& pointLight2Light = pointLight2.Add<Hedge::PointLight>();
-		pointLight2Light.color = (glm::vec3(0.0f, 1.0f, 0.0f));
-		pointLight2Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
-		pointLight2Light.position = (glm::vec3(0.0f, 2.0f, 0.0f));
-		pointLight2.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight2Light.color = glm::vec3(0.0f, 0.0f, 0.0f);
+		pointLight2Light.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
+		pointLight2Light.position = glm::vec3(0.0f, 2.0f, 0.0f);
+		pointLight2.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& pointLight2Transform = pointLight2.Add<Hedge::Transform>();
 		pointLight2Transform.SetUniformScale(0.1f);
 		pointLight2Transform.SetTranslation(pointLight2Light.position);
 		
 		auto pointLight3 = scene.CreateEntity("Point Light 3");
 		auto& newLight = pointLight3.Add<Hedge::PointLight>();
-		newLight.color = glm::vec3(0.0f, 0.0f, 1.0f);
+		newLight.color = glm::vec3(0.0f, 0.0f, 0.0f);
 		newLight.position = glm::vec3(0.0f, -2.0f, 0.0f);
-		pointLight3.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight3.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& newTransform = pointLight3.Add<Hedge::Transform>();
 		newTransform.SetTranslation(newLight.position);
 		newTransform.SetUniformScale(0.1f);
@@ -448,12 +483,12 @@ public:
 
 		auto spotlight = scene.CreateEntity("Spotlight");
 		auto& spotLightLight = spotlight.Add<Hedge::SpotLight>();
-		spotLightLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightLight.color = glm::vec3(0.0f, 0.0f, 0.0f);
 		spotLightLight.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
 		spotLightLight.position = glm::vec3(0.0f, 0.0f, 2.0f);
 		spotLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 		spotlight.Add<Hedge::Mesh>(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc).enabled = false;
 		auto& spotLightTransform = spotlight.Add<Hedge::Transform>();
 		spotLightTransform.SetUniformScale(0.1f);
 		spotLightTransform.SetTranslation(spotLightLight.position);
@@ -598,6 +633,9 @@ public:
 		{
 			primaryCamera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
 			primaryCamera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		
+			pointLight1.Get<Hedge::PointLight>().position = primaryCamera.Get<Hedge::Transform>().GetTranslation();
+			pointLight1.Get<Hedge::Transform>().SetTranslation(primaryCamera.Get<Hedge::Transform>().GetTranslation());
 		}
 
 		xOffset = 0;
@@ -1014,6 +1052,8 @@ private:
 	float specularStrength = 0.2f;
 	std::shared_ptr<Hedge::Texture> normalMap;
 	std::shared_ptr<Hedge::Texture> specularMap;
+
+	Hedge::Entity pointLight1;
 };
 
 class ExampleOverlay : public Hedge::Layer
