@@ -37,6 +37,7 @@ private:
 	BufferLayout layout;
 
 	ID3D12Resource* vertexBuffer = NULL;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBufferUploadHeap;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {};
 
 	const D3D12_PRIMITIVE_TOPOLOGY DirectX12PrimitiveTopologies[4]
@@ -66,6 +67,7 @@ private:
 	unsigned int count = 0;
 
 	ID3D12Resource* indexBuffer = NULL;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBufferUploadHeap;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 };
 
