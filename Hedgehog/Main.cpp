@@ -258,14 +258,17 @@ public:
 		Hedge::BufferLayout squareBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
+			{ Hedge::ShaderDataType::Float,  "a_textureSlot" },
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
 		};
 
-		std::vector<Hedge::TextureDescription> squareTextureDescriptions =
+		std::vector<Hedge::TextureDescription> textureDescriptions =
 		{
+			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\sponza_ceiling_a_diff.tga" },
+			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\sponza_ceiling_a_ddn.tga" },
 			{ Hedge::TextureType::Diffuse, textureFilename },
 			{ Hedge::TextureType::Normal, normalMapFilename },
 		};
@@ -284,10 +287,10 @@ public:
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f,  0.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
-			 0.5f,  0.5f,  0.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f,  0.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f,  0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
+			-0.5f,  0.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
+			 0.5f,  0.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
+			-0.5f, -0.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
 		};
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 
@@ -296,13 +299,13 @@ public:
 			glm::vec3 pos1, pos2, pos3;
 			glm::vec2 uv1, uv2, uv3;
 
-			pos1 = { squareVertices[indicesSquare[i + 0] * 14 + 0], squareVertices[indicesSquare[i + 0] * 14 + 1], squareVertices[indicesSquare[i + 0] * 14 + 2] };
-			pos2 = { squareVertices[indicesSquare[i + 1] * 14 + 0], squareVertices[indicesSquare[i + 1] * 14 + 1], squareVertices[indicesSquare[i + 1] * 14 + 2] };
-			pos3 = { squareVertices[indicesSquare[i + 2] * 14 + 0], squareVertices[indicesSquare[i + 2] * 14 + 1], squareVertices[indicesSquare[i + 2] * 14 + 2] };
+			pos1 = { squareVertices[indicesSquare[i + 0] * 15 + 0], squareVertices[indicesSquare[i + 0] * 15 + 1], squareVertices[indicesSquare[i + 0] * 15 + 2] };
+			pos2 = { squareVertices[indicesSquare[i + 1] * 15 + 0], squareVertices[indicesSquare[i + 1] * 15 + 1], squareVertices[indicesSquare[i + 1] * 15 + 2] };
+			pos3 = { squareVertices[indicesSquare[i + 2] * 15 + 0], squareVertices[indicesSquare[i + 2] * 15 + 1], squareVertices[indicesSquare[i + 2] * 15 + 2] };
 
-			uv1 = { squareVertices[indicesSquare[i + 0] * 14 + 3], squareVertices[indicesSquare[i + 0] * 14 + 4] };
-			uv2 = { squareVertices[indicesSquare[i + 1] * 14 + 3], squareVertices[indicesSquare[i + 1] * 14 + 4] };
-			uv3 = { squareVertices[indicesSquare[i + 2] * 14 + 3], squareVertices[indicesSquare[i + 2] * 14 + 4] };
+			uv1 = { squareVertices[indicesSquare[i + 0] * 15 + 4], squareVertices[indicesSquare[i + 0] * 15 + 5] };
+			uv2 = { squareVertices[indicesSquare[i + 1] * 15 + 4], squareVertices[indicesSquare[i + 1] * 15 + 5] };
+			uv3 = { squareVertices[indicesSquare[i + 2] * 15 + 4], squareVertices[indicesSquare[i + 2] * 15 + 5] };
 
 			glm::vec3 edge1 = pos2 - pos1;
 			glm::vec3 edge2 = pos3 - pos1;
@@ -312,34 +315,34 @@ public:
 			float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 			// tangent
-			squareVertices[indicesSquare[i + 0] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 0] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 0] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 0] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 1] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 1] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 1] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 1] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 2] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 2] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 2] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 2] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
 
@@ -347,7 +350,7 @@ public:
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 squareTextureDescriptions);
+								 textureDescriptions);
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
@@ -356,11 +359,7 @@ public:
 
 
 
-		std::vector<Hedge::TextureDescription> sponzaTextureDescriptions =
-		{
-			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\sponza_column_b_diff.tga" },
-			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\sponza_column_b_ddn.tga" },
-		};
+
 
 		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
 
@@ -372,7 +371,7 @@ public:
 										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
 										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
 										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-										 sponzaTextureDescriptions);
+										 textureDescriptions).enabled = true;
 		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
 		spozaTransform.SetUniformScale(0.01f);
 
@@ -403,7 +402,7 @@ public:
 		sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
 									 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
 									 Hedge::PrimitiveTopology::Line, TBNBL,
-									 vertexSrc, fragmentSrc, constBufferDesc);
+									 vertexSrc, fragmentSrc, constBufferDesc).enabled = true;
 		sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
 

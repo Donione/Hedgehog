@@ -408,7 +408,7 @@ void Model::CreateFlatArraysObj()
 	flatIndices.resize(numberOfFaces * 3);
 
 	size_t numberOfVertices = indices.size();
-	long long stride = (long long)3 + 2 + 3 + 3 + 3;
+	long long stride = (long long)3 + 1 + 2 + 3 + 3 + 3;
 	flatVertices.resize(numberOfVertices * stride);
 
 	unsigned int flatIndex = 0;
@@ -424,20 +424,21 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 1] = positions[face.v[i].vertex].y;
 			flatVertices[index * stride + 2] = positions[face.v[i].vertex].z;
 
-			flatVertices[index * stride + 3] = textureCoordinates[face.v[i].texCoord].x;
-			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].y;
+			flatVertices[index * stride + 3] = 0.0f;
+			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].x;
+			flatVertices[index * stride + 5] = textureCoordinates[face.v[i].texCoord].y;
 
-			flatVertices[index * stride + 5] = normals[face.v[i].normal].x;
-			flatVertices[index * stride + 6] = normals[face.v[i].normal].y;
-			flatVertices[index * stride + 7] = normals[face.v[i].normal].z;
+			flatVertices[index * stride + 6] = normals[face.v[i].normal].x;
+			flatVertices[index * stride + 7] = normals[face.v[i].normal].y;
+			flatVertices[index * stride + 8] = normals[face.v[i].normal].z;
 
-			flatVertices[index * stride +  8] = tangents[face.v[i].tangent].x;
-			flatVertices[index * stride +  9] = tangents[face.v[i].tangent].y;
-			flatVertices[index * stride + 10] = tangents[face.v[i].tangent].z;
+			flatVertices[index * stride +  9] = tangents[face.v[i].tangent].x;
+			flatVertices[index * stride + 10] = tangents[face.v[i].tangent].y;
+			flatVertices[index * stride + 11] = tangents[face.v[i].tangent].z;
 
-			flatVertices[index * stride + 11] = bitangents[face.v[i].tangent].x;
-			flatVertices[index * stride + 12] = bitangents[face.v[i].tangent].y;
-			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].z;
+			flatVertices[index * stride + 12] = bitangents[face.v[i].tangent].x;
+			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].y;
+			flatVertices[index * stride + 14] = bitangents[face.v[i].tangent].z;
 		}
 	}
 }

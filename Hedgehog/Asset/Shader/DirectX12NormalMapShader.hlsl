@@ -47,6 +47,7 @@ cbuffer ObjectConstantBuffer : register(b2)
 struct VSInput
 {
     float3 position : a_position;
+    float  textureSlot : a_textureSlot;
     float2 texCoords : a_textureCoordinates;
     float3 normal : a_normal;
     float3 tangent : a_tangent;
@@ -57,8 +58,9 @@ struct PSInput
 {
     float4 position : SV_POSITION;
     float3 pos : POSITIONT;
+    nointerpolation int texSlot : TEXTURESLOT;
     float2 texCoords : TEXCOORD0;
-    float3x3 TBN : TANGENT0;
+    nointerpolation float3x3 TBN : TANGENT0;
     float3 positionTan : TANGENT3;
     float3 viewPosTan : POSITION1;
     float3 normalTan : NORMAL;
@@ -74,6 +76,7 @@ PSInput VSMain(VSInput input)
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
+    result.texSlot = input.textureSlot;
     result.texCoords = input.texCoords;
 
     float3 T;
@@ -81,8 +84,8 @@ PSInput VSMain(VSInput input)
     float3 N;
 
     T = normalize(mul(u_Transform, float4(input.tangent, 0.0)).xyz);
-    N = normalize(mul(u_Transform, float4(input.normal, 0.0)).xyz);
     //B = normalize(mul(u_Transform, float4(input.bitangent, 0.0)).xyz);
+    N = normalize(mul(u_Transform, float4(input.normal, 0.0)).xyz);
 
     // re-orthogonalize T with respect to N
     T = normalize(T - mul(dot(T, N), N));
@@ -193,7 +196,7 @@ float3 CalculatePointLight(float3 objectColor,
 }
 
 // Spotlight is a pointlight with limited light radius
-float3 CalculateSpotLight(float3 objectColor, 
+float3 CalculateSpotLight(float3 objectColor,
                           float3 lightPosition,
                           float3 lightColor,
                           float3 lightDirection, // normalized direction into the spotlight in world space
@@ -231,22 +234,31 @@ float3 CalculateSpotLight(float3 objectColor,
     return result;
 }
 
-
-Texture2D t_diffuse : register(t0);
-SamplerState s_diffuse : register(s0);
-Texture2D t_normal : register(t1);
-SamplerState s_normal : register(s1);
+Texture2D t[4] : register(t0);
+SamplerState s[4] : register(s0);
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
     float3 result = float3(0.0f, 0.0f, 0.0f);
 
-    float3 objectColor = t_diffuse.Sample(s_diffuse, input.texCoords).xyz;
+    float3 objectColor;
+    switch (input.texSlot)
+    {
+    case 0: objectColor = t[0].Sample(s[0], input.texCoords).xyz; break;
+    case 1: objectColor = t[2].Sample(s[2], input.texCoords).xyz; break;
+    default: objectColor = float3(0.0f, 0.0f, 0.0f); break;
+    }
 
     float3 normal;
     if (u_normalMapping == 1)
     {
-        normal = t_normal.Sample(s_normal, input.texCoords).xyz;
+        switch (input.texSlot)
+        {
+        case 0: normal = t[1].Sample(s[1], input.texCoords).xyz; break;
+        case 1: normal = t[3].Sample(s[3], input.texCoords).xyz; break;
+        default: normal = float3(0.0f, 0.0f, 0.0f); break;
+        }
+
         normal = normal * 2.0f - 1.0f;
         // transform the normal sample from tangent space to world space
         //normal = mul(input.TBN, normal);
@@ -283,6 +295,6 @@ float4 PSMain(PSInput input) : SV_TARGET
                                  u_spotLight.attenuation,
                                  input.positionTan,
                                  normal);
-    
+
     return float4(result, 1.0f);
 }
