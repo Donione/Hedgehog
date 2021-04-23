@@ -95,7 +95,7 @@ DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
+		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&indexBuffer)); // TODO handle fail
 
