@@ -60,7 +60,7 @@ struct PSInput
     float3 pos : POSITIONT;
     nointerpolation int texSlot : TEXTURESLOT;
     float2 texCoords : TEXCOORD0;
-    nointerpolation float3x3 TBN : TANGENT0;
+    float3x3 TBN : TANGENT0;
     float3 positionTan : TANGENT3;
     float3 viewPosTan : POSITION1;
     float3 normalTan : NORMAL;
@@ -234,8 +234,8 @@ float3 CalculateSpotLight(float3 objectColor,
     return result;
 }
 
-Texture2D t[4] : register(t0);
-SamplerState s[4] : register(s0);
+Texture2D t[50] : register(t0);
+SamplerState s : register(s0);
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
@@ -244,9 +244,32 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 objectColor;
     switch (input.texSlot)
     {
-    case 0: objectColor = t[0].Sample(s[0], input.texCoords).xyz; break;
-    case 1: objectColor = t[2].Sample(s[2], input.texCoords).xyz; break;
-    default: objectColor = float3(0.0f, 0.0f, 0.0f); break;
+    case  0: objectColor = t[ 0].Sample(s, input.texCoords).rgb; break;
+    case  1: objectColor = t[ 2].Sample(s, input.texCoords).rgb; break;
+    case  2: objectColor = t[ 4].Sample(s, input.texCoords).rgb; break;
+    case  3: objectColor = t[ 6].Sample(s, input.texCoords).rgb; break;
+    case  4: objectColor = t[ 8].Sample(s, input.texCoords).rgb; break;
+    case  5: objectColor = t[10].Sample(s, input.texCoords).rgb; break;
+    case  6: objectColor = t[12].Sample(s, input.texCoords).rgb; break;
+    case  7: objectColor = t[14].Sample(s, input.texCoords).rgb; break;
+    case  8: objectColor = t[16].Sample(s, input.texCoords).rgb; break;
+    case  9: objectColor = t[18].Sample(s, input.texCoords).rgb; break;
+    case 10: objectColor = t[20].Sample(s, input.texCoords).rgb; break;
+    case 11: objectColor = t[22].Sample(s, input.texCoords).rgb; break;
+    case 12: objectColor = t[24].Sample(s, input.texCoords).rgb; break;
+    case 13: objectColor = t[26].Sample(s, input.texCoords).rgb; break;
+    case 14: objectColor = t[28].Sample(s, input.texCoords).rgb; break;
+    case 15: objectColor = t[30].Sample(s, input.texCoords).rgb; break;
+    case 16: objectColor = t[32].Sample(s, input.texCoords).rgb; break;
+    case 17: objectColor = t[34].Sample(s, input.texCoords).rgb; break;
+    case 18: objectColor = t[36].Sample(s, input.texCoords).rgb; break;
+    case 19: objectColor = t[38].Sample(s, input.texCoords).rgb; break;
+    case 20: objectColor = t[40].Sample(s, input.texCoords).rgb; break;
+    case 21: objectColor = t[42].Sample(s, input.texCoords).rgb; break;
+    case 22: objectColor = t[44].Sample(s, input.texCoords).rgb; break;
+    case 23: objectColor = t[46].Sample(s, input.texCoords).rgb; break;
+    case 24: objectColor = t[48].Sample(s, input.texCoords).rgb; break;
+    default: objectColor = float4(0.0f, 0.0f, 0.0f, 0.0f); break;
     }
 
     float3 normal;
@@ -254,8 +277,31 @@ float4 PSMain(PSInput input) : SV_TARGET
     {
         switch (input.texSlot)
         {
-        case 0: normal = t[1].Sample(s[1], input.texCoords).xyz; break;
-        case 1: normal = t[3].Sample(s[3], input.texCoords).xyz; break;
+        case  0: normal = t[ 1].Sample(s, input.texCoords).xyz; break;
+        case  1: normal = t[ 3].Sample(s, input.texCoords).xyz; break;
+        case  2: normal = t[ 5].Sample(s, input.texCoords).xyz; break;
+        case  3: normal = t[ 7].Sample(s, input.texCoords).xyz; break;
+        case  4: normal = t[ 9].Sample(s, input.texCoords).xyz; break;
+        case  5: normal = t[11].Sample(s, input.texCoords).xyz; break;
+        case  6: normal = t[13].Sample(s, input.texCoords).xyz; break;
+        case  7: normal = t[15].Sample(s, input.texCoords).xyz; break;
+        case  8: normal = t[17].Sample(s, input.texCoords).xyz; break;
+        case  9: normal = t[19].Sample(s, input.texCoords).xyz; break;
+        case 10: normal = t[21].Sample(s, input.texCoords).xyz; break;
+        case 11: normal = t[23].Sample(s, input.texCoords).xyz; break;
+        case 12: normal = t[25].Sample(s, input.texCoords).xyz; break;
+        case 13: normal = t[27].Sample(s, input.texCoords).xyz; break;
+        case 14: normal = t[29].Sample(s, input.texCoords).xyz; break;
+        case 15: normal = t[31].Sample(s, input.texCoords).xyz; break;
+        case 16: normal = t[33].Sample(s, input.texCoords).xyz; break;
+        case 17: normal = t[35].Sample(s, input.texCoords).xyz; break;
+        case 18: normal = t[37].Sample(s, input.texCoords).xyz; break;
+        case 19: normal = t[39].Sample(s, input.texCoords).xyz; break;
+        case 20: normal = t[41].Sample(s, input.texCoords).xyz; break;
+        case 21: normal = t[43].Sample(s, input.texCoords).xyz; break;
+        case 22: normal = t[45].Sample(s, input.texCoords).xyz; break;
+        case 23: normal = t[47].Sample(s, input.texCoords).xyz; break;
+        case 24: normal = t[49].Sample(s, input.texCoords).xyz; break;
         default: normal = float3(0.0f, 0.0f, 0.0f); break;
         }
 

@@ -42,21 +42,14 @@ DirectX12VertexBuffer::DirectX12VertexBuffer(PrimitiveTopology primitiveTopology
 	vertexData.RowPitch = size;
 	vertexData.SlicePitch = vertexData.RowPitch;
 
-	UpdateSubresources(dx12context->g_pd3dCommandList, vertexBuffer, vertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
+	UpdateSubresources(dx12context->g_pd3dCommandList, vertexBuffer.Get(), vertexBufferUploadHeap.Get(), 0, 0, 1, &vertexData);
 
-	auto resBarrier = CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	auto resBarrier = CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	dx12context->g_pd3dCommandList->ResourceBarrier(1, &resBarrier);
 
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = layout.GetStride();
 	vertexBufferView.SizeInBytes = size;
-}
-
-DirectX12VertexBuffer::~DirectX12VertexBuffer()
-{
-	if (vertexBuffer) vertexBuffer->Release();
-	vertexBuffer = nullptr;
-	vertexBufferView = {};
 }
 
 void DirectX12VertexBuffer::Bind() const
@@ -113,21 +106,14 @@ DirectX12IndexBuffer::DirectX12IndexBuffer(const unsigned int* indices, unsigned
 	indexData.RowPitch = size;
 	indexData.SlicePitch = indexData.RowPitch;
 
-	UpdateSubresources(dx12context->g_pd3dCommandList, indexBuffer, indexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
+	UpdateSubresources(dx12context->g_pd3dCommandList, indexBuffer.Get(), indexBufferUploadHeap.Get(), 0, 0, 1, &indexData);
 
-	auto resBarrier = CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	auto resBarrier = CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	dx12context->g_pd3dCommandList->ResourceBarrier(1, &resBarrier);
 
 	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	indexBufferView.SizeInBytes = size;
-}
-
-DirectX12IndexBuffer::~DirectX12IndexBuffer()
-{
-	if (indexBuffer) indexBuffer->Release();
-	indexBuffer = nullptr;
-	indexBufferView = {};
 }
 
 void DirectX12IndexBuffer::Bind() const

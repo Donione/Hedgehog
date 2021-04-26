@@ -56,6 +56,10 @@ public:
 
 		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
 
+
+
+
+
 		Hedge::ConstantBufferDescription frustumConstBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
@@ -70,7 +74,6 @@ public:
 			{ Hedge::ShaderDataType::Float4, "a_color" },
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
 		};
-
 
 		std::string frustumVertexSrc;
 		std::string frustumFragmentSrc;
@@ -119,6 +122,7 @@ public:
 
 
 
+
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
 
 		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
@@ -159,6 +163,9 @@ public:
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
 		bunnyEntityTransform.SetUniformScale(scale);
+
+
+
 
 
 		Hedge::ConstantBufferDescription constBufferDesc =
@@ -218,13 +225,7 @@ public:
 			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
 		}
 
-		// Textures
-		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
-		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
-		std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
-
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-
 
 		// We want to share this mesh for multiple render objects
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
@@ -255,6 +256,8 @@ public:
 
 
 
+
+
 		Hedge::BufferLayout squareBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
@@ -265,10 +268,14 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
 		};
 
+		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
+		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
+		std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
+
 		std::vector<Hedge::TextureDescription> textureDescriptions =
 		{
-			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\sponza_ceiling_a_diff.tga" },
-			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\sponza_ceiling_a_ddn.tga" },
+			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_diff.tga" }, //  vase_plant
+			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_ddn.tga" },
 			{ Hedge::TextureType::Diffuse, textureFilename },
 			{ Hedge::TextureType::Normal, normalMapFilename },
 		};
@@ -345,12 +352,16 @@ public:
 			squareVertices[indicesSquare[i + 2] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
+		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+
+		Hedge::Model sponzaModel;
+		sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 textureDescriptions);
+								 sponzaModel.GetTextureDescription());
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
@@ -359,19 +370,12 @@ public:
 
 
 
-
-
-		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
-
-		Hedge::Model sponzaModel;
-		sponzaModel.LoadObj(sponzaFilename);
-
 		spozaTestEntity = scene.CreateEntity("Sponza");
 		spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
 										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
 										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
 										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-										 textureDescriptions).enabled = true;
+										 sponzaModel.GetTextureDescription()).enabled = true;
 		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
 		spozaTransform.SetUniformScale(0.01f);
 
@@ -402,8 +406,10 @@ public:
 		sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
 									 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
 									 Hedge::PrimitiveTopology::Line, TBNBL,
-									 vertexSrc, fragmentSrc, constBufferDesc).enabled = true;
+									 vertexSrc, fragmentSrc, constBufferDesc).enabled = false;
 		sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+
+
 
 
 
@@ -499,6 +505,9 @@ public:
 		spotLightTransform.SetRotation(spotLightBaseRotation);
 
 
+
+
+
 		// Axes lines
 		auto axesPrimitiveTopology = Hedge::PrimitiveTopology::Line;
 
@@ -542,7 +551,6 @@ public:
 		{
 			gridIndices[i] = i;
 		}
-
 
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
@@ -915,7 +923,7 @@ public:
 						auto& frustum = camera.GetFrustum();
 						CreateFrustumVertices(frustum, frustumVertices);
 
-						mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
+						//mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
 					}
 					transform.CreateGuiControls(true, true, false);
 					
