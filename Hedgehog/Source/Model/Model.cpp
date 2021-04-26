@@ -60,6 +60,10 @@ void Model::LoadObj(const std::string& filename)
 {
 	type = ModelType::Obj;
 
+	size_t dotPos = filename.rfind('.');
+	std::string materialFilename = filename.substr(0, dotPos) + ".mtl";
+	LoadMtl(materialFilename);
+
 	std::ifstream in(filename);
 	char buffer[256];
 	std::string line;
@@ -71,6 +75,7 @@ void Model::LoadObj(const std::string& filename)
 	std::string v[3];
 	int currentGroup = 0;
 	int currentSmoothingGroup = 0;
+	std::string currentMaterial;
 
 	while (!in.eof())
 	{
@@ -133,6 +138,8 @@ void Model::LoadObj(const std::string& filename)
 
 		if (line.starts_with("usemtl "))
 		{
+			liness >> text >> currentMaterial;
+
 			continue;
 		}
 
@@ -172,6 +179,7 @@ void Model::LoadObj(const std::string& filename)
 
 				face.v[i].group = currentGroup;
 				face.v[i].smoothingGroup = currentSmoothingGroup;
+				face.v[i].material = materials.at(currentMaterial).textureSlot;
 			}
 
 			faces.push_back(face);
@@ -218,6 +226,55 @@ unsigned int Model::GetNumberOfTBNIndices() const
 	return (unsigned int)flatTBNIndices.size();
 }
 
+void Model::LoadMtl(const std::string& filename)
+{
+	std::ifstream in(filename);
+	char buffer[256];
+	std::string line;
+	std::stringstream liness;
+	std::string text;
+	std::string value;
+	std::string currentMaterial;
+
+	size_t dotPos = filename.rfind('\\');
+	std::string basePath = filename.substr(0, dotPos + 1);
+
+	while (!in.eof())
+	{
+		in.getline(buffer, 256);
+		line = std::string(buffer);
+		liness = std::stringstream(buffer);
+
+		if (line.starts_with("newmtl "))
+		{
+			liness >> text >> currentMaterial;
+
+			Material material = { currentMaterial, (int)materials.size(), "", "" };
+			materials.emplace(currentMaterial, material);
+		}
+
+		if (line.starts_with("map_Kd "))
+		{
+			liness >> text >> value;
+
+			size_t slashPos = value.rfind('/');
+			value = value.replace(slashPos, 1, "\\");
+			materials.at(currentMaterial).diffuseFilename = basePath + value;
+		}
+
+		if (line.starts_with("map_Disp "))
+		{
+			liness >> text >> value;
+
+			size_t slashPos = value.rfind('/');
+			value = value.replace(slashPos, 1, "\\");
+			std::string xxx = basePath + value;
+			materials.at(currentMaterial).normalFilename = basePath + value;
+		}
+	}
+
+	CreateTextureDescription();
+}
 void Model::CalculateFaceNormals()
 {
 	auto comp = [](const glm::vec3& a, const glm::vec3& b)
@@ -423,7 +480,7 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 1] = positions[face.v[i].vertex].y;
 			flatVertices[index * stride + 2] = positions[face.v[i].vertex].z;
 
-			flatVertices[index * stride + 3] = 0.0f;
+			flatVertices[index * stride + 3] = (float)face.v[i].material;
 			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].x;
 			flatVertices[index * stride + 5] = textureCoordinates[face.v[i].texCoord].y;
 

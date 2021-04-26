@@ -21,6 +21,7 @@ struct FaceVertex
 {
 	int group = 0;
 	int smoothingGroup = 0;
+	int material = -1;
 
 	int vertex = -1;
 	int texCoord = -1;
@@ -34,6 +35,15 @@ struct Face
 {
 	FaceVertex v[3];
 };
+
+struct Material
+{
+	std::string name;
+	int textureSlot;
+	std::string diffuseFilename;
+	std::string normalFilename;
+};
+
 
 class Model
 {
@@ -55,6 +65,8 @@ public:
 	unsigned int GetNumberOfTBNIndices() const;
 
 private:
+	void LoadMtl(const std::string& filename);
+
 	void CalculateFaceNormals();
 	void MapIndices();
 	void CalculateTangents();
@@ -79,6 +91,7 @@ private:
 	std::vector<Face> faces;
 
 	std::map<std::string, int> groups;
+	std::map<std::string, Material> materials;
 
 	struct cmpByFaceVertex {
 		bool operator()(const FaceVertex& first, const FaceVertex& second) const {
