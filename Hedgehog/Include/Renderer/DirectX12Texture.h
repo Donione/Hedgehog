@@ -33,8 +33,6 @@ private:
 	D3D12_RESOURCE_DESC textureDesc{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> texture;
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
-	Microsoft::WRL::ComPtr<ID3D12Resource> normalMap;
-	Microsoft::WRL::ComPtr<ID3D12Resource> normalMapUploadHeap;
 };
 
 } // namespace Hedge

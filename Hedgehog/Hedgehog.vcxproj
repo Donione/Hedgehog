@@ -174,6 +174,7 @@
     <ClInclude Include="Include\Message\Message.h" />
     <ClInclude Include="Include\Message\MouseMessage.h" />
     <ClInclude Include="Include\Message\WindowMessage.h" />
+    <ClInclude Include="Include\Model\Model.h" />
     <ClInclude Include="Include\Renderer\Buffer.h" />
     <ClInclude Include="Include\Renderer\Camera.h" />
     <ClInclude Include="Include\Renderer\DirectX12Buffer.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="Source\ImGui\ImGuiComponent.cpp" />
     <ClCompile Include="Source\Layer\LayerStack.cpp" />
     <ClCompile Include="Source\Message\Message.cpp" />
+    <ClCompile Include="Source\Model\Model.cpp" />
     <ClCompile Include="Source\Renderer\Buffer.cpp" />
     <ClCompile Include="Source\Renderer\Camera.cpp" />
     <ClCompile Include="Source\Renderer\DirectX12Buffer.cpp" />

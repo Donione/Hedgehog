@@ -11,8 +11,9 @@
 #include <Component/Transform.h>
 #include <Component/Light.h>
 #include <Component/Mesh.h>
-
 #include <Component/Scene.h>
+
+#include <Model/Model.h>
 
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
@@ -55,6 +56,10 @@ public:
 
 		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
 
+
+
+
+
 		Hedge::ConstantBufferDescription frustumConstBufferDesc =
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
@@ -69,7 +74,6 @@ public:
 			{ Hedge::ShaderDataType::Float4, "a_color" },
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
 		};
-
 
 		std::string frustumVertexSrc;
 		std::string frustumFragmentSrc;
@@ -87,7 +91,7 @@ public:
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
 		auto camera = scene.CreateEntity("Scene Camera");
-		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f)); // camera space, +z goes into the screen
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f)); // camera space, +z goes into the screen
 		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
@@ -102,7 +106,7 @@ public:
 								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
 
 		auto camera2 = scene.CreateEntity("Camera 2");
-		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 25.0f));
+		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f));
 		//auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
 		camera2camera.SetPrimary(false);
 		auto& camera2Transform = camera2.Add<Hedge::Transform>();
@@ -114,6 +118,7 @@ public:
 								 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
 								 frustumPrimitiveTopology, frustumVertexBufferLayout,
 								 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
+
 
 
 
@@ -153,11 +158,12 @@ public:
 
 		auto bunnyEntity = scene.CreateEntity("Bunny");
 		bunnyEntity.Add<Hedge::Mesh>(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
-									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc);
+									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc).enabled = false;
 		auto& bunnyEntityTransform = bunnyEntity.Add<Hedge::Transform>();
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
 		bunnyEntityTransform.SetUniformScale(scale);
+
 
 
 
@@ -219,13 +225,7 @@ public:
 			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
 		}
 
-		// Textures
-		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
-		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
-		std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
-
 		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-
 
 		// We want to share this mesh for multiple render objects
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
@@ -236,19 +236,19 @@ public:
 								vertexSrc, fragmentSrc, constBufferDesc);
 
 		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(mesh);
+		cube1.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
 		auto cube2 = scene.CreateEntity("Cube 2");
-		cube2.Add<Hedge::Mesh>(mesh);
+		cube2.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube2Transform = cube2.Add<Hedge::Transform>();
 		cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
 		cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
 		cube2Transform.UniformScale(1.5f);
 
 		auto cube3 = scene.CreateEntity("Cube 3");
-		cube3.Add<Hedge::Mesh>(mesh);
+		cube3.Add<Hedge::Mesh>(mesh).enabled = false;
 		auto& cube3Transform = cube3.Add<Hedge::Transform>();
 		cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
 		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
@@ -256,17 +256,26 @@ public:
 
 
 
+
+
 		Hedge::BufferLayout squareBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
-			{ Hedge::ShaderDataType::Float3, "a_normal" },
+			{ Hedge::ShaderDataType::Float,  "a_textureSlot" },
 			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
 		};
 
-		std::vector<Hedge::TextureDescription> squareTextureDescriptions =
+		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
+		std::string normalMapFilename = "..\\Hedgehog\\Asset\\Texture\\normal.bmp";
+		std::string specularMapFilename = "..\\Hedgehog\\Asset\\Texture\\specular.bmp";
+
+		std::vector<Hedge::TextureDescription> textureDescriptions =
 		{
+			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_diff.tga" }, //  vase_plant
+			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_ddn.tga" },
 			{ Hedge::TextureType::Diffuse, textureFilename },
 			{ Hedge::TextureType::Normal, normalMapFilename },
 		};
@@ -285,10 +294,10 @@ public:
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
-			 0.5f,  0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
+			-0.5f,  0.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
+			 0.5f,  0.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
+			-0.5f, -0.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
 		};
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
 
@@ -297,13 +306,13 @@ public:
 			glm::vec3 pos1, pos2, pos3;
 			glm::vec2 uv1, uv2, uv3;
 
-			pos1 = { squareVertices[indicesSquare[i + 0] * 14 + 0], squareVertices[indicesSquare[i + 0] * 14 + 1], squareVertices[indicesSquare[i + 0] * 14 + 2] };
-			pos2 = { squareVertices[indicesSquare[i + 1] * 14 + 0], squareVertices[indicesSquare[i + 1] * 14 + 1], squareVertices[indicesSquare[i + 1] * 14 + 2] };
-			pos3 = { squareVertices[indicesSquare[i + 2] * 14 + 0], squareVertices[indicesSquare[i + 2] * 14 + 1], squareVertices[indicesSquare[i + 2] * 14 + 2] };
+			pos1 = { squareVertices[indicesSquare[i + 0] * 15 + 0], squareVertices[indicesSquare[i + 0] * 15 + 1], squareVertices[indicesSquare[i + 0] * 15 + 2] };
+			pos2 = { squareVertices[indicesSquare[i + 1] * 15 + 0], squareVertices[indicesSquare[i + 1] * 15 + 1], squareVertices[indicesSquare[i + 1] * 15 + 2] };
+			pos3 = { squareVertices[indicesSquare[i + 2] * 15 + 0], squareVertices[indicesSquare[i + 2] * 15 + 1], squareVertices[indicesSquare[i + 2] * 15 + 2] };
 
-			uv1 = { squareVertices[indicesSquare[i + 0] * 14 + 6], squareVertices[indicesSquare[i + 0] * 14 + 7] };
-			uv2 = { squareVertices[indicesSquare[i + 1] * 14 + 6], squareVertices[indicesSquare[i + 1] * 14 + 7] };
-			uv3 = { squareVertices[indicesSquare[i + 2] * 14 + 6], squareVertices[indicesSquare[i + 2] * 14 + 7] };
+			uv1 = { squareVertices[indicesSquare[i + 0] * 15 + 4], squareVertices[indicesSquare[i + 0] * 15 + 5] };
+			uv2 = { squareVertices[indicesSquare[i + 1] * 15 + 4], squareVertices[indicesSquare[i + 1] * 15 + 5] };
+			uv3 = { squareVertices[indicesSquare[i + 2] * 15 + 4], squareVertices[indicesSquare[i + 2] * 15 + 5] };
 
 			glm::vec3 edge1 = pos2 - pos1;
 			glm::vec3 edge2 = pos3 - pos1;
@@ -313,53 +322,102 @@ public:
 			float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 			// tangent
-			squareVertices[indicesSquare[i + 0] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 0] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 0] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 0] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 0] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 0] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 1] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 1] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 1] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 1] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 1] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 1] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 2] * 14 + 8] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 14 + 9] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 14 + 10] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 2] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 2] * 14 + 11] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 14 + 12] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 14 + 13] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 2] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 2] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 2] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
+		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+
+		Hedge::Model sponzaModel;
+		sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 squareTextureDescriptions);
+								 sponzaModel.GetTextureDescription());
 		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh);
+		square.Add<Hedge::Mesh>(squareMesh).enabled = false;
 		square.Add<Hedge::Transform>(squareTransform);
+
+
+
+		spozaTestEntity = scene.CreateEntity("Sponza");
+		spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
+										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
+										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+										 sponzaModel.GetTextureDescription()).enabled = true;
+		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
+		spozaTransform.SetUniformScale(0.01f);
+
+		Hedge::BufferLayout TBNBL =
+		{
+			{ Hedge::ShaderDataType::Float4, "a_position" },
+			{ Hedge::ShaderDataType::Float4, "a_color" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		};
+
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		{
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		{
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		}
+
+		constBufferDesc =
+		{
+			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		};
+		auto sponzaDebug = scene.CreateEntity("Sponza Debug");
+		sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
+									 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
+									 Hedge::PrimitiveTopology::Line, TBNBL,
+									 vertexSrc, fragmentSrc, constBufferDesc).enabled = false;
+		sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+
+
+
+
 
 		// Lights
 		// Directional Lights
 		auto dirLightEntity = scene.CreateEntity("Directional Light");
 		auto& dirLightLight = dirLightEntity.Add<Hedge::DirectionalLight>();
-		dirLightLight.color = glm::vec3(1.0f, 0.8f, 0.0f);
+		dirLightLight.color = glm::vec3(0.0f); // glm::vec3(1.0f, 0.8f, 0.0f);
 		dirLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
 		// Pointlights
@@ -396,32 +454,31 @@ public:
 		auto pointLightMesh = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
 										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
 		
-		auto pointLight1 = scene.CreateEntity("Point Light 1");
+		pointLight1 = scene.CreateEntity("Point Light 1");
 		auto& pointLight1Light = pointLight1.Add<Hedge::PointLight>();
-		//pointLight1Light.color = (glm::vec3(1.0f, 0.0f, 0.0f));
 		pointLight1Light.color = (glm::vec3(1.0f, 1.0f, 1.0f));
 		pointLight1Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
 		pointLight1Light.position = (glm::vec3(0.0f, 0.0f, 1.0f));
-		pointLight1.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight1.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& pointLight1Transform = pointLight1.Add<Hedge::Transform>();
 		pointLight1Transform.SetUniformScale(0.1f);
 		pointLight1Transform.SetTranslation(pointLight1Light.position);
 		
 		auto pointLight2 = scene.CreateEntity("Point Light 2");
 		auto& pointLight2Light = pointLight2.Add<Hedge::PointLight>();
-		pointLight2Light.color = (glm::vec3(0.0f, 1.0f, 0.0f));
-		pointLight2Light.attenuation = (glm::vec3(1.0f, 0.027f, 0.0028f));
-		pointLight2Light.position = (glm::vec3(0.0f, 2.0f, 0.0f));
-		pointLight2.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight2Light.color = glm::vec3(0.0f, 0.0f, 0.0f);
+		pointLight2Light.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
+		pointLight2Light.position = glm::vec3(0.0f, 2.0f, 0.0f);
+		pointLight2.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& pointLight2Transform = pointLight2.Add<Hedge::Transform>();
 		pointLight2Transform.SetUniformScale(0.1f);
 		pointLight2Transform.SetTranslation(pointLight2Light.position);
 		
 		auto pointLight3 = scene.CreateEntity("Point Light 3");
 		auto& newLight = pointLight3.Add<Hedge::PointLight>();
-		newLight.color = glm::vec3(0.0f, 0.0f, 1.0f);
+		newLight.color = glm::vec3(0.0f, 0.0f, 0.0f);
 		newLight.position = glm::vec3(0.0f, -2.0f, 0.0f);
-		pointLight3.Add<Hedge::Mesh>(pointLightMesh);
+		pointLight3.Add<Hedge::Mesh>(pointLightMesh).enabled = false;
 		auto& newTransform = pointLight3.Add<Hedge::Transform>();
 		newTransform.SetTranslation(newLight.position);
 		newTransform.SetUniformScale(0.1f);
@@ -431,12 +488,12 @@ public:
 
 		auto spotlight = scene.CreateEntity("Spotlight");
 		auto& spotLightLight = spotlight.Add<Hedge::SpotLight>();
-		spotLightLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightLight.color = glm::vec3(0.0f, 0.0f, 0.0f);
 		spotLightLight.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
 		spotLightLight.position = glm::vec3(0.0f, 0.0f, 2.0f);
 		spotLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 		spotlight.Add<Hedge::Mesh>(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc).enabled = false;
 		auto& spotLightTransform = spotlight.Add<Hedge::Transform>();
 		spotLightTransform.SetUniformScale(0.1f);
 		spotLightTransform.SetTranslation(spotLightLight.position);
@@ -446,6 +503,9 @@ public:
 		spotLightBaseRotation = glm::rotate(spotLightBaseRotation, glm::radians(-13.75f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		spotLightTransform.SetRotation(spotLightBaseRotation);
+
+
+
 
 
 		// Axes lines
@@ -491,7 +551,6 @@ public:
 		{
 			gridIndices[i] = i;
 		}
-
 
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
@@ -581,6 +640,9 @@ public:
 		{
 			primaryCamera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
 			primaryCamera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		
+			pointLight1.Get<Hedge::PointLight>().position = primaryCamera.Get<Hedge::Transform>().GetTranslation();
+			pointLight1.Get<Hedge::Transform>().SetTranslation(primaryCamera.Get<Hedge::Transform>().GetTranslation());
 		}
 
 		xOffset = 0;
@@ -594,7 +656,7 @@ public:
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
-			//squareMesh.GetShader()->UploadConstant("u_specularStrength", specularStrength);
+			spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
 			scene.OnUpdate();
 			
@@ -861,7 +923,7 @@ public:
 						auto& frustum = camera.GetFrustum();
 						CreateFrustumVertices(frustum, frustumVertices);
 
-						mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
+						//mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
 					}
 					transform.CreateGuiControls(true, true, false);
 					
@@ -968,6 +1030,8 @@ private:
 	Hedge::Mesh squareMesh;
 	Hedge::Transform squareTransform;
 
+	Hedge::Entity spozaTestEntity;
+
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
 	float scale = 1.0f;
@@ -995,6 +1059,8 @@ private:
 	float specularStrength = 0.2f;
 	std::shared_ptr<Hedge::Texture> normalMap;
 	std::shared_ptr<Hedge::Texture> specularMap;
+
+	Hedge::Entity pointLight1;
 };
 
 class ExampleOverlay : public Hedge::Layer

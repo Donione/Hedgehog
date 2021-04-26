@@ -44,10 +44,21 @@ cbuffer ObjectConstantBuffer : register(b2)
     float4x4 u_Transform;
 }
 
+struct VSInput
+{
+    float3 position : a_position;
+    float  textureSlot : a_textureSlot;
+    float2 texCoords : a_textureCoordinates;
+    float3 normal : a_normal;
+    float3 tangent : a_tangent;
+    float3 bitangent : a_bitangent;
+};
+
 struct PSInput
 {
     float4 position : SV_POSITION;
     float3 pos : POSITIONT;
+    nointerpolation int texSlot : TEXTURESLOT;
     float2 texCoords : TEXCOORD0;
     float3x3 TBN : TANGENT0;
     float3 positionTan : TANGENT3;
@@ -56,23 +67,30 @@ struct PSInput
     float3 lightPosTan[3] : POSITION3;
 };
 
-PSInput VSMain(float3 position : a_position,
-               float3 normal : a_normal,
-               float2 texCoords : a_textureCoordinates,
-               float3 tangent : a_tangent,
-               float3 bitangent : a_bitangent)
+
+PSInput VSMain(VSInput input)
 {
     PSInput result;
 
-    float4 pos = mul(u_Transform, float4(position, 1.0f));
+    float4 pos = mul(u_Transform, float4(input.position, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
-    result.texCoords = texCoords;
+    result.texSlot = input.textureSlot;
+    result.texCoords = input.texCoords;
 
-    float3 T = normalize(mul(u_Transform, float4(tangent, 0.0)).xyz);
-    float3 B = normalize(mul(u_Transform, float4(bitangent, 0.0)).xyz);
-    float3 N = normalize(mul(u_Transform, float4(normal, 0.0)).xyz);
+    float3 T;
+    float3 B;
+    float3 N;
+
+    T = normalize(mul(u_Transform, float4(input.tangent, 0.0)).xyz);
+    //B = normalize(mul(u_Transform, float4(input.bitangent, 0.0)).xyz);
+    N = normalize(mul(u_Transform, float4(input.normal, 0.0)).xyz);
+
+    // re-orthogonalize T with respect to N
+    T = normalize(T - mul(dot(T, N), N));
+    // then retrieve perpendicular vector B with the cross product of T and N
+    B = cross(N, T);
 
     // pass the TBN matrix to pixel shader to transform normal samples to world space
     float3x3 TBN = float3x3(T, B, N);
@@ -117,7 +135,7 @@ PSInput VSMain(float3 position : a_position,
     result.viewPosTan = mul(TBN, u_viewPos);
 
     // We're transforming and passing the normal as well in case we want to disable the normal mapping at runtime
-    result.normalTan = mul(TBN, mul(u_Transform, float4(normal, 0.0f)).xyz);
+    result.normalTan = mul(TBN, mul(u_Transform, float4(input.normal, 0.0f)).xyz);
 
     return result;
 }
@@ -136,22 +154,21 @@ float3 CalculateDirectionalLight(float3 objectColor,
     {
         return float3(0.0f, 0.0f, 0.0f);
     }
+    else
+    {
+        float3 ambient = float3(0.0f, 0.0f, 0.0f);
 
-    //float3 objectColor = float3(0.333f, 0.125f, 0.024f);
-    //float3 objectColor = float3(1.0f, 1.0f, 1.0f);
+        float diff = max(dot(lightDirection, normal), 0.0f);
+        float3 diffuse = diff * lightColor;
 
-    float3 ambient = float3(0.0f, 0.0f, 0.0f);
+        float specularStrength = 0.0f;
+        float3 viewDirection = normalize(u_viewPos - position);
+        float3 reflectDirection = reflect(-lightDirection, normal);
+        float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+        float3 specular = specularStrength * spec * lightColor;
 
-    float diff = max(dot(lightDirection, normal), 0.0f);
-    float3 diffuse = diff * lightColor;
-
-    float specularStrength = 0.0f;
-    float3 viewDirection = normalize(u_viewPos - position);
-    float3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
-    float3 specular = specularStrength * spec * lightColor;
-
-    return (ambient + diffuse + specular) * objectColor;
+        return (ambient + diffuse + specular) * objectColor;
+    }
 }
 
 // PointLight is basically a directional light with attenuation and the light position is taken into account
@@ -175,13 +192,11 @@ float3 CalculatePointLight(float3 objectColor,
     float lightDistance = length(lightPosition - position);
     float att = 1.0f / (attenuation.x + lightDistance * attenuation.y + lightDistance * lightDistance * attenuation.z);
 
-    att = 1.0f;
-
     return att * result;
 }
 
 // Spotlight is a pointlight with limited light radius
-float3 CalculateSpotLight(float3 objectColor, 
+float3 CalculateSpotLight(float3 objectColor,
                           float3 lightPosition,
                           float3 lightColor,
                           float3 lightDirection, // normalized direction into the spotlight in world space
@@ -219,22 +234,77 @@ float3 CalculateSpotLight(float3 objectColor,
     return result;
 }
 
-
-Texture2D t_diffuse : register(t0);
-SamplerState s_diffuse : register(s0);
-Texture2D t_normal : register(t1);
-SamplerState s_normal : register(s1);
+Texture2D t[50] : register(t0);
+SamplerState s : register(s0);
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
     float3 result = float3(0.0f, 0.0f, 0.0f);
 
-    float3 objectColor = t_diffuse.Sample(s_diffuse, input.texCoords).xyz;
+    float3 objectColor;
+    switch (input.texSlot)
+    {
+    case  0: objectColor = t[ 0].Sample(s, input.texCoords).rgb; break;
+    case  1: objectColor = t[ 2].Sample(s, input.texCoords).rgb; break;
+    case  2: objectColor = t[ 4].Sample(s, input.texCoords).rgb; break;
+    case  3: objectColor = t[ 6].Sample(s, input.texCoords).rgb; break;
+    case  4: objectColor = t[ 8].Sample(s, input.texCoords).rgb; break;
+    case  5: objectColor = t[10].Sample(s, input.texCoords).rgb; break;
+    case  6: objectColor = t[12].Sample(s, input.texCoords).rgb; break;
+    case  7: objectColor = t[14].Sample(s, input.texCoords).rgb; break;
+    case  8: objectColor = t[16].Sample(s, input.texCoords).rgb; break;
+    case  9: objectColor = t[18].Sample(s, input.texCoords).rgb; break;
+    case 10: objectColor = t[20].Sample(s, input.texCoords).rgb; break;
+    case 11: objectColor = t[22].Sample(s, input.texCoords).rgb; break;
+    case 12: objectColor = t[24].Sample(s, input.texCoords).rgb; break;
+    case 13: objectColor = t[26].Sample(s, input.texCoords).rgb; break;
+    case 14: objectColor = t[28].Sample(s, input.texCoords).rgb; break;
+    case 15: objectColor = t[30].Sample(s, input.texCoords).rgb; break;
+    case 16: objectColor = t[32].Sample(s, input.texCoords).rgb; break;
+    case 17: objectColor = t[34].Sample(s, input.texCoords).rgb; break;
+    case 18: objectColor = t[36].Sample(s, input.texCoords).rgb; break;
+    case 19: objectColor = t[38].Sample(s, input.texCoords).rgb; break;
+    case 20: objectColor = t[40].Sample(s, input.texCoords).rgb; break;
+    case 21: objectColor = t[42].Sample(s, input.texCoords).rgb; break;
+    case 22: objectColor = t[44].Sample(s, input.texCoords).rgb; break;
+    case 23: objectColor = t[46].Sample(s, input.texCoords).rgb; break;
+    case 24: objectColor = t[48].Sample(s, input.texCoords).rgb; break;
+    default: objectColor = float3(0.0f, 0.0f, 0.0f); break;
+    }
 
     float3 normal;
     if (u_normalMapping == 1)
     {
-        normal = t_normal.Sample(s_normal, input.texCoords).xyz;
+        switch (input.texSlot)
+        {
+        case  0: normal = t[ 1].Sample(s, input.texCoords).xyz; break;
+        case  1: normal = t[ 3].Sample(s, input.texCoords).xyz; break;
+        case  2: normal = t[ 5].Sample(s, input.texCoords).xyz; break;
+        case  3: normal = t[ 7].Sample(s, input.texCoords).xyz; break;
+        case  4: normal = t[ 9].Sample(s, input.texCoords).xyz; break;
+        case  5: normal = t[11].Sample(s, input.texCoords).xyz; break;
+        case  6: normal = t[13].Sample(s, input.texCoords).xyz; break;
+        case  7: normal = t[15].Sample(s, input.texCoords).xyz; break;
+        case  8: normal = t[17].Sample(s, input.texCoords).xyz; break;
+        case  9: normal = t[19].Sample(s, input.texCoords).xyz; break;
+        case 10: normal = t[21].Sample(s, input.texCoords).xyz; break;
+        case 11: normal = t[23].Sample(s, input.texCoords).xyz; break;
+        case 12: normal = t[25].Sample(s, input.texCoords).xyz; break;
+        case 13: normal = t[27].Sample(s, input.texCoords).xyz; break;
+        case 14: normal = t[29].Sample(s, input.texCoords).xyz; break;
+        case 15: normal = t[31].Sample(s, input.texCoords).xyz; break;
+        case 16: normal = t[33].Sample(s, input.texCoords).xyz; break;
+        case 17: normal = t[35].Sample(s, input.texCoords).xyz; break;
+        case 18: normal = t[37].Sample(s, input.texCoords).xyz; break;
+        case 19: normal = t[39].Sample(s, input.texCoords).xyz; break;
+        case 20: normal = t[41].Sample(s, input.texCoords).xyz; break;
+        case 21: normal = t[43].Sample(s, input.texCoords).xyz; break;
+        case 22: normal = t[45].Sample(s, input.texCoords).xyz; break;
+        case 23: normal = t[47].Sample(s, input.texCoords).xyz; break;
+        case 24: normal = t[49].Sample(s, input.texCoords).xyz; break;
+        default: normal = float3(0.0f, 0.0f, 0.0f); break;
+        }
+
         normal = normal * 2.0f - 1.0f;
         // transform the normal sample from tangent space to world space
         //normal = mul(input.TBN, normal);
@@ -271,6 +341,6 @@ float4 PSMain(PSInput input) : SV_TARGET
                                  u_spotLight.attenuation,
                                  input.positionTan,
                                  normal);
-    
+
     return float4(result, 1.0f);
 }

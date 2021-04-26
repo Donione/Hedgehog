@@ -17,7 +17,7 @@ public:
 						  const BufferLayout& layout,
 						  const float* vertices,
 						  unsigned int size);
-	virtual ~DirectX12VertexBuffer() override;
+	virtual ~DirectX12VertexBuffer() override { /* Nothing to do */ }
 
 	virtual void Bind() const override;
 	virtual void Unbind() const override { /* do nothing */ }
@@ -36,7 +36,8 @@ private:
 	PrimitiveTopology primitiveTopology;
 	BufferLayout layout;
 
-	ID3D12Resource* vertexBuffer = NULL;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBufferUploadHeap;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {};
 
 	const D3D12_PRIMITIVE_TOPOLOGY DirectX12PrimitiveTopologies[4]
@@ -53,7 +54,7 @@ class DirectX12IndexBuffer : public IndexBuffer
 {
 public:
 	DirectX12IndexBuffer(const unsigned int* indices, unsigned int count);
-	virtual ~DirectX12IndexBuffer() override;
+	virtual ~DirectX12IndexBuffer() override { /* Nothing to do */ }
 
 	virtual void Bind() const override;
 	virtual void Unbind() const override { /* do nothing */ }
@@ -65,7 +66,8 @@ public:
 private:
 	unsigned int count = 0;
 
-	ID3D12Resource* indexBuffer = NULL;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBufferUploadHeap;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 };
 

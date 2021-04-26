@@ -61,6 +61,12 @@
     <Filter Include="Source\Component">
       <UniqueIdentifier>{5ae14cb2-235b-4a3f-a579-a11e81fc94e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Model">
+      <UniqueIdentifier>{25f0ce5a-01aa-4fd1-a372-12e7c6469f4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Model">
+      <UniqueIdentifier>{5f805ca9-9d78-4565-b8b1-cd435a1de0c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -171,6 +177,9 @@
     <ClInclude Include="Include\Component\Entity.h">
       <Filter>Include\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Model\Model.h">
+      <Filter>Include\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -262,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="Source\Component\Light.cpp">
       <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Model.cpp">
+      <Filter>Source\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

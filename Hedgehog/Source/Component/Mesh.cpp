@@ -1,5 +1,7 @@
 #include <Component/Mesh.h>
 
+#include <Model/Model.h>
+
 #include <fstream>
 #include <unordered_map>
 
@@ -7,75 +9,25 @@
 namespace Hedge
 {
 
-void loadModel(const std::string& filename,
-			   long long int& numberOfVertices, float*& vertices,
-			   long long int& numberOfIndices, unsigned int*& indices)
-{
-	std::ifstream in(filename);
-	char buffer[256];
-
-	// header, just discard
-	in.getline(buffer, 256);
-
-	// number of vertices
-	std::string text;
-	in >> text >> numberOfVertices;
-	in >> text >> numberOfIndices;
-
-	vertices = new float[numberOfVertices * 3 * 2];
-	indices = new unsigned int[numberOfIndices * 3];
-
-	for (int vertex = 0; vertex < numberOfVertices; vertex++)
-	{
-		in >> vertices[vertex * 6 + 0] >> vertices[vertex * 6 + 1] >> vertices[vertex * 6 + 2];
-		vertices[vertex * 6 + 3] = vertices[vertex * 6 + 4] = vertices[vertex * 6 + 5] = 0.0;
-	}
-
-	for (int index = 0; index < numberOfIndices; index++)
-	{
-		in >> indices[index * 3 + 0] >> indices[index * 3 + 1] >> indices[index * 3 + 2];
-
-		// calculate the triangle normal
-		glm::vec3 v0(vertices[indices[index * 3 + 0] * 6 + 0], vertices[indices[index * 3 + 0] * 6 + 1], vertices[indices[index * 3 + 0] * 6 + 2]);
-		glm::vec3 v1(vertices[indices[index * 3 + 1] * 6 + 0], vertices[indices[index * 3 + 1] * 6 + 1], vertices[indices[index * 3 + 1] * 6 + 2]);
-		glm::vec3 v2(vertices[indices[index * 3 + 2] * 6 + 0], vertices[indices[index * 3 + 2] * 6 + 1], vertices[indices[index * 3 + 2] * 6 + 2]);
-
-		glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
-
-		// to estimate vertex normals, accumulate triangle normals in vertices (and normalizes them when all triangles were processed or in a shader)
-		vertices[indices[index * 3 + 0] * 6 + 3] += normal.x;
-		vertices[indices[index * 3 + 0] * 6 + 4] += normal.y;
-		vertices[indices[index * 3 + 0] * 6 + 5] += normal.z;
-
-		vertices[indices[index * 3 + 1] * 6 + 3] += normal.x;
-		vertices[indices[index * 3 + 1] * 6 + 4] += normal.y;
-		vertices[indices[index * 3 + 1] * 6 + 5] += normal.z;
-
-		vertices[indices[index * 3 + 2] * 6 + 3] += normal.x;
-		vertices[indices[index * 3 + 2] * 6 + 4] += normal.y;
-		vertices[indices[index * 3 + 2] * 6 + 5] += normal.z;
-	}
-}
-
-
 Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
-	long long int numberOfVertices;
-	long long int numberOfIndices;
-	float* vertices = NULL;
-	unsigned int* indices = NULL;
-	loadModel(modelFilename, numberOfVertices, vertices, numberOfIndices, indices);
+	Model model;
+	if (modelFilename.ends_with(".tri"))
+	{
+		model.LoadTri(modelFilename);
+	}
+	else if (modelFilename.ends_with(".obj"))
+	{
+		model.LoadObj(modelFilename);
+	}
 
-	CrateMesh(vertices, sizeof(float) * 6U * (unsigned int)numberOfVertices,
-			  indices, 3 * (unsigned int)numberOfIndices,
-			  primitiveTopology, bufferLayout,
-			  VSfilename, PSfilename, constBufferDesc,
-			  textureDescriptions);
-	
-	delete vertices;
-	delete indices;
+	CreateMesh(model.GetVertices(), model.GetSizeOfVertices(),
+			   model.GetIndices(), model.GetNumberOfIndices(),
+			   primitiveTopology, bufferLayout,
+			   VSfilename, PSfilename, constBufferDesc,
+			   textureDescriptions);
 }
 
 Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
@@ -84,14 +36,14 @@ Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
 		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
-	CrateMesh(vertices, sizeOfVertices,
+	CreateMesh(vertices, sizeOfVertices,
 			  indices, numberOfIndices,
 			  primitiveTopology, bufferLayout,
 			  VSfilename, PSfilename, constBufferDesc,
 			  textureDescriptions);
 }
 
-void Mesh::CrateMesh(const float* vertices, unsigned int sizeOfVertices,
+void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 					 const unsigned int* indices, unsigned int numberOfIndices,
 					 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 					 const std::string& VSfilename, const std::string& PSfilename,

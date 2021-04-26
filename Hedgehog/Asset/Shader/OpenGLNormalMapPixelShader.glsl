@@ -25,8 +25,9 @@ struct SpotLight
 layout(location = 0) out vec4 a_color;
 
 in vec3 v_Position;
+flat in int v_texSlot;
 in vec2 v_textureCoordinates;
-in mat3 TBN;
+in mat3 v_TBN;
 in vec3 v_positionTan;
 in vec3 v_lightPosTan[3];
 in vec3 v_viewPosTan;
@@ -41,9 +42,8 @@ uniform SpotLight u_spotLight;
 uniform bool u_normalMapping;
 uniform float u_specularStrength;
 
-uniform sampler2D t_diffuse0;
-uniform sampler2D t_normal0;
-//uniform sampler2D t_specularMap0;
+uniform sampler2D t_diffuse[25];
+uniform sampler2D t_normal[25];
 
 
 vec3 CalculateDirectionalLight(vec3 objectColor,
@@ -64,7 +64,7 @@ vec3 CalculateDirectionalLight(vec3 objectColor,
 
     float specularStrength = 0.2f;
     //vec3 viewDirection = normalize(u_viewPos - position);
-    //vec3 viewDirection = TBN * normalize(u_viewPos - position);
+    //vec3 viewDirection = v_TBN * normalize(u_viewPos - position);
     vec3 viewDirection = normalize(v_viewPosTan - position);
     vec3 reflectDirection = reflect(-lightDirection, normal);
     float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
@@ -82,7 +82,7 @@ vec3 CalculatePointLight(vec3 objectColor,
                          vec3 normal)
 {
     vec3 lightDirection = normalize(lightPosition - position);
-    //vec3 lightDirection = TBN * normalize(lightPosition - position);
+    //vec3 lightDirection = v_TBN * normalize(lightPosition - position);
 
     vec3 result = CalculateDirectionalLight(objectColor, lightDirection, lightColor, position, normal);
 
@@ -142,18 +142,76 @@ void main()
 {
     vec3 result = vec3(0.0f, 0.0f, 0.0f);
 
-    vec3 objectColor = texture(t_diffuse0, v_textureCoordinates).rgb;
+    vec3 objectColor;
+    switch (v_texSlot)
+    {
+    case  0: objectColor = texture(t_diffuse[ 0], v_textureCoordinates).rgb; break;
+    case  1: objectColor = texture(t_diffuse[ 1], v_textureCoordinates).rgb; break;
+    case  2: objectColor = texture(t_diffuse[ 2], v_textureCoordinates).rgb; break;
+    case  3: objectColor = texture(t_diffuse[ 3], v_textureCoordinates).rgb; break;
+    case  4: objectColor = texture(t_diffuse[ 4], v_textureCoordinates).rgb; break;
+    case  5: objectColor = texture(t_diffuse[ 5], v_textureCoordinates).rgb; break;
+    case  6: objectColor = texture(t_diffuse[ 6], v_textureCoordinates).rgb; break;
+    case  7: objectColor = texture(t_diffuse[ 7], v_textureCoordinates).rgb; break;
+    case  8: objectColor = texture(t_diffuse[ 8], v_textureCoordinates).rgb; break;
+    case  9: objectColor = texture(t_diffuse[ 9], v_textureCoordinates).rgb; break;
+    case 10: objectColor = texture(t_diffuse[10], v_textureCoordinates).rgb; break;
+    case 11: objectColor = texture(t_diffuse[11], v_textureCoordinates).rgb; break;
+    case 12: objectColor = texture(t_diffuse[12], v_textureCoordinates).rgb; break;
+    case 13: objectColor = texture(t_diffuse[13], v_textureCoordinates).rgb; break;
+    case 14: objectColor = texture(t_diffuse[14], v_textureCoordinates).rgb; break;
+    case 15: objectColor = texture(t_diffuse[15], v_textureCoordinates).rgb; break;
+    case 16: objectColor = texture(t_diffuse[16], v_textureCoordinates).rgb; break;
+    case 17: objectColor = texture(t_diffuse[17], v_textureCoordinates).rgb; break;
+    case 18: objectColor = texture(t_diffuse[18], v_textureCoordinates).rgb; break;
+    case 19: objectColor = texture(t_diffuse[19], v_textureCoordinates).rgb; break;
+    case 20: objectColor = texture(t_diffuse[20], v_textureCoordinates).rgb; break;
+    case 21: objectColor = texture(t_diffuse[21], v_textureCoordinates).rgb; break;
+    case 22: objectColor = texture(t_diffuse[22], v_textureCoordinates).rgb; break;
+    case 23: objectColor = texture(t_diffuse[23], v_textureCoordinates).rgb; break;
+    case 24: objectColor = texture(t_diffuse[24], v_textureCoordinates).rgb; break;
+    default: objectColor = vec3(0.0f, 0.0f, 0.0f); break;
+    }
 
     vec3 normal;
     if (u_normalMapping)
     {
-    // obtain normal from normal map in range [0,1]
-    normal = texture(t_normal0, v_textureCoordinates).rgb;
-    // transform normal vector to range [-1,1]
-    normal = normal * 2.0f - 1.0f;
-    // transform normal sample from tangent space to world space
-    //normal = normalize(TBN * normal);
-    normal = normalize(normal);
+        // obtain normal from normal map in range [0,1]
+        switch (v_texSlot)
+        {
+        case  0: normal = texture(t_normal[ 0], v_textureCoordinates).xyz; break;
+        case  1: normal = texture(t_normal[ 1], v_textureCoordinates).xyz; break;
+        case  2: normal = texture(t_normal[ 2], v_textureCoordinates).xyz; break;
+        case  3: normal = texture(t_normal[ 3], v_textureCoordinates).xyz; break;
+        case  4: normal = texture(t_normal[ 4], v_textureCoordinates).xyz; break;
+        case  5: normal = texture(t_normal[ 5], v_textureCoordinates).xyz; break;
+        case  6: normal = texture(t_normal[ 6], v_textureCoordinates).xyz; break;
+        case  7: normal = texture(t_normal[ 7], v_textureCoordinates).xyz; break;
+        case  8: normal = texture(t_normal[ 8], v_textureCoordinates).xyz; break;
+        case  9: normal = texture(t_normal[ 9], v_textureCoordinates).xyz; break;
+        case 10: normal = texture(t_normal[10], v_textureCoordinates).xyz; break;
+        case 11: normal = texture(t_normal[11], v_textureCoordinates).xyz; break;
+        case 12: normal = texture(t_normal[12], v_textureCoordinates).xyz; break;
+        case 13: normal = texture(t_normal[13], v_textureCoordinates).xyz; break;
+        case 14: normal = texture(t_normal[14], v_textureCoordinates).xyz; break;
+        case 15: normal = texture(t_normal[15], v_textureCoordinates).xyz; break;
+        case 16: normal = texture(t_normal[16], v_textureCoordinates).xyz; break;
+        case 17: normal = texture(t_normal[17], v_textureCoordinates).xyz; break;
+        case 18: normal = texture(t_normal[18], v_textureCoordinates).xyz; break;
+        case 19: normal = texture(t_normal[19], v_textureCoordinates).xyz; break;
+        case 20: normal = texture(t_normal[20], v_textureCoordinates).xyz; break;
+        case 21: normal = texture(t_normal[21], v_textureCoordinates).xyz; break;
+        case 22: normal = texture(t_normal[22], v_textureCoordinates).xyz; break;
+        case 23: normal = texture(t_normal[23], v_textureCoordinates).xyz; break;
+        case 24: normal = texture(t_normal[24], v_textureCoordinates).xyz; break;
+        default: normal = vec3(0.0f, 0.0f, 0.0f); break;
+        }
+
+        // transform normal vector to range [-1,1]
+        normal = normal * 2.0f - 1.0f;
+        // transform normal sample from tangent space to world space
+        //normal = normalize(v_TBN * normal);
+        normal = normalize(normal);
     }
     else
     {
@@ -162,7 +220,7 @@ void main()
     }
 
     result += CalculateDirectionalLight(objectColor,
-                                        normalize(TBN * -u_directionalLight.direction),
+                                        normalize(v_TBN * -u_directionalLight.direction),
                                         u_directionalLight.color,
                                         v_positionTan,
                                         normal);
@@ -174,9 +232,9 @@ void main()
     }
 
     result += CalculateSpotLight(objectColor,
-                                 TBN * u_spotLight.position,
+                                 v_TBN * u_spotLight.position,
                                  u_spotLight.color,
-                                 normalize(TBN * -u_spotLight.direction),
+                                 normalize(v_TBN * -u_spotLight.direction),
                                  u_spotLight.cutoffAngle,
                                  u_spotLight.attenuation,
                                  v_positionTan,
