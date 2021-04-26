@@ -269,7 +269,7 @@ float4 PSMain(PSInput input) : SV_TARGET
     case 22: objectColor = t[44].Sample(s, input.texCoords).rgb; break;
     case 23: objectColor = t[46].Sample(s, input.texCoords).rgb; break;
     case 24: objectColor = t[48].Sample(s, input.texCoords).rgb; break;
-    default: objectColor = float4(0.0f, 0.0f, 0.0f, 0.0f); break;
+    default: objectColor = float3(0.0f, 0.0f, 0.0f); break;
     }
 
     float3 normal;

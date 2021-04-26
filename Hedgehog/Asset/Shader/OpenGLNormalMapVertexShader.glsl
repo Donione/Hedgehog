@@ -23,7 +23,7 @@ uniform PointLight u_pointLight[3];
 out vec3 v_Position;
 flat out int v_texSlot;
 out vec2 v_textureCoordinates;
-flat out mat3 v_TBN;
+out mat3 v_TBN;
 out vec3 v_positionTan;
 out vec3 v_lightPosTan[3];
 out vec3 v_viewPosTan;
