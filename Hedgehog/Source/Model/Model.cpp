@@ -275,6 +275,18 @@ void Model::LoadMtl(const std::string& filename)
 
 	CreateTextureDescription();
 }
+
+void Model::CreateTextureDescription()
+{
+	textureDescription.resize(materials.size() * 2);
+
+	for (const auto& [name, material] : materials)
+	{
+		textureDescription[(size_t)(material.textureSlot) * 2 + 0] = { TextureType::Diffuse, material.diffuseFilename };
+		textureDescription[(size_t)(material.textureSlot) * 2 + 1] = { TextureType::Normal, material.normalFilename };
+	}
+}
+
 void Model::CalculateFaceNormals()
 {
 	auto comp = [](const glm::vec3& a, const glm::vec3& b)

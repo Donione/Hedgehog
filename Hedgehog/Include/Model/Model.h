@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include <Renderer/Texture.h>
+
 
 namespace Hedge
 {
@@ -58,6 +60,7 @@ public:
 	unsigned int GetSizeOfVertices() const;
 	const unsigned int* const GetIndices() const { return flatIndices.data(); }
 	unsigned int GetNumberOfIndices() const;
+	const std::vector<Hedge::TextureDescription>& GetTextureDescription() const { return textureDescription; }
 
 	const float* const GetTBNVertices() const { return flatTBNVertices.data(); }
 	unsigned int GetSizeOfTBNVertices() const;
@@ -66,6 +69,7 @@ public:
 
 private:
 	void LoadMtl(const std::string& filename);
+	void CreateTextureDescription();
 
 	void CalculateFaceNormals();
 	void MapIndices();
@@ -92,6 +96,8 @@ private:
 
 	std::map<std::string, int> groups;
 	std::map<std::string, Material> materials;
+
+	std::vector<Hedge::TextureDescription> textureDescription;
 
 	struct cmpByFaceVertex {
 		bool operator()(const FaceVertex& first, const FaceVertex& second) const {
