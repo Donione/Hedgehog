@@ -314,7 +314,7 @@ void Model::CalculateTangents()
 		// When accumulated together they mangle or completely cancel each other
 		// causing jarring lighting differences between faces or no lighting at all.
 		// We need to either detect these cases and not smooth the tangents or change the model to include hard edges
-		// Until we resolve that issue, the tangent smoothing and handedness fix is disabled
+		// Until we resolve that issue, the tangent smoothing is disabled
 		// This works around the edge cases (hehe, "Edge cases", get it?) with the cost of visible edges between larger faces
 		// and increase in the number of vertices that are uploaded into the GPU
 
@@ -352,11 +352,10 @@ void Model::CalculateTangents()
 
 			// When symmetric models are used, UVs are oriented in the wrong way, and the T has the wrong orientation.
 			// TBN must form a right-handed coordinate system, i.e. cross(N,T) must have the same orientation as B.
-			// Disable handedness fix for now
-			//if (glm::dot(glm::cross(N, T), B) < 0.0f)
-			//{
-			//	T = T * -1.0f;
-			//}
+			if (glm::dot(glm::cross(N, T), B) < 0.0f)
+			{
+				T = T * -1.0f;
+			}
 
 			tangents[index] += T;
 			bitangents[index] += B;
