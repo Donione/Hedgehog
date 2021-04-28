@@ -27,20 +27,23 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 			   model.GetIndices(), model.GetNumberOfIndices(),
 			   primitiveTopology, bufferLayout,
 			   VSfilename, PSfilename, constBufferDesc,
-			   textureDescriptions);
+			   textureDescriptions,
+			   {});
 }
 
 Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   const unsigned int* indices, unsigned int numberOfIndices,
 		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
-		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
+		   const std::vector<Hedge::TextureDescription>& textureDescriptions,
+		   const std::vector<VertexGroup>& groups)
 {
 	CreateMesh(vertices, sizeOfVertices,
 			  indices, numberOfIndices,
 			  primitiveTopology, bufferLayout,
 			  VSfilename, PSfilename, constBufferDesc,
-			  textureDescriptions);
+			  textureDescriptions,
+			  groups);
 }
 
 void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
@@ -48,7 +51,8 @@ void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 					 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 					 const std::string& VSfilename, const std::string& PSfilename,
 					 ConstantBufferDescription constBufferDesc,
-					 const std::vector<Hedge::TextureDescription>& textureDescriptions)
+					 const std::vector<Hedge::TextureDescription>& textureDescriptions,
+					 const std::vector<VertexGroup>& groups)
 {
 	auto shader = std::shared_ptr<Shader>(Hedge::Shader::Create(VSfilename, PSfilename));
 	shader->SetupConstantBuffers(constBufferDesc);
@@ -80,6 +84,8 @@ void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 
 	auto indexBuffer = std::shared_ptr<IndexBuffer>(Hedge::IndexBuffer::Create(indices, numberOfIndices));
 	vertexArray->AddIndexBuffer(indexBuffer);
+
+	vertexArray->SetupGroups(groups);
 }
 
 } // namespace Hedge
