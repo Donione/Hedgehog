@@ -115,4 +115,12 @@ void OpenGLVertexArray::AddTexture(TextureType type, const std::vector<std::shar
 	}
 }
 
+void OpenGLVertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
+{
+	for (auto& group : groups)
+	{
+		this->groups.emplace_back(group, 0.0f);
+	}
+}
+
 } // namespace Hedge

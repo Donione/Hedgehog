@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Renderer/VertexArray.h>
-
 #include <Renderer/OpenGLShader.h>
+#include <Model/Model.h>
 
 #include <glad/glad.h>
 
@@ -26,10 +26,12 @@ public:
 	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
+	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
+	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
 
 private:
 	unsigned int GetOpenGLBaseType(ShaderDataType type) const { return OpenGLBaseTypes[(int)type]; }
@@ -43,6 +45,7 @@ private:
 	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
+	std::vector<std::pair<VertexGroup, float>> groups;
 
 	// Array of OpenGL base types corresponding to ShaderDataType
 	// TODECIDE map, switch better?

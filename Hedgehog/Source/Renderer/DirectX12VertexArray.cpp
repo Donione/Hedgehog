@@ -157,6 +157,14 @@ void DirectX12VertexArray::AddTexture(TextureType type, const std::vector<std::s
 	}
 }
 
+void DirectX12VertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
+{
+	for (auto& group : groups)
+	{
+		this->groups.emplace_back(group, 0.0f);
+	}
+}
+
 void DirectX12VertexArray::UpdateRenderSettings()
 {
 	CreatePSO();
