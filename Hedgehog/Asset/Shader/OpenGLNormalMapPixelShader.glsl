@@ -56,22 +56,24 @@ vec3 CalculateDirectionalLight(vec3 objectColor,
     {
         return vec3(0.0f, 0.0f, 0.0f);
     }
-
-    vec3 ambient = vec3(0.0f, 0.0f, 0.0f);
+    else
+    {
+        vec3 ambient = vec3(0.0f, 0.0f, 0.0f);
     
-    float diff = max(dot(normal, lightDirection), 0.0f);
-    vec3 diffuse = diff * lightColor;
+        float diff = max(dot(normal, lightDirection), 0.0f);
+        vec3 diffuse = diff * lightColor;
 
-    float specularStrength = 0.2f;
-    //vec3 viewDirection = normalize(u_viewPos - position);
-    //vec3 viewDirection = v_TBN * normalize(u_viewPos - position);
-    vec3 viewDirection = normalize(v_viewPosTan - position);
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
+        float specularStrength = 0.2f;
+        //vec3 viewDirection = normalize(u_viewPos - position);
+        //vec3 viewDirection = v_TBN * normalize(u_viewPos - position);
+        vec3 viewDirection = normalize(v_viewPosTan - position);
+        vec3 reflectDirection = reflect(-lightDirection, normal);
+        float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 32);
 
-    vec3 specular = u_specularStrength * spec * lightColor;// * texture(u_specularMap, v_textureCoordinates).rgb;
+        vec3 specular = u_specularStrength * spec * lightColor;// * texture(u_specularMap, v_textureCoordinates).rgb;
 
-    return (ambient + diffuse + specular) * objectColor;
+        return (ambient + diffuse + specular) * objectColor;
+    }
 }
 
 vec3 CalculatePointLight(vec3 objectColor,
@@ -142,36 +144,38 @@ void main()
 {
     vec3 result = vec3(0.0f, 0.0f, 0.0f);
 
+    vec4 textureSample;
     vec3 objectColor;
     switch (v_texSlot)
     {
-    case  0: objectColor = texture(t_diffuse[ 0], v_textureCoordinates).rgb; break;
-    case  1: objectColor = texture(t_diffuse[ 1], v_textureCoordinates).rgb; break;
-    case  2: objectColor = texture(t_diffuse[ 2], v_textureCoordinates).rgb; break;
-    case  3: objectColor = texture(t_diffuse[ 3], v_textureCoordinates).rgb; break;
-    case  4: objectColor = texture(t_diffuse[ 4], v_textureCoordinates).rgb; break;
-    case  5: objectColor = texture(t_diffuse[ 5], v_textureCoordinates).rgb; break;
-    case  6: objectColor = texture(t_diffuse[ 6], v_textureCoordinates).rgb; break;
-    case  7: objectColor = texture(t_diffuse[ 7], v_textureCoordinates).rgb; break;
-    case  8: objectColor = texture(t_diffuse[ 8], v_textureCoordinates).rgb; break;
-    case  9: objectColor = texture(t_diffuse[ 9], v_textureCoordinates).rgb; break;
-    case 10: objectColor = texture(t_diffuse[10], v_textureCoordinates).rgb; break;
-    case 11: objectColor = texture(t_diffuse[11], v_textureCoordinates).rgb; break;
-    case 12: objectColor = texture(t_diffuse[12], v_textureCoordinates).rgb; break;
-    case 13: objectColor = texture(t_diffuse[13], v_textureCoordinates).rgb; break;
-    case 14: objectColor = texture(t_diffuse[14], v_textureCoordinates).rgb; break;
-    case 15: objectColor = texture(t_diffuse[15], v_textureCoordinates).rgb; break;
-    case 16: objectColor = texture(t_diffuse[16], v_textureCoordinates).rgb; break;
-    case 17: objectColor = texture(t_diffuse[17], v_textureCoordinates).rgb; break;
-    case 18: objectColor = texture(t_diffuse[18], v_textureCoordinates).rgb; break;
-    case 19: objectColor = texture(t_diffuse[19], v_textureCoordinates).rgb; break;
-    case 20: objectColor = texture(t_diffuse[20], v_textureCoordinates).rgb; break;
-    case 21: objectColor = texture(t_diffuse[21], v_textureCoordinates).rgb; break;
-    case 22: objectColor = texture(t_diffuse[22], v_textureCoordinates).rgb; break;
-    case 23: objectColor = texture(t_diffuse[23], v_textureCoordinates).rgb; break;
-    case 24: objectColor = texture(t_diffuse[24], v_textureCoordinates).rgb; break;
-    default: objectColor = vec3(0.0f, 0.0f, 0.0f); break;
+    case  0: textureSample = texture(t_diffuse[ 0], v_textureCoordinates); break;
+    case  1: textureSample = texture(t_diffuse[ 1], v_textureCoordinates); break;
+    case  2: textureSample = texture(t_diffuse[ 2], v_textureCoordinates); break;
+    case  3: textureSample = texture(t_diffuse[ 3], v_textureCoordinates); break;
+    case  4: textureSample = texture(t_diffuse[ 4], v_textureCoordinates); break;
+    case  5: textureSample = texture(t_diffuse[ 5], v_textureCoordinates); break;
+    case  6: textureSample = texture(t_diffuse[ 6], v_textureCoordinates); break;
+    case  7: textureSample = texture(t_diffuse[ 7], v_textureCoordinates); break;
+    case  8: textureSample = texture(t_diffuse[ 8], v_textureCoordinates); break;
+    case  9: textureSample = texture(t_diffuse[ 9], v_textureCoordinates); break;
+    case 10: textureSample = texture(t_diffuse[10], v_textureCoordinates); break;
+    case 11: textureSample = texture(t_diffuse[11], v_textureCoordinates); break;
+    case 12: textureSample = texture(t_diffuse[12], v_textureCoordinates); break;
+    case 13: textureSample = texture(t_diffuse[13], v_textureCoordinates); break;
+    case 14: textureSample = texture(t_diffuse[14], v_textureCoordinates); break;
+    case 15: textureSample = texture(t_diffuse[15], v_textureCoordinates); break;
+    case 16: textureSample = texture(t_diffuse[16], v_textureCoordinates); break;
+    case 17: textureSample = texture(t_diffuse[17], v_textureCoordinates); break;
+    case 18: textureSample = texture(t_diffuse[18], v_textureCoordinates); break;
+    case 19: textureSample = texture(t_diffuse[19], v_textureCoordinates); break;
+    case 20: textureSample = texture(t_diffuse[20], v_textureCoordinates); break;
+    case 21: textureSample = texture(t_diffuse[21], v_textureCoordinates); break;
+    case 22: textureSample = texture(t_diffuse[22], v_textureCoordinates); break;
+    case 23: textureSample = texture(t_diffuse[23], v_textureCoordinates); break;
+    case 24: textureSample = texture(t_diffuse[24], v_textureCoordinates); break;
+    default: textureSample = vec4(0.0f, 0.0f, 0.0f, 0.0f); break;
     }
+    objectColor = textureSample.rgb;
 
     vec3 normal;
     if (u_normalMapping)
@@ -240,5 +244,5 @@ void main()
                                  v_positionTan,
                                  normal);
 
-    a_color = vec4(result, 1.0f);
+    a_color = vec4(result, textureSample.a);
 }
