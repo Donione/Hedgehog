@@ -82,9 +82,11 @@ public:
 	}
 
 
-	static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+	static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,
+							unsigned int count = 0,
+							unsigned int offset = 0)
 	{
-		rendererAPI->DrawIndexed(vertexArray);
+		rendererAPI->DrawIndexed(vertexArray, count, offset);
 	}
 
 private:

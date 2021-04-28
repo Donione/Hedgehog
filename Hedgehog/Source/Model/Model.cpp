@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 
 namespace Hedge
@@ -73,7 +74,7 @@ void Model::LoadObj(const std::string& filename)
 	float x, y, z;
 	Face face;
 	std::string v[3];
-	int currentGroup = 0;
+	int currentGroup = -1;
 	int currentSmoothingGroup = 0;
 	std::string currentMaterial;
 
@@ -127,11 +128,17 @@ void Model::LoadObj(const std::string& filename)
 		{
 			liness >> text >> value;
 
-			if (!groups.contains(value))
+			if (currentGroup != -1)
 			{
-				groups.emplace(value, (int)groups.size());
+				groups[currentGroup].endIndex = (int)faces.size() - 1;
 			}
-			currentGroup = groups.at(value);
+			currentGroup = (int)groups.size();
+
+			// Assume all groups are unique
+			VertexGroup newGroup;
+			newGroup.name = value;
+			newGroup.startIndex = (int)faces.size();
+			groups.push_back(newGroup);
 
 			continue;
 		}
@@ -173,6 +180,8 @@ void Model::LoadObj(const std::string& filename)
 				vss.getline(buffer, 256, '/');
 				std::stringstream(buffer) >> face.v[i].normal;
 
+				// Indices in the file are one-indexed
+				// Change them to zero-indexed so we can index our vectors
 				face.v[i].vertex--;
 				face.v[i].texCoord--;
 				face.v[i].normal--;
@@ -188,10 +197,14 @@ void Model::LoadObj(const std::string& filename)
 		}
 	}
 
+	groups[currentGroup].endIndex = (int)faces.size() - 1;
+
 	CalculateFaceNormals();
 	CalculateTangents();
 	CreateFlatArraysObj();
 	CreateTBNFlatArraysObj();
+
+	CalculateCenters();
 }
 
 unsigned int Model::GetSizeOfVertices() const
@@ -597,6 +610,43 @@ void Model::CreateTBNFlatArraysObj()
 
 		flatTBNVertices[bitangentIndex * stride + 8] = 0.0f;
 		flatTBNVertices[bitangentIndex * stride + 9] = 0.0f;
+	}
+}
+
+void Model::CalculateCenters()
+{
+	for (auto& group : groups)
+	{
+		glm::vec3 min{ std::numeric_limits<float>::infinity() };
+		glm::vec3 max{ -std::numeric_limits<float>::infinity() };
+
+		for (unsigned int index = group.startIndex; index <= group.endIndex; index++)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				glm::vec3 vertex = positions[faces[index].v[i].vertex];
+
+				max = glm::max(vertex, max);
+				min = glm::min(vertex, min);
+			}
+		}
+
+		glm::vec3 center = min + ((max - min) / 2.0f);
+
+		// TODO This is just a temporary wokaround specifically for the sponza model
+		// Only the following three materials have alpha channels in their textures,
+		// so we want only those three  to be sorted by distance from the camera,
+		// the rest should be rendered before them
+		if (faces[group.startIndex].v[0].material == 3
+			|| faces[group.startIndex].v[0].material == 7
+			|| faces[group.startIndex].v[0].material == 20)
+		{
+			group.center = center;
+		}
+		else
+		{
+			group.center = center + 100000.0f;
+		}
 	}
 }
 

@@ -241,36 +241,38 @@ float4 PSMain(PSInput input) : SV_TARGET
 {
     float3 result = float3(0.0f, 0.0f, 0.0f);
 
+    float4 textureSample;
     float3 objectColor;
     switch (input.texSlot)
     {
-    case  0: objectColor = t[ 0].Sample(s, input.texCoords).rgb; break;
-    case  1: objectColor = t[ 2].Sample(s, input.texCoords).rgb; break;
-    case  2: objectColor = t[ 4].Sample(s, input.texCoords).rgb; break;
-    case  3: objectColor = t[ 6].Sample(s, input.texCoords).rgb; break;
-    case  4: objectColor = t[ 8].Sample(s, input.texCoords).rgb; break;
-    case  5: objectColor = t[10].Sample(s, input.texCoords).rgb; break;
-    case  6: objectColor = t[12].Sample(s, input.texCoords).rgb; break;
-    case  7: objectColor = t[14].Sample(s, input.texCoords).rgb; break;
-    case  8: objectColor = t[16].Sample(s, input.texCoords).rgb; break;
-    case  9: objectColor = t[18].Sample(s, input.texCoords).rgb; break;
-    case 10: objectColor = t[20].Sample(s, input.texCoords).rgb; break;
-    case 11: objectColor = t[22].Sample(s, input.texCoords).rgb; break;
-    case 12: objectColor = t[24].Sample(s, input.texCoords).rgb; break;
-    case 13: objectColor = t[26].Sample(s, input.texCoords).rgb; break;
-    case 14: objectColor = t[28].Sample(s, input.texCoords).rgb; break;
-    case 15: objectColor = t[30].Sample(s, input.texCoords).rgb; break;
-    case 16: objectColor = t[32].Sample(s, input.texCoords).rgb; break;
-    case 17: objectColor = t[34].Sample(s, input.texCoords).rgb; break;
-    case 18: objectColor = t[36].Sample(s, input.texCoords).rgb; break;
-    case 19: objectColor = t[38].Sample(s, input.texCoords).rgb; break;
-    case 20: objectColor = t[40].Sample(s, input.texCoords).rgb; break;
-    case 21: objectColor = t[42].Sample(s, input.texCoords).rgb; break;
-    case 22: objectColor = t[44].Sample(s, input.texCoords).rgb; break;
-    case 23: objectColor = t[46].Sample(s, input.texCoords).rgb; break;
-    case 24: objectColor = t[48].Sample(s, input.texCoords).rgb; break;
-    default: objectColor = float3(0.0f, 0.0f, 0.0f); break;
+    case  0: textureSample = t[ 0].Sample(s, input.texCoords); break;
+    case  1: textureSample = t[ 2].Sample(s, input.texCoords); break;
+    case  2: textureSample = t[ 4].Sample(s, input.texCoords); break;
+    case  3: textureSample = t[ 6].Sample(s, input.texCoords); break;
+    case  4: textureSample = t[ 8].Sample(s, input.texCoords); break;
+    case  5: textureSample = t[10].Sample(s, input.texCoords); break;
+    case  6: textureSample = t[12].Sample(s, input.texCoords); break;
+    case  7: textureSample = t[14].Sample(s, input.texCoords); break;
+    case  8: textureSample = t[16].Sample(s, input.texCoords); break;
+    case  9: textureSample = t[18].Sample(s, input.texCoords); break;
+    case 10: textureSample = t[20].Sample(s, input.texCoords); break;
+    case 11: textureSample = t[22].Sample(s, input.texCoords); break;
+    case 12: textureSample = t[24].Sample(s, input.texCoords); break;
+    case 13: textureSample = t[26].Sample(s, input.texCoords); break;
+    case 14: textureSample = t[28].Sample(s, input.texCoords); break;
+    case 15: textureSample = t[30].Sample(s, input.texCoords); break;
+    case 16: textureSample = t[32].Sample(s, input.texCoords); break;
+    case 17: textureSample = t[34].Sample(s, input.texCoords); break;
+    case 18: textureSample = t[36].Sample(s, input.texCoords); break;
+    case 19: textureSample = t[38].Sample(s, input.texCoords); break;
+    case 20: textureSample = t[40].Sample(s, input.texCoords); break;
+    case 21: textureSample = t[42].Sample(s, input.texCoords); break;
+    case 22: textureSample = t[44].Sample(s, input.texCoords); break;
+    case 23: textureSample = t[46].Sample(s, input.texCoords); break;
+    case 24: textureSample = t[48].Sample(s, input.texCoords); break;
+    default: textureSample = float4(0.0f, 0.0f, 0.0f, 0.0f); break;
     }
+    objectColor = textureSample.rgb;
 
     float3 normal;
     if (u_normalMapping == 1)
@@ -342,5 +344,5 @@ float4 PSMain(PSInput input) : SV_TARGET
                                  input.positionTan,
                                  normal);
 
-    return float4(result, 1.0f);
+    return float4(result, textureSample.a);
 }

@@ -2,6 +2,7 @@
 
 #include <Renderer/VertexArray.h>
 #include <Component/Transform.h>
+#include <Model/Model.h>
 
 
 namespace Hedge
@@ -28,7 +29,8 @@ public:
 		 const unsigned int* indices, unsigned int numberOfIndices,
 		 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 		 const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
-		 const std::vector<Hedge::TextureDescription>& textureDescriptions = {});
+		 const std::vector<Hedge::TextureDescription>& textureDescriptions = {},
+		 const std::vector<VertexGroup>& groups = {});
 
 	const std::shared_ptr<VertexArray>& Get() const { return vertexArray; }
 	const std::shared_ptr<Shader> GetShader() const { return vertexArray->GetShader(); }
@@ -38,7 +40,8 @@ private:
 				   const unsigned int* indices, unsigned int numberOfIndices,
 				   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
 				   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
-				   const std::vector<Hedge::TextureDescription>& textureDescriptions);
+				   const std::vector<Hedge::TextureDescription>& textureDescriptions,
+				   const std::vector<VertexGroup>& groups);
 
 
 public:

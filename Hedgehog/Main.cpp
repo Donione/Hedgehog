@@ -375,7 +375,8 @@ public:
 										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
 										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
 										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-										 sponzaModel.GetTextureDescription()).enabled = true;
+										 sponzaModel.GetTextureDescription(),
+										 sponzaModel.GetGroups()).enabled = true;
 		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
 		spozaTransform.SetUniformScale(0.01f);
 

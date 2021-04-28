@@ -16,7 +16,7 @@ enum class TextureType
 
 struct TextureDescription
 {
-	TextureType type;
+	TextureType type = TextureType::Generic;
 	std::string filename;
 
 	TextureDescription() = default;
