@@ -73,7 +73,7 @@ void Model::LoadObj(const std::string& filename)
 	float x, y, z;
 	Face face;
 	std::string v[3];
-	int currentGroup = 0;
+	int currentGroup = -1;
 	int currentSmoothingGroup = 0;
 	std::string currentMaterial;
 
@@ -127,11 +127,17 @@ void Model::LoadObj(const std::string& filename)
 		{
 			liness >> text >> value;
 
-			if (!groups.contains(value))
+			if (currentGroup != -1)
 			{
-				groups.emplace(value, (int)groups.size());
+				groups[currentGroup].endIndex = (int)faces.size() - 1;
 			}
-			currentGroup = groups.at(value);
+			currentGroup = (int)groups.size();
+
+			// Assume all groups are unique
+			VertexGroup newGroup;
+			newGroup.name = value;
+			newGroup.startIndex = (int)faces.size();
+			groups.push_back(newGroup);
 
 			continue;
 		}
@@ -173,6 +179,8 @@ void Model::LoadObj(const std::string& filename)
 				vss.getline(buffer, 256, '/');
 				std::stringstream(buffer) >> face.v[i].normal;
 
+				// Indices in the file are one-indexed
+				// Change them to zero-indexed so we can index our vectors
 				face.v[i].vertex--;
 				face.v[i].texCoord--;
 				face.v[i].normal--;
@@ -187,6 +195,8 @@ void Model::LoadObj(const std::string& filename)
 			continue;
 		}
 	}
+
+	groups[currentGroup].endIndex = (int)faces.size() - 1;
 
 	CalculateFaceNormals();
 	CalculateTangents();

@@ -38,6 +38,14 @@ struct Face
 	FaceVertex v[3];
 };
 
+struct VertexGroup
+{
+	std::string name;
+	unsigned int startIndex = 0;
+	unsigned int endIndex = 0;
+	glm::vec3 center{ 0.0f };
+};
+
 struct Material
 {
 	std::string name;
@@ -67,6 +75,8 @@ public:
 	const unsigned int* const GetTBNIndices() const { return flatTBNIndices.data(); }
 	unsigned int GetNumberOfTBNIndices() const;
 
+	const std::vector<VertexGroup>& GetGroups() const { return groups; }
+
 private:
 	void LoadMtl(const std::string& filename);
 	void CreateTextureDescription();
@@ -94,13 +104,15 @@ private:
 
 	std::vector<Face> faces;
 
-	std::map<std::string, int> groups;
+	std::vector<VertexGroup> groups;
 	std::map<std::string, Material> materials;
 
 	std::vector<Hedge::TextureDescription> textureDescription;
 
-	struct cmpByFaceVertex {
-		bool operator()(const FaceVertex& first, const FaceVertex& second) const {
+	struct cmpByFaceVertex
+	{
+		bool operator()(const FaceVertex& first, const FaceVertex& second) const
+		{
 			if (first.vertex != second.vertex)
 			{
 				return first.vertex < second.vertex;
