@@ -90,6 +90,8 @@ private:
 
 	void CreateTBNFlatArraysObj();
 
+	void CalculateCenters();
+
 
 private:
 	ModelType type = ModelType::Unknown;

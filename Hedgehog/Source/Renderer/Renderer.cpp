@@ -1,5 +1,7 @@
 #include <Renderer/Renderer.h>
 
+#include <algorithm>
+
 
 namespace Hedge
 {
@@ -62,6 +64,19 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 
 	auto& groups = vertexArray->GetGroups();
 
+	// TODO this should be done only if camera position or transform changes between frames
+	for (auto& [group, distance] : groups)
+	{
+		distance = glm::distance(sceneCamera.Get<Transform>().GetTranslation(),
+									glm::vec3(transform * glm::vec4(group.center, 1.0f)));
+	}
+
+	auto comp = [](const std::pair<VertexGroup, float>& a, const std::pair<VertexGroup, float>& b)
+	{
+		return a.second > b.second;
+	};
+	std::sort(groups.begin(), groups.end(), comp);
+	
 	vertexArray->Bind();
 	if (groups.empty())
 	{
