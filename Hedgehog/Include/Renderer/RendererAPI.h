@@ -43,7 +43,9 @@ public:
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
 
-	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
+	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,
+							 unsigned int count = 0,
+							 unsigned int offset = 0) = 0;
 
 	static API GetAPI() { return api; }
 

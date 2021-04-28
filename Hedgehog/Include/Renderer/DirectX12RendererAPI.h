@@ -34,7 +34,9 @@ public:
 	virtual void BeginFrame() override;
 	virtual void EndFrame() override;
 
-	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
+	virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,
+							 unsigned int count = 0,
+							 unsigned int offset = 0) override;
 
 private:
 	DirectX12Context* renderContext;
