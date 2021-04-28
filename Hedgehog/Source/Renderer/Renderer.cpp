@@ -60,7 +60,21 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 	}
 	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
 
-	RenderCommand::DrawIndexed(vertexArray);
+	auto& groups = vertexArray->GetGroups();
+
+	vertexArray->Bind();
+	if (groups.empty())
+	{
+		RenderCommand::DrawIndexed(vertexArray);
+	}
+	else
+	{
+		for (const auto& [group, distance] : groups)
+		{
+			RenderCommand::DrawIndexed(vertexArray, group.endIndex - group.startIndex + 1, group.startIndex);
+		}
+	}
+	vertexArray->Unbind();
 
 	// Keep track of different shaders that are being used so they can be cleared at the end of the scene
 	usedShaders.insert(vertexArray->GetShader());
