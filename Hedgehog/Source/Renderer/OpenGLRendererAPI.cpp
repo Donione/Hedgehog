@@ -133,12 +133,15 @@ void OpenGLRendererAPI::EndFrame()
 	renderContext->SwapBuffers();
 }
 
-void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,
+									unsigned int count,
+									unsigned int offset)
 {
-	vertexArray->Bind();
 	GLenum primitiveTopology = GetPipelinePrimitiveTopology(vertexArray->GetVertexBuffers().at(0)->GetPrimitiveType());
-	glDrawElements(primitiveTopology, vertexArray->GetIndexBuffer().at(0)->GetCount(), GL_UNSIGNED_INT, nullptr);
-	vertexArray->Unbind();
+	glDrawElements(primitiveTopology,
+				   count > 0 ? count * 3 : vertexArray->GetIndexBuffer().at(0)->GetCount(),
+				   GL_UNSIGNED_INT,
+				   (const void*)(sizeof(unsigned int) * offset * 3));
 }
 
 } // namespace Hedge

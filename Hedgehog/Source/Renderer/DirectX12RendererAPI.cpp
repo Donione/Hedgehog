@@ -129,11 +129,16 @@ void DirectX12RendererAPI::EndFrame()
 	frameCtxt->FenceValue = fenceValue;
 }
 
-void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,
+									   unsigned int count,
+									   unsigned int offset)
 {
-	vertexArray->Bind();
 	// TODO experiment with SV_InstanceID
-	renderContext->g_pd3dCommandList->DrawIndexedInstanced(vertexArray->GetIndexBuffer().at(0)->GetCount(), 1, 0, 0, 0);
+	renderContext->g_pd3dCommandList->DrawIndexedInstanced(count > 0 ? count * 3 : vertexArray->GetIndexBuffer().at(0)->GetCount(),
+														   1,
+														   offset * 3,
+														   0,
+														   0);
 }
 
 } // namespace Hedge
