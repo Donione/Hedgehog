@@ -86,7 +86,10 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 	{
 		for (const auto& [group, distance] : groups)
 		{
-			RenderCommand::DrawIndexed(vertexArray, group.endIndex - group.startIndex + 1, group.startIndex);
+			if (group.enabled)
+			{
+				RenderCommand::DrawIndexed(vertexArray, group.endIndex - group.startIndex + 1, group.startIndex);
+			}
 		}
 	}
 	vertexArray->Unbind();

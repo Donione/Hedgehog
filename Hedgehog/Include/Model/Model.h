@@ -40,6 +40,7 @@ struct Face
 
 struct VertexGroup
 {
+	bool enabled = true;
 	std::string name;
 	unsigned int startIndex = 0;
 	unsigned int endIndex = 0;
