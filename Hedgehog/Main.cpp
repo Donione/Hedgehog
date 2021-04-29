@@ -823,6 +823,38 @@ public:
 
 					transform.CreateGuiControls();
 
+					auto& groups = mesh.Get()->GetGroups();
+
+					if (!groups.empty())
+					{
+						if (ImGui::TreeNode("Groups"))
+						{
+							if (ImGui::Button("Enable All"))
+							{
+								for (auto& [group, distance] : groups)
+								{
+									group.enabled = true;
+								}
+							}
+
+							ImGui::SameLine();
+							if (ImGui::Button("Disable All"))
+							{
+								for (auto& [group, distance] : groups)
+								{
+									group.enabled = false;
+								}
+							}
+
+							for (auto& [group, distance] : groups)
+							{
+								ImGui::Checkbox(group.name.c_str(), &group.enabled);
+							}
+						}
+
+						ImGui::TreePop();
+					}
+
 					ImGui::TreePop();
 				}
 			}
