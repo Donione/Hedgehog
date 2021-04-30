@@ -6,6 +6,8 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/DirectX12VertexArray.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 
 namespace Hedge
 {
@@ -19,7 +21,7 @@ Scene::Scene()
 
 Entity Scene::CreateEntity(const std::string& name)
 {
-	entt::entity entity =  registry.create();
+	entt::entity entity = registry.create();
 	registry.emplace<std::string>(entity, name);
 	return Entity(entity, &registry);
 }
@@ -60,7 +62,15 @@ void Scene::OnUpdate()
 				mesh.GetShader()->UploadConstant("u_lightColor", registry.get<SpotLight>(entity).color);
 			}
 
-			Renderer::Submit(mesh.Get(), transform.Get());
+			if (registry.has<Parent>(entity))
+			{
+				auto parentTransform = GetParentTransform(entity);
+				Renderer::Submit(mesh.Get(), parentTransform.Get() * transform.Get());
+			}
+			else
+			{
+				Renderer::Submit(mesh.Get(), transform.Get());
+			}
 		}
 	}
 }
@@ -87,6 +97,22 @@ const Entity Scene::GetPrimaryCamera()
 	}
 
 	return { entt::null, nullptr };
+}
+
+Transform Scene::GetParentTransform(entt::entity child)
+{
+	auto& parent = registry.get<Parent>(child).entity;
+
+	Transform parentTransform;
+	if (parent.Has<Parent>())
+	{
+		parentTransform = GetParentTransform(parent.entity);
+	}
+
+	parentTransform.Translate(parent.Get<Transform>().GetTranslation());
+	parentTransform.Rotate(parent.Get<Transform>().GetRotation());
+
+	return parentTransform;
 }
 
 } // namespace Hedge
