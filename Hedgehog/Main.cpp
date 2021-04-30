@@ -241,18 +241,25 @@ public:
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
 		auto cube2 = scene.CreateEntity("Cube 2");
-		cube2.Add<Hedge::Mesh>(mesh).enabled = false;
+		cube2.Add<Hedge::Mesh>(mesh).enabled = true;
 		auto& cube2Transform = cube2.Add<Hedge::Transform>();
 		cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
 		cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
 		cube2Transform.UniformScale(1.5f);
 
 		auto cube3 = scene.CreateEntity("Cube 3");
-		cube3.Add<Hedge::Mesh>(mesh).enabled = false;
+		cube3.Add<Hedge::Mesh>(mesh).enabled = true;
 		auto& cube3Transform = cube3.Add<Hedge::Transform>();
 		cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
 		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
 		cube3Transform.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
+
+		auto childCube = cube3.CreateChild("Child Cube");
+		childCube.Add<Hedge::Mesh>(mesh).enabled = true;
+		auto& childCubeTransform = childCube.Add<Hedge::Transform>();
+		childCubeTransform.SetTranslation(glm::vec3(0.5f, 0.0f, 0.0f));
+		childCubeTransform.SetUniformScale(0.2f);
+		cube2.AddChild(cube3);
 
 
 
@@ -274,7 +281,7 @@ public:
 
 		std::vector<Hedge::TextureDescription> textureDescriptions =
 		{
-			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_diff.tga" }, //  vase_plant
+			{ Hedge::TextureType::Diffuse, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_diff.tga" },
 			{ Hedge::TextureType::Normal, "..\\..\\Sponza-master\\textures\\spnza_bricks_a_ddn.tga" },
 			{ Hedge::TextureType::Diffuse, textureFilename },
 			{ Hedge::TextureType::Normal, normalMapFilename },
@@ -376,7 +383,7 @@ public:
 										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
 										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
 										 sponzaModel.GetTextureDescription(),
-										 sponzaModel.GetGroups()).enabled = true;
+										 sponzaModel.GetGroups()).enabled = false;
 		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
 		spozaTransform.SetUniformScale(0.01f);
 
