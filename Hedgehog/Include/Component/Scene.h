@@ -23,6 +23,10 @@ public:
 
 	const Entity GetPrimaryCamera();
 
+private:
+	Transform GetParentTransform(entt::entity child);
+
+
 public:
 	int plUsed = 3;
 	

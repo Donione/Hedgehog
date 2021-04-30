@@ -275,6 +275,9 @@
     <ClCompile Include="Source\Model\Model.cpp">
       <Filter>Source\Model</Filter>
     </ClCompile>
+    <ClCompile Include="Include\Component\Entity.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">

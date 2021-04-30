@@ -51,11 +51,19 @@ public:
 		return registry->has<Component>(entity);
 	}
 
+	Entity CreateChild(const std::string& name);
+	Entity AddChild(Entity& child);
+
 private:
 	entt::entity entity = entt::null;
 	entt::registry* registry = nullptr;
 
 	friend class Scene;
+};
+
+struct Parent
+{
+	Entity entity;
 };
 
 } // namespace Hedge

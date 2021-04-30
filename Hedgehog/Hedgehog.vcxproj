@@ -200,6 +200,7 @@
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\Component\Entity.cpp" />
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Component\Light.cpp" />
     <ClCompile Include="Source\Component\Mesh.cpp" />
