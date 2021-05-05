@@ -16,6 +16,8 @@ public:
 	const glm::vec3& GetRotation() const { return rotation; }
 	const glm::vec3& GetScale() const { return scale; }
 
+	Transform operator*(const Transform& t1) const;
+
 	// TODECIDE consider returning a reference to itself from all these transformation functions
 	// so they can be chained
 

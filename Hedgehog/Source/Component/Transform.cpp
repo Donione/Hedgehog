@@ -46,6 +46,17 @@ const glm::mat4& Transform::Get()
 	return transform;
 }
 
+Transform Transform::operator*(const Transform& t1) const
+{
+	Transform result = *this;
+
+	result.Translate(t1.GetTranslation());
+	result.Rotate(t1.GetRotation());
+	result.Scale(t1.GetScale());
+
+	return result;
+}
+
 void Transform::SetTranslation(const glm::vec3& translation)
 {
 	this->translation = translation;

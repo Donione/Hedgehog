@@ -189,6 +189,9 @@
     <ClInclude Include="Include\Animation\Segment.h">
       <Filter>Include\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Animation\Animation.h">
+      <Filter>Include\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -288,6 +291,9 @@
       <Filter>Source\Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\Animation\Segment.cpp">
+      <Filter>Source\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Animation\Animation.cpp">
       <Filter>Source\Animation</Filter>
     </ClCompile>
   </ItemGroup>
