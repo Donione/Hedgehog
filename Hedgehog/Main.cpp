@@ -15,6 +15,8 @@
 
 #include <Model/Model.h>
 
+#include <Animation/Animation.h>
+
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
 //#include "spdlog/sinks/stdout_color_sinks.h"
@@ -25,7 +27,7 @@
 
 struct Vertex
 {
-	float x, y, z, w, r, g, b, a, u, v;
+	float x, y, z, w, r, g, b, a, u, v, id;
 };
 
 void CreateFrustumVertices(Hedge::Frustum frustum, Vertex (&vertices)[8])
@@ -47,7 +49,8 @@ class ExampleLayer : public Hedge::Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable)
+		Layer("Example Layer", enable),
+		animation("")
 	{
 		previousWireframeMode = wireframeMode = Hedge::RenderCommand::GetWireframeMode();
 		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
@@ -180,22 +183,45 @@ public:
 		{
 			{ Hedge::ShaderDataType::Float4, "a_position" },
 			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+			{ Hedge::ShaderDataType::Float,  "a_segmentID" }
 		};
 
 		float vertices[] =
 		{
 			// 1x1x1 cube centered around the origin (0, 0, 0)
 			// front face - white with some red on the bottom
-			-0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f, // top left
-			 0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f, // top right
-			-0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f, // bottom left
-			 0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f, // bottom right
+			-0.5f,  0.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+			 0.5f,  0.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+			-0.5f, -0.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+			 0.5f, -0.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
 			 // back face - black with some red on the bottom
-			-0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f, // top left
-			 0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f, // top right
-			-0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f, // bottom left
-			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, // bottom right
+			-0.5f,  0.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+			 0.5f,  0.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+			-0.5f, -0.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+			 0.5f, -0.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
+
+
+			-0.5f,  0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+			 0.5f,  0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+			-0.5f, -0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+			 0.5f, -0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+			 // back face - black with some red on the bottom
+			-0.5f,  0.5f + 1.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+			 0.5f,  0.5f + 1.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+			-0.5f, -0.5f + 1.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+			 0.5f, -0.5f + 1.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+
+
+			-0.5f,  0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+			 0.5f,  0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+			-0.5f, -0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+			 0.5f, -0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
+			 // back face - black with some red on the bottom
+			-0.5f,  0.5f + 3.0f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+			 0.5f,  0.5f + 3.0f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+			-0.5f, -0.5f + 3.0f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+			 0.5f, -0.5f + 3.0f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
 		};
 
 		// Shaders
@@ -225,41 +251,46 @@ public:
 			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
 		}
 
-		unsigned int indices[] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
+		unsigned int indices[36 * 3] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
+		for (int i = 0; i < 36; i++)
+		{
+			indices[1 * 36 + i] = indices[i] + 8;
+			indices[2 * 36 + i] = indices[i] + 16;
+		}
 
 		// We want to share this mesh for multiple render objects
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
 		// (not that there is a lot of data held within mesh components)
-		auto mesh = Hedge::Mesh(vertices, sizeof(vertices),
+		cubeMesh = Hedge::Mesh(vertices, sizeof(vertices),
 								indices, sizeof(indices) / sizeof(unsigned int),
 								PrimitiveTopology, vertexBufferLayout,
 								vertexSrc, fragmentSrc, constBufferDesc);
 
 		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(mesh).enabled = false;
+		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 
-		auto cube2 = scene.CreateEntity("Cube 2");
-		cube2.Add<Hedge::Mesh>(mesh).enabled = true;
-		auto& cube2Transform = cube2.Add<Hedge::Transform>();
-		cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
-		cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
-		cube2Transform.UniformScale(1.5f);
+		//auto cube2 = scene.CreateEntity("Cube 2");
+		//cube2.Add<Hedge::Mesh>(mesh).enabled = false;
+		//auto& cube2Transform = cube2.Add<Hedge::Transform>();
+		//cube2Transform.Translate(glm::vec3(3.0f, 0.25f, 0.5f));
+		//cube2Transform.Rotate(glm::vec3(0.0f, -20.0f, 180.0f));
+		//cube2Transform.UniformScale(1.5f);
 
-		auto cube3 = scene.CreateEntity("Cube 3");
-		cube3.Add<Hedge::Mesh>(mesh).enabled = true;
-		auto& cube3Transform = cube3.Add<Hedge::Transform>();
-		cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
-		cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
-		cube3Transform.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
+		//auto cube3 = scene.CreateEntity("Cube 3");
+		//cube3.Add<Hedge::Mesh>(mesh).enabled = false;
+		//auto& cube3Transform = cube3.Add<Hedge::Transform>();
+		//cube3Transform.SetTranslation(glm::vec3(1.5f, 2.0f, -0.5f));
+		//cube3Transform.SetRotation(glm::vec3(0.0f, -10.0f, 45.0f));
+		//cube3Transform.SetScale(glm::vec3(0.5f, 1.0f, 0.5f));
 
-		auto childCube = cube3.CreateChild("Child Cube");
-		childCube.Add<Hedge::Mesh>(mesh).enabled = true;
-		auto& childCubeTransform = childCube.Add<Hedge::Transform>();
-		childCubeTransform.SetTranslation(glm::vec3(0.5f, 0.0f, 0.0f));
-		childCubeTransform.SetUniformScale(0.2f);
-		cube2.AddChild(cube3);
+		//auto childCube = cube3.CreateChild("Child Cube");
+		//childCube.Add<Hedge::Mesh>(mesh).enabled = false;
+		//auto& childCubeTransform = childCube.Add<Hedge::Transform>();
+		//childCubeTransform.SetTranslation(glm::vec3(0.5f, 0.0f, 0.0f));
+		//childCubeTransform.SetUniformScale(0.2f);
+		//cube2.AddChild(cube3);
 
 
 
@@ -273,6 +304,7 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
+			{ Hedge::ShaderDataType::Float,  "a_boneID" },
 		};
 
 		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
@@ -297,29 +329,41 @@ public:
 			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_boneTransform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene, 2 },
 		};
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top left      |
-			 0.5f,  0.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom right                      |
-		};
-		unsigned int indicesSquare[] = { 0,2,1, 1,2,3 };
+			-0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top left      |
+			 0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom right                      |
 
-		for (int i = 0; i < 6; i+=3)
+			-0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top left      |
+			 0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom right                      |
+
+			-0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top left      |
+			 0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom right                      |
+		};
+		unsigned int indicesSquare[] = { 0,2,1, 1,2,3,   4,6,5, 5,6,7,   8,10,9, 9,10,11 };
+
+		int stride = squareBufferLayout.GetStride() / sizeof(float);
+		for (int i = 0; i < 6 * 3; i+=3)
 		{
 			glm::vec3 pos1, pos2, pos3;
 			glm::vec2 uv1, uv2, uv3;
 
-			pos1 = { squareVertices[indicesSquare[i + 0] * 15 + 0], squareVertices[indicesSquare[i + 0] * 15 + 1], squareVertices[indicesSquare[i + 0] * 15 + 2] };
-			pos2 = { squareVertices[indicesSquare[i + 1] * 15 + 0], squareVertices[indicesSquare[i + 1] * 15 + 1], squareVertices[indicesSquare[i + 1] * 15 + 2] };
-			pos3 = { squareVertices[indicesSquare[i + 2] * 15 + 0], squareVertices[indicesSquare[i + 2] * 15 + 1], squareVertices[indicesSquare[i + 2] * 15 + 2] };
+			pos1 = { squareVertices[indicesSquare[i + 0] * stride + 0], squareVertices[indicesSquare[i + 0] * stride + 1], squareVertices[indicesSquare[i + 0] * stride + 2] };
+			pos2 = { squareVertices[indicesSquare[i + 1] * stride + 0], squareVertices[indicesSquare[i + 1] * stride + 1], squareVertices[indicesSquare[i + 1] * stride + 2] };
+			pos3 = { squareVertices[indicesSquare[i + 2] * stride + 0], squareVertices[indicesSquare[i + 2] * stride + 1], squareVertices[indicesSquare[i + 2] * stride + 2] };
 
-			uv1 = { squareVertices[indicesSquare[i + 0] * 15 + 4], squareVertices[indicesSquare[i + 0] * 15 + 5] };
-			uv2 = { squareVertices[indicesSquare[i + 1] * 15 + 4], squareVertices[indicesSquare[i + 1] * 15 + 5] };
-			uv3 = { squareVertices[indicesSquare[i + 2] * 15 + 4], squareVertices[indicesSquare[i + 2] * 15 + 5] };
+			uv1 = { squareVertices[indicesSquare[i + 0] * stride + 4], squareVertices[indicesSquare[i + 0] * stride + 5] };
+			uv2 = { squareVertices[indicesSquare[i + 1] * stride + 4], squareVertices[indicesSquare[i + 1] * stride + 5] };
+			uv3 = { squareVertices[indicesSquare[i + 2] * stride + 4], squareVertices[indicesSquare[i + 2] * stride + 5] };
 
 			glm::vec3 edge1 = pos2 - pos1;
 			glm::vec3 edge2 = pos3 - pos1;
@@ -329,93 +373,94 @@ public:
 			float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 			// tangent
-			squareVertices[indicesSquare[i + 0] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 0] * stride + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 0] * stride + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 0] * stride + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 0] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 0] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 0] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 0] * stride + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 0] * stride + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 0] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 1] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 1] * stride + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 1] * stride + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 1] * stride + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 1] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 1] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 1] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 1] * stride + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 1] * stride + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 1] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
 			// tangent
-			squareVertices[indicesSquare[i + 2] * 15 + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 15 + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 15 + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+			squareVertices[indicesSquare[i + 2] * stride + 9] = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			squareVertices[indicesSquare[i + 2] * stride + 10] = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			squareVertices[indicesSquare[i + 2] * stride + 11] = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 
 			// bitangent
-			squareVertices[indicesSquare[i + 2] * 15 + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-			squareVertices[indicesSquare[i + 2] * 15 + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-			squareVertices[indicesSquare[i + 2] * 15 + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			squareVertices[indicesSquare[i + 2] * stride + 12] = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			squareVertices[indicesSquare[i + 2] * stride + 13] = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			squareVertices[indicesSquare[i + 2] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
-		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+		//std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
 
-		Hedge::Model sponzaModel;
-		sponzaModel.LoadObj(sponzaFilename);
+		//Hedge::Model sponzaModel;
+		//sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 sponzaModel.GetTextureDescription());
-		squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
+								 textureDescriptions);
+								 //sponzaModel.GetTextureDescription());
+		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh).enabled = false;
+		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
 		square.Add<Hedge::Transform>(squareTransform);
 
 
 
-		spozaTestEntity = scene.CreateEntity("Sponza");
-		spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
-										 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
-										 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-										 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-										 sponzaModel.GetTextureDescription(),
-										 sponzaModel.GetGroups()).enabled = false;
-		auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
-		spozaTransform.SetUniformScale(0.01f);
+		//spozaTestEntity = scene.CreateEntity("Sponza");
+		//spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
+		//								 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
+		//								 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+		//								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//								 sponzaModel.GetTextureDescription(),
+		//								 sponzaModel.GetGroups()).enabled = false;
+		//auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
+		//spozaTransform.SetUniformScale(0.01f);
 
-		Hedge::BufferLayout TBNBL =
-		{
-			{ Hedge::ShaderDataType::Float4, "a_position" },
-			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
-		};
+		//Hedge::BufferLayout TBNBL =
+		//{
+		//	{ Hedge::ShaderDataType::Float4, "a_position" },
+		//	{ Hedge::ShaderDataType::Float4, "a_color" },
+		//	{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		//};
 
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
-		{
-			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-		}
-		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
-		{
-			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-		}
+		//if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		//{
+		//	vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+		//	fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		//}
+		//else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		//{
+		//	vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		//	fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		//}
 
-		constBufferDesc =
-		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-		};
-		auto sponzaDebug = scene.CreateEntity("Sponza Debug");
-		sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
-									 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
-									 Hedge::PrimitiveTopology::Line, TBNBL,
-									 vertexSrc, fragmentSrc, constBufferDesc).enabled = false;
-		sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+		//constBufferDesc =
+		//{
+		//	{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+		//	{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		//};
+		//auto sponzaDebug = scene.CreateEntity("Sponza Debug");
+		//sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
+		//							 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
+		//							 Hedge::PrimitiveTopology::Line, TBNBL,
+		//							 vertexSrc, fragmentSrc, constBufferDesc).enabled = false;
+		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
 
 
@@ -523,17 +568,18 @@ public:
 		{
 			{ Hedge::ShaderDataType::Float4, "a_position" },
 			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+			{ Hedge::ShaderDataType::Float, "a_segmendID" },
 		};
 
 		Vertex axesVertices[6] =
 		{
-			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f }, // X axis
-			{ 100.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f },
-			{ 0.0f, -100.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f }, // Y axis
-			{ 0.0f, 100.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f },
-			{ 0.0f, 0.0f, -100.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f }, // Z axis
-			{ 0.0f, 0.0f, 100.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f },
+			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // X axis
+			{ 100.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f },
+			{ 0.0f, -100.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // Y axis
+			{ 0.0f, 100.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f },
+			{ 0.0f, 0.0f, -100.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // Z axis
+			{ 0.0f, 0.0f, 100.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   0.0f },
 		};
 
 		unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
@@ -542,14 +588,14 @@ public:
 
 		for (int x = -100; x <= 100; x++)
 		{
-			gridVertices[index++] = { (float)x, 0.0f, -100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
-			gridVertices[index++] = { (float)x, 0.0f,  100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+			gridVertices[index++] = { (float)x, 0.0f, -100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
+			gridVertices[index++] = { (float)x, 0.0f,  100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
 		}
 
 		for (int z = -100; z <= 100; z++)
 		{
-			gridVertices[index++] = { -100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
-			gridVertices[index++] = {  100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f };
+			gridVertices[index++] = { -100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
+			gridVertices[index++] = {  100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
 		}
 
 		assert(index == numVertices);
@@ -581,14 +627,14 @@ public:
 		axesEntity.Add<Hedge::Mesh>(&axesVertices[0].x, (unsigned int)sizeof(axesVertices),
 									axesIndices, (unsigned int)(sizeof(axesIndices) / sizeof(unsigned int)),
 									axesPrimitiveTopology, axesBL,
-									vertexSrc, fragmentSrc, constBufferDesc);
+									vertexSrc, fragmentSrc, constBufferDesc).GetShader()->UploadConstant("u_segmentTransforms[0]", glm::mat4(1.0f));
 		axesEntity.Add<Hedge::Transform>();
 		
 		gridEntity = scene.CreateEntity("Grid");
 		gridEntity.Add<Hedge::Mesh>(&gridVertices[0].x, (unsigned int)sizeof(gridVertices),
 									gridIndices, (unsigned int)(sizeof(gridIndices) / sizeof(unsigned int)),
 									axesPrimitiveTopology, axesBL,
-									vertexSrc, fragmentSrc, constBufferDesc);
+									vertexSrc, fragmentSrc, constBufferDesc).GetShader()->UploadConstant("u_segmentTransforms[0]", glm::mat4(1.0f));
 		gridEntity.Add<Hedge::Transform>();
 	}
 
@@ -664,7 +710,24 @@ public:
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
-			spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+
+			animationTime += 0.001f;
+			if (animationTime >= 10.0f)
+			{
+				animationTime = 0.0f;
+			}
+
+			//animationTime = 5.0f;
+			auto& transforms = animation.GetTransforms(animationTime);
+			//Hedge::Renderer::Submit(squareMesh.Get(), segment.GetTransform(animationTime));
+			squareMesh.GetShader()->UploadConstant("u_boneTransform[0]", transforms[0]);
+			squareMesh.GetShader()->UploadConstant("u_boneTransform[1]", transforms[1]);
+			squareMesh.GetShader()->UploadConstant("u_boneTransform[2]", transforms[2]);
+
+			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[0]", transforms[0]);
+			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[1]", transforms[1]);
+			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[2]", transforms[2]);
 
 			scene.OnUpdate();
 			
@@ -1066,7 +1129,7 @@ private:
 	static const int numVertices = 804;
 	Vertex gridVertices[numVertices];
 
-
+	Hedge::Mesh cubeMesh;
 	Hedge::Mesh squareMesh;
 	Hedge::Transform squareTransform;
 
@@ -1101,6 +1164,9 @@ private:
 	std::shared_ptr<Hedge::Texture> specularMap;
 
 	Hedge::Entity pointLight1;
+
+	Hedge::Animation animation;
+	float animationTime = 0.0f;
 };
 
 class ExampleOverlay : public Hedge::Layer
