@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Animation\Segment.h" />
     <ClInclude Include="Include\Application\Application.h" />
     <ClInclude Include="Include\Component\Entity.h" />
     <ClInclude Include="Include\Component\Light.h" />
@@ -201,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\Component\Entity.cpp" />
+    <ClCompile Include="Source\Animation\Segment.cpp" />
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Component\Light.cpp" />
     <ClCompile Include="Source\Component\Mesh.cpp" />

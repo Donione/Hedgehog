@@ -67,6 +67,12 @@
     <Filter Include="Source\Model">
       <UniqueIdentifier>{5f805ca9-9d78-4565-b8b1-cd435a1de0c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Animation">
+      <UniqueIdentifier>{ac74a970-ec69-4562-b276-f8c5ac2c2a7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Animation">
+      <UniqueIdentifier>{3700a27c-b0a2-4c13-9727-3e2ee4c16d2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Window\Window.h">
@@ -180,6 +186,9 @@
     <ClInclude Include="Include\Model\Model.h">
       <Filter>Include\Model</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Animation\Segment.h">
+      <Filter>Include\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -277,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="Include\Component\Entity.cpp">
       <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Animation\Segment.cpp">
+      <Filter>Source\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
