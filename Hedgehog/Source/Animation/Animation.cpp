@@ -8,6 +8,8 @@ namespace Hedge
 
 Animation::Animation(const std::string& filename)
 {
+	duration = 10.0f;
+
 	segments.push_back({ Segment("palm", 0) , -1 } );
 	segments.push_back({ Segment("pinky1", 1), 0 } );
 	segments.push_back({ Segment("pinky2", 2), 1 } );

@@ -11,6 +11,7 @@ class Animation
 public:
 	Animation(const std::string& filename);
 
+	float GetDuration() const { return duration; }
 	const std::vector<glm::mat4>& GetTransforms(float timeStamp);
 
 private:
@@ -20,6 +21,7 @@ private:
 
 
 private:
+	float duration;
 	// pairs of segement and its parent
 	std::vector<std::pair<Segment, int>> segments;
 	std::vector<glm::mat4> transforms;
