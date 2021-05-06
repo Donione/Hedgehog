@@ -15,7 +15,7 @@
 
 #include <Model/Model.h>
 
-#include <Animation/Animation.h>
+#include <Animation/Animator.h>
 
 //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 //#include <spdlog/spdlog.h>
@@ -270,6 +270,7 @@ public:
 		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
+		cube1.Add<Hedge::Animator>(&animation);
 
 		//auto cube2 = scene.CreateEntity("Cube 2");
 		//cube2.Add<Hedge::Mesh>(mesh).enabled = false;
@@ -329,7 +330,7 @@ public:
 			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_boneTransform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene, 2 },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene, 2 },
 		};
 
 		float squareVertices[] =
@@ -419,6 +420,7 @@ public:
 		auto square = scene.CreateEntity("Square");
 		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
 		square.Add<Hedge::Transform>(squareTransform);
+		square.Add<Hedge::Animator>(&animation);
 
 
 
@@ -712,24 +714,7 @@ public:
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
-			animationTime += 0.001f;
-			if (animationTime >= 10.0f)
-			{
-				animationTime = 0.0f;
-			}
-
-			//animationTime = 5.0f;
-			auto& transforms = animation.GetTransforms(animationTime);
-			//Hedge::Renderer::Submit(squareMesh.Get(), segment.GetTransform(animationTime));
-			squareMesh.GetShader()->UploadConstant("u_boneTransform[0]", transforms[0]);
-			squareMesh.GetShader()->UploadConstant("u_boneTransform[1]", transforms[1]);
-			squareMesh.GetShader()->UploadConstant("u_boneTransform[2]", transforms[2]);
-
-			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[0]", transforms[0]);
-			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[1]", transforms[1]);
-			cubeMesh.GetShader()->UploadConstant("u_segmentTransforms[2]", transforms[2]);
-
-			scene.OnUpdate();
+			scene.OnUpdate(duration);
 			
 			// Order matters when we want to blend
 			// TODO there needs to be a way to sort meshes for blending, especially when using the EnTT registry
@@ -892,6 +877,11 @@ public:
 					ImGui::Checkbox(label, &mesh.enabled);
 
 					transform.CreateGuiControls();
+
+					if (scene.registry.has<Hedge::Animator>(entity))
+					{
+						scene.registry.get<Hedge::Animator>(entity).CreateGuiControls();
+					}
 
 					auto& groups = mesh.Get()->GetGroups();
 
@@ -1166,7 +1156,6 @@ private:
 	Hedge::Entity pointLight1;
 
 	Hedge::Animation animation;
-	float animationTime = 0.0f;
 };
 
 class ExampleOverlay : public Hedge::Layer
