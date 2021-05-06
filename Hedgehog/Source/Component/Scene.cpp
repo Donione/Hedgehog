@@ -2,6 +2,7 @@
 
 #include <Component/Mesh.h>
 #include <Component/Transform.h>
+#include <Animation/Animator.h>
 
 #include <Renderer/Renderer.h>
 #include <Renderer/DirectX12VertexArray.h>
@@ -31,8 +32,19 @@ void Scene::DestroyEntity(Entity entity)
 	registry.destroy(entity.entity);
 }
 
-void Scene::OnUpdate()
+void Scene::OnUpdate(const std::chrono::duration<double, std::milli>& duration)
 {
+	auto animations = registry.view<Animator>();
+
+	for (auto [entity, animator] : animations.each())
+	{
+		if (registry.get<Mesh>(entity).enabled)
+		{
+			animator.Update((float)duration.count());
+		}
+	}
+
+
 	auto& cameraTransform = GetPrimaryCamera().Get<Transform>();
 
 	auto group = registry.group<Mesh, Transform>();
@@ -60,6 +72,15 @@ void Scene::OnUpdate()
 			else if (registry.has<SpotLight>(entity))
 			{
 				mesh.GetShader()->UploadConstant("u_lightColor", registry.get<SpotLight>(entity).color);
+			}
+
+			if (registry.has<Animator>(entity))
+			{
+				auto& transforms = registry.get<Animator>(entity).GetTransforms();
+
+				mesh.GetShader()->UploadConstant("u_segmentTransforms[0]", transforms[0]);
+				mesh.GetShader()->UploadConstant("u_segmentTransforms[1]", transforms[1]);
+				mesh.GetShader()->UploadConstant("u_segmentTransforms[2]", transforms[2]);
 			}
 
 			if (registry.has<Parent>(entity))

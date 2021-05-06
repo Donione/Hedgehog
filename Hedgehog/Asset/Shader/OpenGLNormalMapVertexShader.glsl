@@ -17,7 +17,7 @@ layout(location = 6) in float a_boneID;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
-uniform mat4 u_boneTransform[3];
+uniform mat4 u_segmentTransforms[3];
 
 uniform vec3 u_viewPos;
 uniform PointLight u_pointLight[3];
@@ -33,7 +33,7 @@ out vec3 v_normalTan;
 
 void main()
 {
-	mat4 finalTransform = u_Transform * u_boneTransform[int(a_boneID)];
+	mat4 finalTransform = u_Transform * u_segmentTransforms[int(a_boneID)];
 
 	vec4 position = finalTransform * vec4(a_position, 1.0f);
 
