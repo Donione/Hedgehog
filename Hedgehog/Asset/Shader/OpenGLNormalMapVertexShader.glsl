@@ -13,7 +13,7 @@ layout(location = 2) in vec2 a_textureCoordinates;
 layout(location = 3) in vec3 a_normal;
 layout(location = 4) in vec3 a_tangent;
 layout(location = 5) in vec3 a_bitangent;
-layout(location = 6) in float a_boneID;
+layout(location = 6) in float a_segmentID;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
@@ -33,7 +33,7 @@ out vec3 v_normalTan;
 
 void main()
 {
-	mat4 finalTransform = u_Transform * u_segmentTransforms[int(a_boneID)];
+	mat4 finalTransform = u_Transform * u_segmentTransforms[int(a_segmentID)];
 
 	vec4 position = finalTransform * vec4(a_position, 1.0f);
 

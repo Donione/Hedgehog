@@ -33,15 +33,15 @@ struct Vertex
 void CreateFrustumVertices(Hedge::Frustum frustum, Vertex (&vertices)[8])
 {
 	// near clip face
-	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
-	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
-	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
-	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
+	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top left
+	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top right
+	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom left
+	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom right
 	// far clip face
-	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top left
-	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// top right
-	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom left
-	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f };	// bottom right
+	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top left
+	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top right
+	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom left
+	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom right
 }
 
 
@@ -67,6 +67,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3 },
 		};
 
 		auto frustumPrimitiveTopology = Hedge::PrimitiveTopology::Line;
@@ -75,7 +76,8 @@ public:
 		{
 			{ Hedge::ShaderDataType::Float4, "a_position" },
 			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates" },
+			{ Hedge::ShaderDataType::Float,  "a_segmentID" }
 		};
 
 		std::string frustumVertexSrc;
@@ -103,10 +105,11 @@ public:
 		// Now it seems obvious, but after emplacing more components into the registry, the references we got in the previous step might become
 		// invalid because underlying containers might be reallocated
 		CreateFrustumVertices(camera1camera.GetFrustum(), frustumVertices);
-		camera.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
-								frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
-								frustumPrimitiveTopology, frustumVertexBufferLayout,
-								frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
+		auto& cameraMesh = camera.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
+												   frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
+												   frustumPrimitiveTopology, frustumVertexBufferLayout,
+												   frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+		cameraMesh.enabled = false;
 
 		auto camera2 = scene.CreateEntity("Camera 2");
 		auto& camera2camera = camera2.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f));
@@ -117,10 +120,11 @@ public:
 		camera2Transform.SetRotation(glm::vec3(-10.0f, -20.0f, 0.0f));
 
 		CreateFrustumVertices(camera2camera.GetFrustum(), frustumVertices);
-		camera2.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
-								 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
-								 frustumPrimitiveTopology, frustumVertexBufferLayout,
-								 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc).enabled = false;
+		auto& camera2Mesh = camera2.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
+													 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
+													 frustumPrimitiveTopology, frustumVertexBufferLayout,
+													 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+		camera2Mesh.enabled = false;
 
 
 
@@ -175,6 +179,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3},
 		};
 		
 		auto PrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
@@ -305,7 +310,7 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
-			{ Hedge::ShaderDataType::Float,  "a_boneID" },
+			{ Hedge::ShaderDataType::Float,  "a_segmentID" },
 		};
 
 		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
@@ -330,7 +335,7 @@ public:
 			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene, 2 },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3 },
 		};
 
 		float squareVertices[] =
@@ -404,17 +409,17 @@ public:
 			squareVertices[indicesSquare[i + 2] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
-		//std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
 
-		//Hedge::Model sponzaModel;
-		//sponzaModel.LoadObj(sponzaFilename);
+		Hedge::Model sponzaModel;
+		sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 textureDescriptions);
-								 //sponzaModel.GetTextureDescription());
+								 //textureDescriptions);
+								 sponzaModel.GetTextureDescription());
 		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
@@ -425,12 +430,13 @@ public:
 
 
 		//spozaTestEntity = scene.CreateEntity("Sponza");
-		//spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
-		//								 sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
-		//								 Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-		//								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-		//								 sponzaModel.GetTextureDescription(),
-		//								 sponzaModel.GetGroups()).enabled = false;
+		//auto& spoznaMesh = spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
+		//													sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
+		//													Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+		//													vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//													sponzaModel.GetTextureDescription(),
+		//													sponzaModel.GetGroups());
+		//spoznaMesh.enabled = false;
 		//auto& spozaTransform = spozaTestEntity.Add<Hedge::Transform>();
 		//spozaTransform.SetUniformScale(0.01f);
 
@@ -438,7 +444,8 @@ public:
 		//{
 		//	{ Hedge::ShaderDataType::Float4, "a_position" },
 		//	{ Hedge::ShaderDataType::Float4, "a_color" },
-		//	{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"}
+		//	{ Hedge::ShaderDataType::Float2, "a_textureCoordinates" },
+		//	{ Hedge::ShaderDataType::Float,  "a_segmentID" },
 		//};
 
 		//if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
@@ -458,10 +465,11 @@ public:
 		//	{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 		//};
 		//auto sponzaDebug = scene.CreateEntity("Sponza Debug");
-		//sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
-		//							 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
-		//							 Hedge::PrimitiveTopology::Line, TBNBL,
-		//							 vertexSrc, fragmentSrc, constBufferDesc).enabled = false;
+		//auto& sponzaDebugMesh = sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
+		//													 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
+		//													 Hedge::PrimitiveTopology::Line, TBNBL,
+		//													 vertexSrc, fragmentSrc, constBufferDesc);
+		//sponzaDebugMesh.enabled = false;
 		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
 
@@ -570,8 +578,8 @@ public:
 		{
 			{ Hedge::ShaderDataType::Float4, "a_position" },
 			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
-			{ Hedge::ShaderDataType::Float, "a_segmendID" },
+			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates" },
+			{ Hedge::ShaderDataType::Float,  "a_segmentID" },
 		};
 
 		Vertex axesVertices[6] =
@@ -623,20 +631,21 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3},
 		};
 
 		axesEntity = scene.CreateEntity("Axes");
 		axesEntity.Add<Hedge::Mesh>(&axesVertices[0].x, (unsigned int)sizeof(axesVertices),
 									axesIndices, (unsigned int)(sizeof(axesIndices) / sizeof(unsigned int)),
 									axesPrimitiveTopology, axesBL,
-									vertexSrc, fragmentSrc, constBufferDesc).GetShader()->UploadConstant("u_segmentTransforms[0]", glm::mat4(1.0f));
+									vertexSrc, fragmentSrc, constBufferDesc);
 		axesEntity.Add<Hedge::Transform>();
 		
 		gridEntity = scene.CreateEntity("Grid");
-		gridEntity.Add<Hedge::Mesh>(&gridVertices[0].x, (unsigned int)sizeof(gridVertices),
-									gridIndices, (unsigned int)(sizeof(gridIndices) / sizeof(unsigned int)),
-									axesPrimitiveTopology, axesBL,
-									vertexSrc, fragmentSrc, constBufferDesc).GetShader()->UploadConstant("u_segmentTransforms[0]", glm::mat4(1.0f));
+		auto& gridMesh = gridEntity.Add<Hedge::Mesh>(&gridVertices[0].x, (unsigned int)sizeof(gridVertices),
+													 gridIndices, (unsigned int)(sizeof(gridIndices) / sizeof(unsigned int)),
+													 axesPrimitiveTopology, axesBL,
+													 vertexSrc, fragmentSrc, constBufferDesc);
 		gridEntity.Add<Hedge::Transform>();
 	}
 
@@ -713,6 +722,9 @@ public:
 		{
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+
+			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			scene.OnUpdate(duration);
 			
@@ -845,7 +857,6 @@ public:
 		ImGui::SameLine(); ImGui::Checkbox("Blending", &blending);
 
 		ImGui::Checkbox("Use Normal Mapping", &normalMapping);
-		ImGui::SliderFloat("Use Specular Strength", &specularStrength, 0.0f, 1.0f);
 
 		ImGui::End();
 
@@ -880,6 +891,9 @@ public:
 
 					if (scene.registry.has<Hedge::Animator>(entity))
 					{
+						ImGui::Separator();
+						ImGui::Text("Animation");
+
 						scene.registry.get<Hedge::Animator>(entity).CreateGuiControls();
 					}
 
@@ -910,16 +924,17 @@ public:
 							{
 								ImGui::Checkbox(group.name.c_str(), &group.enabled);
 							}
-						}
 
-						ImGui::TreePop();
-					}
+							ImGui::TreePop();
+						} // groups node
+					} // groups
 
 					ImGui::TreePop();
-				}
-			}
+				} // Mesh node
+			} // meshes
+
 			ImGui::TreePop();
-		}
+		} // Meshes node
 
 		ImGui::Separator();
 
@@ -1149,13 +1164,14 @@ private:
 	float scrollSpeed = 0.25; // units/mousestep
 
 	bool normalMapping = true;
-	float specularStrength = 0.2f;
 	std::shared_ptr<Hedge::Texture> normalMap;
 	std::shared_ptr<Hedge::Texture> specularMap;
 
 	Hedge::Entity pointLight1;
 
 	Hedge::Animation animation;
+
+	std::vector<glm::mat4> ones{ glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
 };
 
 class ExampleOverlay : public Hedge::Layer

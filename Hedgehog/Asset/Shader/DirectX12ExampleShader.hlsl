@@ -17,6 +17,7 @@ cbuffer SceneConstantBuffer : register(b0)
 cbuffer ObjectConstantBuffer : register(b1)
 {
     matrix u_Transform;
+    float4x4 u_segmentTransforms[3];
 }
 
 struct PSInput
@@ -26,11 +27,15 @@ struct PSInput
     float4 color : COLOR;
 };
 
-PSInput VSMain(float4 position : a_position, float4 color : a_color, float2 texCoords : a_textureCoordinates)
+PSInput VSMain(float4 position  : a_position,
+               float4 color     : a_color,
+               float2 texCoords : a_textureCoordinates,
+               float  segmentID : a_segmentID)
 {
     PSInput result;
 
-    matrix VPM = mul(u_ViewProjection, u_Transform);
+    float4x4 finalTransform = mul(u_Transform, u_segmentTransforms[(int)segmentID]);
+    matrix VPM = mul(u_ViewProjection, finalTransform);
     result.position = mul(VPM, position);
     result.pos = position.xyz;
     result.color = color;
