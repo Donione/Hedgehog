@@ -45,6 +45,8 @@ public:
 	virtual void UploadConstant(const std::string& name, glm::mat3x3 constant) override;
 	virtual void UploadConstant(const std::string& name, glm::mat4x4 constant) override;
 
+	virtual void UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant) override;
+
 	virtual void UploadConstant(const std::string& name, int constant) override;
 
 	virtual void UploadConstant(const std::string& name, const DirectionalLight& constant) override;

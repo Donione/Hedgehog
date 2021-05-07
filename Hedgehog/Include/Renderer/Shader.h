@@ -76,6 +76,8 @@ public:
 	virtual void UploadConstant(const std::string& name, glm::mat3x3 constant) = 0;
 	virtual void UploadConstant(const std::string& name, glm::mat4x4 constant) = 0;
 
+	virtual void UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant) = 0;
+
 	virtual void UploadConstant(const std::string& name, int constant) = 0;
 
 	virtual void UploadConstant(const std::string& name, const DirectionalLight& constant) = 0;

@@ -78,9 +78,7 @@ void Scene::OnUpdate(const std::chrono::duration<double, std::milli>& duration)
 			{
 				auto& transforms = registry.get<Animator>(entity).GetTransforms();
 
-				mesh.GetShader()->UploadConstant("u_segmentTransforms[0]", transforms[0]);
-				mesh.GetShader()->UploadConstant("u_segmentTransforms[1]", transforms[1]);
-				mesh.GetShader()->UploadConstant("u_segmentTransforms[2]", transforms[2]);
+				mesh.GetShader()->UploadConstant("u_segmentTransforms", transforms);
 			}
 
 			if (registry.has<Parent>(entity))
