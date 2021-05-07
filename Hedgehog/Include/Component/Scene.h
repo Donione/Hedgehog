@@ -5,6 +5,8 @@
 
 #include <Renderer/Camera.h>
 
+#include <chrono>
+
 
 namespace Hedge
 {
@@ -17,7 +19,7 @@ public:
 	Entity CreateEntity(const std::string& name);
 	void DestroyEntity(Entity entity);
 
-	void OnUpdate();
+	void OnUpdate(const std::chrono::duration<double, std::milli>& duration);
 
 	void UpdateRenderSettings();
 

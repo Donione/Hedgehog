@@ -258,6 +258,11 @@ void DirectX12Shader::UploadConstant(const std::string& name, glm::mat4x4 consta
 	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::mat4x4));
 }
 
+void DirectX12Shader::UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant)
+{
+	UploadConstant(name, static_cast<const void*>(constant.data()), sizeof(glm::mat4) * constant.size());
+}
+
 void DirectX12Shader::UploadConstant(const std::string& name, int constant)
 {
 	UploadConstant(name, static_cast<void*>(&constant), sizeof(int));

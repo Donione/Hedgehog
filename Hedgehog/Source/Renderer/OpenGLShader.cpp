@@ -170,6 +170,21 @@ void OpenGLShader::UploadConstant(const std::string& name, glm::mat4x4 constant)
 	//glProgramUniformMatrix4fv(shaderID, uniformLocation, 1, GL_FALSE, glm::value_ptr(constant));
 }
 
+void OpenGLShader::UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant)
+{
+	if (constant.size() == 1)
+	{
+		UploadConstant(name, constant[0]);
+	}
+	else
+	{
+		for (int i = 0; i < constant.size(); i++)
+		{
+			UploadConstant(name + "[" + std::to_string(i) + "]", constant[i]);
+		}
+	}
+}
+
 void OpenGLShader::UploadConstant(const std::string& name, int constant)
 {
 	Bind();

@@ -42,6 +42,7 @@ cbuffer SceneLightsBuffer : register(b1)
 cbuffer ObjectConstantBuffer : register(b2)
 {
     float4x4 u_Transform;
+    float4x4 u_segmentTransforms[3];
 }
 
 struct VSInput
@@ -52,6 +53,7 @@ struct VSInput
     float3 normal : a_normal;
     float3 tangent : a_tangent;
     float3 bitangent : a_bitangent;
+    float  segmentID : a_segmentID;
 };
 
 struct PSInput
@@ -72,7 +74,9 @@ PSInput VSMain(VSInput input)
 {
     PSInput result;
 
-    float4 pos = mul(u_Transform, float4(input.position, 1.0f));
+    float4x4 finalTransform = mul(u_Transform, u_segmentTransforms[(int)input.segmentID]);
+
+    float4 pos = mul(finalTransform, float4(input.position, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
@@ -83,9 +87,9 @@ PSInput VSMain(VSInput input)
     float3 B;
     float3 N;
 
-    T = normalize(mul(u_Transform, float4(input.tangent, 0.0)).xyz);
-    //B = normalize(mul(u_Transform, float4(input.bitangent, 0.0)).xyz);
-    N = normalize(mul(u_Transform, float4(input.normal, 0.0)).xyz);
+    T = normalize(mul(finalTransform, float4(input.tangent, 0.0)).xyz);
+    //B = normalize(mul(finalTransform, float4(input.bitangent, 0.0)).xyz);
+    N = normalize(mul(finalTransform, float4(input.normal, 0.0)).xyz);
 
     // re-orthogonalize T with respect to N
     T = normalize(T - mul(dot(T, N), N));
@@ -135,7 +139,7 @@ PSInput VSMain(VSInput input)
     result.viewPosTan = mul(TBN, u_viewPos);
 
     // We're transforming and passing the normal as well in case we want to disable the normal mapping at runtime
-    result.normalTan = mul(TBN, mul(u_Transform, float4(input.normal, 0.0f)).xyz);
+    result.normalTan = mul(TBN, mul(finalTransform, float4(input.normal, 0.0f)).xyz);
 
     return result;
 }

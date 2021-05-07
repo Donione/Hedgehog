@@ -13,9 +13,11 @@ layout(location = 2) in vec2 a_textureCoordinates;
 layout(location = 3) in vec3 a_normal;
 layout(location = 4) in vec3 a_tangent;
 layout(location = 5) in vec3 a_bitangent;
+layout(location = 6) in float a_segmentID;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
+uniform mat4 u_segmentTransforms[3];
 
 uniform vec3 u_viewPos;
 uniform PointLight u_pointLight[3];
@@ -31,7 +33,9 @@ out vec3 v_normalTan;
 
 void main()
 {
-	vec4 position = u_Transform * vec4(a_position, 1.0f);
+	mat4 finalTransform = u_Transform * u_segmentTransforms[int(a_segmentID)];
+
+	vec4 position = finalTransform * vec4(a_position, 1.0f);
 
 	gl_Position = u_ViewProjection * position;
 	
@@ -39,9 +43,9 @@ void main()
 	v_texSlot = int(a_textureSlot);
 	v_textureCoordinates = a_textureCoordinates;
 
-	vec3 T = normalize(vec3(u_Transform * vec4(a_tangent, 0.0)));
-	//vec3 B = normalize(vec3(u_Transform * vec4(a_bitangent, 0.0)));
-	vec3 N = normalize(vec3(u_Transform * vec4(a_normal, 0.0)));
+	vec3 T = normalize(vec3(finalTransform * vec4(a_tangent, 0.0)));
+	//vec3 B = normalize(vec3(finalTransform * vec4(a_bitangent, 0.0)));
+	vec3 N = normalize(vec3(finalTransform * vec4(a_normal, 0.0)));
 
 	// re-orthogonalize T with respect to N
 	T = normalize(T - dot(T, N) * N);
@@ -61,5 +65,5 @@ void main()
 		v_lightPosTan[i] = v_TBN * u_pointLight[i].position;
 	}
 	v_viewPosTan = v_TBN * u_viewPos;
-	v_normalTan = v_TBN * vec3(u_Transform * vec4(a_normal, 0.0f));
+	v_normalTan = v_TBN * vec3(finalTransform * vec4(a_normal, 0.0f));
 }

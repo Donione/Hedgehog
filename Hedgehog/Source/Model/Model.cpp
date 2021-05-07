@@ -489,7 +489,7 @@ void Model::CreateFlatArraysObj()
 	flatIndices.resize(numberOfFaces * 3);
 
 	size_t numberOfVertices = indices.size();
-	long long stride = (long long)3 + 1 + 2 + 3 + 3 + 3;
+	long long stride = (long long)3 + 1 + 2 + 3 + 3 + 3 + 1;
 	flatVertices.resize(numberOfVertices * stride);
 
 	unsigned int flatIndex = 0;
@@ -520,6 +520,8 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 12] = bitangents[face.v[i].tangent].x;
 			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].y;
 			flatVertices[index * stride + 14] = bitangents[face.v[i].tangent].z;
+
+			flatVertices[index * stride + 15] = 0.0f;
 		}
 	}
 }
@@ -530,7 +532,7 @@ void Model::CreateTBNFlatArraysObj()
 
 	size_t numberOfVertices = indices.size();
 	flatTBNIndices.resize(numberOfVertices * 3 * 2);
-	long long int stride = (long long)4 + 4 + 2;
+	long long int stride = (long long)4 + 4 + 2 + 1;
 	flatTBNVertices.resize(numberOfVertices * 4 * stride);
 
 	int flatIndex = 0;
@@ -551,6 +553,8 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[index * stride + 8] = 0.0f;
 		flatTBNVertices[index * stride + 9] = 0.0f;
 
+		flatTBNVertices[index * stride + 10] = 0.0f;
+
 
 		// Normals
 		unsigned int normalIndex = (int)numberOfVertices + index;
@@ -568,6 +572,8 @@ void Model::CreateTBNFlatArraysObj()
 
 		flatTBNVertices[normalIndex * stride + 8] = 0.0f;
 		flatTBNVertices[normalIndex * stride + 9] = 0.0f;
+
+		flatTBNVertices[normalIndex * stride + 10] = 0.0f;
 
 
 		// Tangents
@@ -590,6 +596,8 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[tangentIndex * stride + 8] = 0.0f;
 		flatTBNVertices[tangentIndex * stride + 9] = 0.0f;
 
+		flatTBNVertices[tangentIndex * stride + 10] = 0.0f;
+
 
 		// Bitangents
 		unsigned int bitangentIndex = (int)numberOfVertices * 3 + index;
@@ -610,6 +618,8 @@ void Model::CreateTBNFlatArraysObj()
 
 		flatTBNVertices[bitangentIndex * stride + 8] = 0.0f;
 		flatTBNVertices[bitangentIndex * stride + 9] = 0.0f;
+
+		flatTBNVertices[bitangentIndex * stride + 10] = 0.0f;
 	}
 }
 
