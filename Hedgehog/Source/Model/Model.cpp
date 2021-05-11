@@ -580,7 +580,15 @@ void Model::CreateFlatArraysObj()
 	flatIndices.resize(numberOfFaces * 3);
 
 	size_t numberOfVertices = indices.size();
-	long long stride = (long long)3 + 1 + 2 + 3 + 3 + 3 + 1;
+	long long stride = (long long)
+		  3  // position
+		+ 1  // texture slot
+		+ 2  // texture coordinates
+		+ 3  // normal
+		+ 3  // tangent
+		+ 3  // bitangent
+		+ 4  // segmentIDs
+		+ 4; // segmentWeights
 	flatVertices.resize(numberOfVertices * stride);
 
 	unsigned int flatIndex = 0;
@@ -613,6 +621,14 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 14] = bitangents[face.v[i].tangent].z;
 
 			flatVertices[index * stride + 15] = 0.0f;
+			flatVertices[index * stride + 16] = -1.0f;
+			flatVertices[index * stride + 17] = -1.0f;
+			flatVertices[index * stride + 18] = -1.0f;
+
+			flatVertices[index * stride + 19] = 1.0f;
+			flatVertices[index * stride + 20] = 1.0f;
+			flatVertices[index * stride + 21] = 1.0f;
+			flatVertices[index * stride + 22] = 1.0f;
 		}
 	}
 }

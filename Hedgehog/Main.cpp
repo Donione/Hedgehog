@@ -272,7 +272,7 @@ public:
 								vertexSrc, fragmentSrc, constBufferDesc);
 
 		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = false;
+		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 		cube1.Add<Hedge::Animator>(&animation);
@@ -310,7 +310,8 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
-			{ Hedge::ShaderDataType::Float,  "a_segmentID" },
+			{ Hedge::ShaderDataType::Float4, "a_segmentIDs" },
+			{ Hedge::ShaderDataType::Float4, "a_segmentWeigths" },
 		};
 
 		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
@@ -340,20 +341,20 @@ public:
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top left      |
-			 0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom right                      |
+			-0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 
-			-0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top left      |
-			 0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom right                      |
+			-0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 
-			-0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top left      |
-			 0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom right                      |
+			-0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 		};
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3,   4,6,5, 5,6,7,   8,10,9, 9,10,11 };
 
@@ -421,9 +422,10 @@ public:
 								 textureDescriptions);
 								 //sponzaModel.GetTextureDescription());
 		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
+		squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh).enabled = false;
+		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
 		square.Add<Hedge::Transform>(squareTransform);
 		square.Add<Hedge::Animator>(&animation);
 
