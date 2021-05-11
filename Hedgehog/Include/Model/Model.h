@@ -16,6 +16,7 @@ enum class ModelType
 {
 	Tri,
 	Obj,
+	Dae,
 	Unknown,
 };
 
@@ -64,6 +65,7 @@ public:
 
 	void LoadTri(const std::string& filename);
 	void LoadObj(const std::string& filename);
+	void LoadDae(const std::string& filename);
 
 	const float* const GetVertices() const { return flatVertices.data(); }
 	unsigned int GetSizeOfVertices() const;

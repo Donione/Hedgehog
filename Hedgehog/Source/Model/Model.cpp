@@ -207,21 +207,112 @@ void Model::LoadObj(const std::string& filename)
 	CalculateCenters();
 }
 
-unsigned int Model::GetSizeOfVertices() const
+// TODO This is absolute total piece of shit temporary "parsing" code just to get the model on screen
+void Model::LoadDae(const std::string& filename)
 {
-	if (type == ModelType::Tri)
+	type = ModelType::Dae;
+
+	std::ifstream in(filename);
+
+	char* buffer = new char[20 * 1024 * 1024];
+
+	int lineCount = 0;
+	while (!in.eof())
 	{
-		// Tri models don't have texture coordinates, so no tangents and bitangents either
-		// Each vertex contains only its position and normal
-		return (unsigned int)(sizeof(float) * flatVertices.size());
-	}
-	else if (type == ModelType::Obj)
-	{
-		// Each vertex contains its position, texture coordinates, normal, tangent and bitangent
-		return (unsigned int)(sizeof(float) * flatVertices.size());
+		in.getline(buffer, 20 * 1024 * 1024);
+
+		std::string line(buffer);
+
+		if (line.starts_with("          <float_array id=\"Vampire-lib-Position-array"))
+		{
+			std::stringstream liness = std::stringstream(buffer);
+			std::string type, id, count;
+
+			liness >> type >> id >> count;
+
+			for (int i = 0; i < 7870; i++)
+			{
+				float x, y, z;
+
+				liness >> x >> y >> z;
+
+				positions.emplace_back(x, y, z);
+			}
+		}
+
+		if (line.starts_with("          <float_array id=\"Vampire-lib-Normal0-array"))
+		{
+			std::stringstream liness = std::stringstream(buffer);
+			std::string type, id, count;
+
+			liness >> type >> id >> count;
+
+			for (int i = 0; i < 7870; i++)
+			{
+				float x, y, z;
+
+				liness >> x >> y >> z;
+
+				normals.emplace_back(x, y, z);
+			}
+		}
+
+		if (line.starts_with("          <float_array id=\"Vampire-lib-UV0-array"))
+		{
+			std::stringstream liness = std::stringstream(buffer);
+			std::string type, id, count;
+
+			liness >> type >> id >> count;
+
+			for (int i = 0; i < 23827; i++)
+			{
+				float u, v;
+
+				liness >> u >> v;
+
+				textureCoordinates.emplace_back(u, v);
+			}
+		}
+
+		if (line.starts_with("          <p>"))
+		{
+			std::stringstream liness = std::stringstream(buffer);
+			std::string tag;
+
+			liness >> tag;
+
+			for (int i = 0; i < 15022; i++)
+			{
+				Face face;
+
+				for (int j = 0; j < 3; j++)
+				{
+					liness >> face.v[j].vertex >> face.v[j].normal >> face.v[j].texCoord;
+
+					for (int k = 0; k < 44; k++)
+					{
+						unsigned int discard;
+						liness >> discard;
+					}
+				}
+
+				faces.push_back(face);
+			}
+		}
+
+		lineCount++;
 	}
 
-	return 0;
+	delete[] buffer;
+
+	CalculateFaceNormals();
+	CalculateTangents();
+	CreateFlatArraysObj();
+}
+
+unsigned int Model::GetSizeOfVertices() const
+{
+	return (unsigned int)(sizeof(float) * flatVertices.size());
 }
 
 unsigned int Model::GetNumberOfIndices() const
@@ -505,7 +596,7 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 1] = positions[face.v[i].vertex].y;
 			flatVertices[index * stride + 2] = positions[face.v[i].vertex].z;
 
-			flatVertices[index * stride + 3] = (float)face.v[i].material;
+			flatVertices[index * stride + 3] = (float)face.v[i].material == -1 ? 0 : (float)face.v[i].material;
 			flatVertices[index * stride + 4] = textureCoordinates[face.v[i].texCoord].x;
 			flatVertices[index * stride + 5] = textureCoordinates[face.v[i].texCoord].y;
 
