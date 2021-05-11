@@ -272,7 +272,7 @@ public:
 								vertexSrc, fragmentSrc, constBufferDesc);
 
 		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
+		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = false;
 		auto& cube1Transform = cube1.Add<Hedge::Transform>();
 		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
 		cube1.Add<Hedge::Animator>(&animation);
@@ -409,21 +409,21 @@ public:
 			squareVertices[indicesSquare[i + 2] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
-		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+		//std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
 
-		Hedge::Model sponzaModel;
-		sponzaModel.LoadObj(sponzaFilename);
+		//Hedge::Model sponzaModel;
+		//sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 //textureDescriptions);
-								 sponzaModel.GetTextureDescription());
+								 textureDescriptions);
+								 //sponzaModel.GetTextureDescription());
 		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
+		square.Add<Hedge::Mesh>(squareMesh).enabled = false;
 		square.Add<Hedge::Transform>(squareTransform);
 		square.Add<Hedge::Animator>(&animation);
 
@@ -471,6 +471,24 @@ public:
 		//													 vertexSrc, fragmentSrc, constBufferDesc);
 		//sponzaDebugMesh.enabled = false;
 		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+
+		std::vector<Hedge::TextureDescription> vampireTextureDescriptions =
+		{
+			{ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" },
+		};
+
+		Hedge::Model vampireModel;
+		vampireModel.LoadDae("..\\..\\vampire\\dancing_vampire.dae");
+		vampireEntity = scene.CreateEntity("Vampire");
+		auto& vampireMesh = vampireEntity.Add<Hedge::Mesh>(vampireModel.GetVertices(), vampireModel.GetSizeOfVertices(),
+														   vampireModel.GetIndices(), vampireModel.GetNumberOfIndices(),
+														   Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+														   vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+														   vampireTextureDescriptions
+														   );
+		vampireMesh.enabled = true;
+		auto& vampireTransform = vampireEntity.Add<Hedge::Transform>();
+		vampireTransform.SetUniformScale(0.01f);
 
 
 
@@ -725,6 +743,7 @@ public:
 
 			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			scene.OnUpdate(duration);
 			
@@ -1163,7 +1182,7 @@ private:
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep
 
-	bool normalMapping = true;
+	bool normalMapping = false;
 	std::shared_ptr<Hedge::Texture> normalMap;
 	std::shared_ptr<Hedge::Texture> specularMap;
 
@@ -1172,6 +1191,8 @@ private:
 	Hedge::Animation animation;
 
 	std::vector<glm::mat4> ones{ glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+
+	Hedge::Entity vampireEntity;
 };
 
 class ExampleOverlay : public Hedge::Layer
