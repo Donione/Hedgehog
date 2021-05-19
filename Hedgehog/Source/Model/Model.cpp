@@ -1,8 +1,9 @@
 #include <Model/Model.h>
 
 #include <fstream>
-#include <sstream>
 #include <limits>
+
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 namespace Hedge
@@ -266,6 +267,122 @@ void Model::LoadDae(const std::string& filename)
 		}
 	}
 
+	std::string controllerID = doc.select_node("/COLLADA/library_controllers/controller").node().attribute("id").value();
+
+	auto skinNode = doc.select_node("/COLLADA/library_controllers/controller/skin").node();
+
+	{
+		segmentNames = CreateSource<std::string>(skinNode, controllerID + "-Joints");
+
+		for (auto& segmentName : segmentNames)
+		{
+			int segmentID = (int)segments.size();
+			segmentMap.emplace(segmentName, segmentID);
+			segments.emplace_back(Segment(segmentName, segmentID), -1);
+		}
+	}
+
+	{
+		auto offsets = CreateSource<float>(skinNode, controllerID + "-Matrices");
+		for (size_t i = 0; i < offsets.size(); i += 16)
+		{
+			
+			segments[i / 16].first.offset = glm::mat4(offsets[i +  0], offsets[i +  4], offsets[i +  8], offsets[i + 12],
+													  offsets[i +  1], offsets[i +  5], offsets[i +  9], offsets[i + 13],
+													  offsets[i +  2], offsets[i +  6], offsets[i + 10], offsets[i + 14],
+													  offsets[i +  3], offsets[i +  7], offsets[i + 11], offsets[i + 15]);
+		}
+	}
+
+	{
+		segmentWeights = CreateSource<float>(skinNode, controllerID + "-Weights");
+	}
+
+	{
+		auto weightsNode = skinNode.child("vertex_weights");
+		int numberOfVertexWeights = weightsNode.attribute("count").as_int();
+		auto vcountNode = weightsNode.child("vcount");
+		auto vcountStream = std::stringstream(vcountNode.first_child().value());
+		auto vnode = weightsNode.child("v");
+		auto vStream = std::stringstream(vnode.first_child().value());
+
+		for (int j = 0; j < numberOfVertexWeights; j++)
+		{
+			unsigned int vcount;
+			vcountStream >> vcount;
+
+			SegmentIDs segmentIDindex = { -1, -1, -1, -1 };
+			SegmentWeightIndices segmentWeightIndex = { 0, 0, 0, 0 };
+			for (unsigned int i = 0; i < vcount; i++)
+			{
+				if (i < 4)
+				{
+					vStream >> segmentIDindex.ID[i] >> segmentWeightIndex.i[i];
+				}
+				else
+				{
+					int discard1, discard2;
+					vStream >> discard1 >> discard2;
+				}
+			}
+
+			segmentIDs.push_back(segmentIDindex);
+			segmentWeightIndices.push_back(segmentWeightIndex);
+		}
+	}
+
+	{
+		auto animationNodes = doc.select_nodes("/COLLADA/library_animations/animation");
+
+		for (auto& animationNode : animationNodes)
+		{
+			std::string segmentName = std::string(animationNode.node().attribute("name").value());
+
+			auto segmentTimeStamps = CreateSource<float>(animationNode.node(), "Matrix-animation-input");
+			auto segmentTransforms = CreateSource<float>(animationNode.node(), "animation-output-transform");
+
+			int segmentID = segmentMap.at(segmentName);
+			for (size_t keyFrame = 0; keyFrame < segmentTimeStamps.size(); keyFrame++)
+			{
+				float timeStamp = segmentTimeStamps[keyFrame];
+				glm::mat4 transform(segmentTransforms[keyFrame * 16 +  0], segmentTransforms[keyFrame * 16 +  4], segmentTransforms[keyFrame * 16 +  8], segmentTransforms[keyFrame * 16 + 12],
+									segmentTransforms[keyFrame * 16 +  1], segmentTransforms[keyFrame * 16 +  5], segmentTransforms[keyFrame * 16 +  9], segmentTransforms[keyFrame * 16 + 13],
+									segmentTransforms[keyFrame * 16 +  2], segmentTransforms[keyFrame * 16 +  6], segmentTransforms[keyFrame * 16 + 10], segmentTransforms[keyFrame * 16 + 14],
+									segmentTransforms[keyFrame * 16 +  3], segmentTransforms[keyFrame * 16 +  7], segmentTransforms[keyFrame * 16 + 11], segmentTransforms[keyFrame * 16 + 15]);
+				segments[segmentID].first.keyTransforms.emplace_back(timeStamp, transform);
+
+				glm::vec3 scale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(transform, scale, rotation, translation, skew, perspective);
+
+				segments[segmentID].first.keyPositions.emplace_back(timeStamp, translation);
+				segments[segmentID].first.keyRotations.emplace_back(timeStamp, rotation);
+				segments[segmentID].first.keyScales.emplace_back(timeStamp, scale);
+			}
+		}
+	}
+
+	{
+		auto rootSegment = doc.select_node("/COLLADA/library_visual_scenes/visual_scene").node().first_child();
+
+		auto nodes = rootSegment.select_nodes(".//node");
+		for (auto& node : nodes)
+		{
+			auto childName = node.node().attribute("name").value();
+			int childID = segmentMap.at(std::string(childName));
+
+			auto parent = node.parent();
+			auto parentName = parent.attribute("name").value();
+			int parentID = segmentMap.at(std::string(parentName));
+
+			segments[childID].second = parentID;
+		}
+
+		animation = Animation(segments);
+	}
 
 	CalculateFaceNormals();
 	CalculateTangents();
@@ -582,15 +699,15 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].y;
 			flatVertices[index * stride + 14] = bitangents[face.v[i].tangent].z;
 
-			flatVertices[index * stride + 15] = 0.0f;
-			flatVertices[index * stride + 16] = -1.0f;
-			flatVertices[index * stride + 17] = -1.0f;
-			flatVertices[index * stride + 18] = -1.0f;
+			flatVertices[index * stride + 15] = (float)segmentIDs[face.v[i].vertex].ID[0];
+			flatVertices[index * stride + 16] = (float)segmentIDs[face.v[i].vertex].ID[1];
+			flatVertices[index * stride + 17] = (float)segmentIDs[face.v[i].vertex].ID[2];
+			flatVertices[index * stride + 18] = (float)segmentIDs[face.v[i].vertex].ID[3];
 
-			flatVertices[index * stride + 19] = 1.0f;
-			flatVertices[index * stride + 20] = 1.0f;
-			flatVertices[index * stride + 21] = 1.0f;
-			flatVertices[index * stride + 22] = 1.0f;
+			flatVertices[index * stride + 19] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[0]];
+			flatVertices[index * stride + 20] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[1]];
+			flatVertices[index * stride + 21] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[2]];
+			flatVertices[index * stride + 22] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[3]];
 		}
 	}
 }
