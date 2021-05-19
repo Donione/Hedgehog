@@ -18,7 +18,7 @@ layout(location = 7) in vec4 a_segmentWeigths;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
-uniform mat4 u_segmentTransforms[3];
+uniform mat4 u_segmentTransforms[65];
 
 uniform vec3 u_viewPos;
 uniform PointLight u_pointLight[3];
