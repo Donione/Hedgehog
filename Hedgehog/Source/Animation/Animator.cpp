@@ -45,6 +45,11 @@ void Animator::CreateGuiControls()
 
 	ImGui::SliderFloat("Speed", &animationSpeed, 0.1f, 10.0f);
 
+	if (ImGui::SliderFloat("Position", &animationTime, 0.0f, animation->GetDuration()))
+	{
+		resetRender = true;
+	}
+
 	ImGui::PopID();
 }
 

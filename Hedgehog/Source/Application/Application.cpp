@@ -113,8 +113,8 @@ void Application::Init()
 
 	Renderer::SetWireframeMode(false);
 	Renderer::SetDepthTest(true);
-	Renderer::SetFaceCulling(true);
-	Renderer::SetBlending(true);
+	Renderer::SetFaceCulling(false);
+	Renderer::SetBlending(false);
 
 	imGuiComponent = new ImGuiComponent(window.GetHandle(), renderContext);
 

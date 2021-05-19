@@ -25,6 +25,7 @@ public:
 	void SetTranslation(const glm::vec3& translation);
 	void SetRotation(const glm::vec3& rotation);
 	void SetRotation(const glm::mat4& rotation);
+	void SetRotation(const glm::quat& rotation);
 	void SetScale(const glm::vec3& scale);
 	void SetUniformScale(float scale);
 

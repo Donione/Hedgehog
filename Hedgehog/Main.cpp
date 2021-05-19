@@ -49,8 +49,7 @@ class ExampleLayer : public Hedge::Layer
 {
 public:
 	ExampleLayer(bool enable = true) :
-		Layer("Example Layer", enable),
-		animation("")
+		Layer("Example Layer", enable)
 	{
 		previousWireframeMode = wireframeMode = Hedge::RenderCommand::GetWireframeMode();
 		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
@@ -179,7 +178,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3},
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65},
 		};
 		
 		auto PrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
@@ -196,37 +195,37 @@ public:
 		{
 			// 1x1x1 cube centered around the origin (0, 0, 0)
 			// front face - white with some red on the bottom
-			-0.5f,  0.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
-			 0.5f,  0.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
-			-0.5f, -0.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
-			 0.5f, -0.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
+			-0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+			 0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+			-0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+			 0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
 			 // back face - black with some red on the bottom
-			-0.5f,  0.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
-			 0.5f,  0.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
-			-0.5f, -0.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
-			 0.5f, -0.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
+			-0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+			 0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+			-0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
 
 
-			-0.5f,  0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
-			 0.5f,  0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
-			-0.5f, -0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
-			 0.5f, -0.5f + 1.5f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+			-0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+			 0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+			-0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+			 0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
 			 // back face - black with some red on the bottom
-			-0.5f,  0.5f + 1.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
-			 0.5f,  0.5f + 1.5f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
-			-0.5f, -0.5f + 1.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
-			 0.5f, -0.5f + 1.5f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+			-0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+			 0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+			-0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+			 0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
 
 
-			-0.5f,  0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
-			 0.5f,  0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
-			-0.5f, -0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
-			 0.5f, -0.5f + 3.0f,  0.0f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
+			-0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+			 0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+			-0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+			 0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
 			 // back face - black with some red on the bottom
-			-0.5f,  0.5f + 3.0f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
-			 0.5f,  0.5f + 3.0f, -1.0f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
-			-0.5f, -0.5f + 3.0f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
-			 0.5f, -0.5f + 3.0f, -1.0f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
+			-0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+			 0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+			-0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+			 0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
 		};
 
 		// Shaders
@@ -310,7 +309,8 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
 			{ Hedge::ShaderDataType::Float3, "a_tangent" },
 			{ Hedge::ShaderDataType::Float3, "a_bitangent" },
-			{ Hedge::ShaderDataType::Float,  "a_segmentID" },
+			{ Hedge::ShaderDataType::Float4, "a_segmentIDs" },
+			{ Hedge::ShaderDataType::Float4, "a_segmentWeigths" },
 		};
 
 		std::string textureFilename = "..\\Hedgehog\\Asset\\Texture\\diffuse.bmp";
@@ -340,20 +340,20 @@ public:
 
 		float squareVertices[] =
 		{
-			-0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top left      |
-			 0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, // bottom right                      |
+			-0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 0.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   0.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 
-			-0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top left      |
-			 0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, // bottom right                      |
+			-0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 1.5f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   1.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 
-			-0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top left      |
-			 0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // top right     } first triangle    |
-			-0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom left   |                   }  second trinagle
-			 0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, // bottom right                      |
+			-0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top left      |
+			 0.5f,  0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // top right     } first triangle    |
+			-0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom left   |                   }  second trinagle
+			 0.5f, -0.5f + 3.0f,  0.0f,   1.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   2.0f, -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f, // bottom right                      |
 		};
 		unsigned int indicesSquare[] = { 0,2,1, 1,2,3,   4,6,5, 5,6,7,   8,10,9, 9,10,11 };
 
@@ -409,18 +409,19 @@ public:
 			squareVertices[indicesSquare[i + 2] * stride + 14] = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		}
 
-		std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
+		//std::string sponzaFilename = "..\\..\\Sponza-master\\sponza.obj";
 
-		Hedge::Model sponzaModel;
-		sponzaModel.LoadObj(sponzaFilename);
+		//Hedge::Model sponzaModel;
+		//sponzaModel.LoadObj(sponzaFilename);
 
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 //textureDescriptions);
-								 sponzaModel.GetTextureDescription());
+								 textureDescriptions);
+								 //sponzaModel.GetTextureDescription());
 		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
+		squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
 
 		auto square = scene.CreateEntity("Square");
 		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
@@ -471,6 +472,24 @@ public:
 		//													 vertexSrc, fragmentSrc, constBufferDesc);
 		//sponzaDebugMesh.enabled = false;
 		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+
+		std::vector<Hedge::TextureDescription> vampireTextureDescriptions =
+		{
+			{ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" },
+		};
+
+		vampireModel.LoadDae("..\\..\\vampire\\dancing_vampire.dae");
+		vampireEntity = scene.CreateEntity("Vampire");
+		auto& vampireMesh = vampireEntity.Add<Hedge::Mesh>(vampireModel.GetVertices(), vampireModel.GetSizeOfVertices(),
+														   vampireModel.GetIndices(), vampireModel.GetNumberOfIndices(),
+														   Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+														   vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+														   vampireTextureDescriptions
+														   );
+		vampireMesh.enabled = true;
+		auto& vampireTransform = vampireEntity.Add<Hedge::Transform>();
+		vampireTransform.SetUniformScale(0.01f);
+		vampireEntity.Add<Hedge::Animator>(vampireModel.GetAnimation());
 
 
 
@@ -725,6 +744,7 @@ public:
 
 			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			scene.OnUpdate(duration);
 			
@@ -1163,7 +1183,7 @@ private:
 	float mouseSpeed = 135.0f / 681.0f; // deg/px
 	float scrollSpeed = 0.25; // units/mousestep
 
-	bool normalMapping = true;
+	bool normalMapping = false;
 	std::shared_ptr<Hedge::Texture> normalMap;
 	std::shared_ptr<Hedge::Texture> specularMap;
 
@@ -1172,6 +1192,9 @@ private:
 	Hedge::Animation animation;
 
 	std::vector<glm::mat4> ones{ glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+
+	Hedge::Entity vampireEntity;
+	Hedge::Model vampireModel;
 };
 
 class ExampleOverlay : public Hedge::Layer

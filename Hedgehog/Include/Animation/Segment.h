@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <glm/gtc/quaternion.hpp>
+
 
 namespace Hedge
 {
@@ -18,13 +20,19 @@ struct KeyPosition
 struct KeyRotation
 {
 	float timeStamp;
-	glm::vec3 angle;
+	glm::quat rotation;
 };
 
 struct KeyScale
 {
 	float timeStamp;
 	glm::vec3 scale;
+};
+
+struct KeyTransform
+{
+	float timeStamp;
+	glm::mat4 transform;
 };
 
 
@@ -36,10 +44,11 @@ public:
 	int GetID() const { return ID; }
 	const std::string& GetName() const { return name; }
 	const Transform GetTransform(float timeStamp) const;
+	const glm::mat4 GetTransformMatrix(float timeStamp) const;
 
 private:
 	const glm::vec3 GetTranslation(float timeStamp) const;
-	const glm::vec3 GetRotation(float timeStamp) const;
+	const glm::quat GetRotation(float timeStamp) const;
 	const glm::vec3 GetScale(float timeStamp) const;
 
 	template <typename T>
@@ -64,6 +73,8 @@ public:
 	std::vector<KeyPosition> keyPositions;
 	std::vector<KeyRotation> keyRotations;
 	std::vector<KeyScale> keyScales;
+
+	std::vector<KeyTransform> keyTransforms;
 
 private:
 	std::string name;

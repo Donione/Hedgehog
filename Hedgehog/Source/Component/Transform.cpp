@@ -91,6 +91,13 @@ void Transform::SetRotation(const glm::mat4& rotation)
 	updateTransform = true;
 }
 
+void Transform::SetRotation(const glm::quat& rotation)
+{
+	rotationMatrix = glm::mat4_cast(rotation);
+
+	SetRotation(rotationMatrix);
+}
+
 void Transform::Rotate(const glm::vec3& rotation)
 {
 	rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
