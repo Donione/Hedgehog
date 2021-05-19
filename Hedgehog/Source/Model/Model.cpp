@@ -207,103 +207,65 @@ void Model::LoadObj(const std::string& filename)
 	CalculateCenters();
 }
 
-// TODO This is absolute total piece of shit temporary "parsing" code just to get the model on screen
 void Model::LoadDae(const std::string& filename)
 {
 	type = ModelType::Dae;
 
-	std::ifstream in(filename);
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(filename.c_str());
+	assert(result);
 
-	char* buffer = new char[20 * 1024 * 1024];
+	auto meshNode = doc.select_node("/COLLADA/library_geometries/geometry/mesh").node();
 
-	int lineCount = 0;
-	while (!in.eof())
 	{
-		in.getline(buffer, 20 * 1024 * 1024);
-
-		std::string line(buffer);
-
-		if (line.starts_with("          <float_array id=\"Vampire-lib-Position-array"))
+		auto positionArray = CreateSource<float>(meshNode, "Position");
+		for (size_t i = 0; i < positionArray.size(); i += 3)
 		{
-			std::stringstream liness = std::stringstream(buffer);
-			std::string type, id, count;
-
-			liness >> type >> id >> count;
-
-			for (int i = 0; i < 7870; i++)
-			{
-				float x, y, z;
-
-				liness >> x >> y >> z;
-
-				positions.emplace_back(x, y, z);
-			}
+			positions.emplace_back(positionArray[i], positionArray[i + 1], positionArray[i + 2]);
 		}
-
-		if (line.starts_with("          <float_array id=\"Vampire-lib-Normal0-array"))
-		{
-			std::stringstream liness = std::stringstream(buffer);
-			std::string type, id, count;
-
-			liness >> type >> id >> count;
-
-			for (int i = 0; i < 7870; i++)
-			{
-				float x, y, z;
-
-				liness >> x >> y >> z;
-
-				normals.emplace_back(x, y, z);
-			}
-		}
-
-		if (line.starts_with("          <float_array id=\"Vampire-lib-UV0-array"))
-		{
-			std::stringstream liness = std::stringstream(buffer);
-			std::string type, id, count;
-
-			liness >> type >> id >> count;
-
-			for (int i = 0; i < 23827; i++)
-			{
-				float u, v;
-
-				liness >> u >> v;
-
-				textureCoordinates.emplace_back(u, v);
-			}
-		}
-
-		if (line.starts_with("          <p>"))
-		{
-			std::stringstream liness = std::stringstream(buffer);
-			std::string tag;
-
-			liness >> tag;
-
-			for (int i = 0; i < 15022; i++)
-			{
-				Face face;
-
-				for (int j = 0; j < 3; j++)
-				{
-					liness >> face.v[j].vertex >> face.v[j].normal >> face.v[j].texCoord;
-
-					for (int k = 0; k < 44; k++)
-					{
-						unsigned int discard;
-						liness >> discard;
-					}
-				}
-
-				faces.push_back(face);
-			}
-		}
-
-		lineCount++;
 	}
 
-	delete[] buffer;
+	{
+		auto normalArray = CreateSource<float>(meshNode, "Normal");
+		for (size_t i = 0; i < normalArray.size(); i += 3)
+		{
+			normals.emplace_back(normalArray[i], normalArray[i + 1], normalArray[i + 2]);
+		}
+	}
+
+	{
+		auto texCoords = CreateSource<float>(meshNode, "UV0");
+		for (size_t i = 0; i < texCoords.size(); i += 2)
+		{
+			textureCoordinates.emplace_back(texCoords[i], texCoords[i + 1]);
+		}
+	}
+
+	{
+		auto node = meshNode.child("polylist");
+		int numberOfPolygons = node.attribute("count").as_int();
+		auto primitiveNode = node.child("p");
+		auto primitiveStream = std::stringstream(primitiveNode.first_child().value());
+
+		for (int i = 0; i < numberOfPolygons; i++)
+		{
+			Face face;
+
+			for (int j = 0; j < 3; j++)
+			{
+				primitiveStream >> face.v[j].vertex >> face.v[j].normal >> face.v[j].texCoord;
+
+				for (int k = 0; k < 44; k++)
+				{
+					unsigned int discard;
+					primitiveStream >> discard;
+				}
+			}
+
+			faces.push_back(face);
+		}
+	}
+
 
 	CalculateFaceNormals();
 	CalculateTangents();

@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 
+#include <pugixml.hpp>
+
 #include <glm/glm.hpp>
 
 #include <Renderer/Texture.h>
