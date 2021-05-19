@@ -195,6 +195,12 @@
     <ClInclude Include="Include\Animation\Animator.h">
       <Filter>Include\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="..\modules\pugixml\src\pugiconfig.hpp">
+      <Filter>Include\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\pugixml\src\pugixml.hpp">
+      <Filter>Include\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -301,6 +307,9 @@
     </ClCompile>
     <ClCompile Include="Source\Animation\Animator.cpp">
       <Filter>Source\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\pugixml\src\pugixml.cpp">
+      <Filter>Source\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
