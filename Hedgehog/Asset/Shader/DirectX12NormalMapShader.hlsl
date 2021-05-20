@@ -42,7 +42,7 @@ cbuffer SceneLightsBuffer : register(b1)
 cbuffer ObjectConstantBuffer : register(b2)
 {
     float4x4 u_Transform;
-    float4x4 u_segmentTransforms[3];
+    float4x4 u_segmentTransforms[65];
 }
 
 struct VSInput
@@ -53,7 +53,8 @@ struct VSInput
     float3 normal : a_normal;
     float3 tangent : a_tangent;
     float3 bitangent : a_bitangent;
-    float  segmentID : a_segmentID;
+    float4 segmentIDs : a_segmentIDs;
+    float4 segmentWeigths : a_segmentWeigths;
 };
 
 struct PSInput
@@ -74,9 +75,32 @@ PSInput VSMain(VSInput input)
 {
     PSInput result;
 
-    float4x4 finalTransform = mul(u_Transform, u_segmentTransforms[(int)input.segmentID]);
+    float3 finalPosition = float3(0.0f, 0.0f, 0.0f);
+    float3 finalNormal = float3(0.0f, 0.0f, 0.0f);
+    float3 finalTangent = float3(0.0f, 0.0f, 0.0f);
+    //float3 finalBitangent = float3(0.0f, 0.0f, 0.0f);
 
-    float4 pos = mul(finalTransform, float4(input.position, 1.0f));
+    for (int j = 0; j < 4; j++)
+    {
+        if (input.segmentIDs[j] == -1.0f)
+        {
+            continue;
+        }
+
+        float4 segmentPosition = mul(u_segmentTransforms[(int)input.segmentIDs[j]], float4(input.position, 1.0f));
+        finalPosition += segmentPosition.xyz * input.segmentWeigths[j];
+
+        float3 segmentNormal = mul((float3x3)u_segmentTransforms[(int)input.segmentIDs[j]], input.normal);
+        finalNormal += segmentNormal * input.segmentWeigths[j];
+
+        float3 segmentTangent = mul((float3x3)u_segmentTransforms[(int)input.segmentIDs[j]], input.tangent);
+        finalTangent += segmentTangent.xyz * input.segmentWeigths[j];
+
+        //float3 segmentBitangent = mul((float3x3)u_segmentTransforms[(int)input.segmentIDs[j]], * input.bitangent);
+        //finalBitangent += segmentBitangent * input.segmentWeigths[j];
+    }
+
+    float4 pos = mul(u_Transform, float4(finalPosition, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
@@ -87,9 +111,9 @@ PSInput VSMain(VSInput input)
     float3 B;
     float3 N;
 
-    T = normalize(mul(finalTransform, float4(input.tangent, 0.0)).xyz);
-    //B = normalize(mul(finalTransform, float4(input.bitangent, 0.0)).xyz);
-    N = normalize(mul(finalTransform, float4(input.normal, 0.0)).xyz);
+    T = normalize(mul(u_Transform, float4(finalTangent, 0.0)).xyz);
+    //B = normalize(mul(u_Transform, float4(finalBitangent, 0.0)).xyz);
+    N = normalize(mul(u_Transform, float4(finalNormal, 0.0)).xyz);
 
     // re-orthogonalize T with respect to N
     T = normalize(T - mul(dot(T, N), N));
@@ -106,14 +130,14 @@ PSInput VSMain(VSInput input)
     // | Tz Bz Nz |   | Vz |
     // where V is some vector (treated as a column vector) we want to transform from tangent to world space
     // 
-    // However the matrix we created is looks like this (row major)
+    // However the matrix we created looks like this (row major)
     // | Tx Ty Tz |
     // | Bx By Bz |
     // | Nx Ny Nz |
     // 
-    // We can either transpose the matrix multiply it by a vector
+    // We can either transpose the matrix and multiply it by a vector
     // or we can take it as is and multiply the vector by the matrix,
-    // in that case the vector is treaded as a row vector
+    // in that case the vector is treated as a row vector
     //                 | Tx Ty Tz |
     //  | Vx Vy Vz | * | Bx By Bz |
     //                 | Nx Ny Nz |
@@ -139,7 +163,7 @@ PSInput VSMain(VSInput input)
     result.viewPosTan = mul(TBN, u_viewPos);
 
     // We're transforming and passing the normal as well in case we want to disable the normal mapping at runtime
-    result.normalTan = mul(TBN, mul(finalTransform, float4(input.normal, 0.0f)).xyz);
+    result.normalTan = mul(TBN, mul(u_Transform, float4(finalNormal, 0.0f)).xyz);
 
     return result;
 }

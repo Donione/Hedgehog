@@ -66,7 +66,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3 },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65 },
 		};
 
 		auto frustumPrimitiveTopology = Hedge::PrimitiveTopology::Line;
@@ -335,7 +335,7 @@ public:
 			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3 },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65 },
 		};
 
 		float squareVertices[] =
@@ -414,12 +414,17 @@ public:
 		//Hedge::Model sponzaModel;
 		//sponzaModel.LoadObj(sponzaFilename);
 
+		std::vector<Hedge::TextureDescription> squareTextureDescription;
+		for (int i = 0; i < 50; i++)
+		{
+			squareTextureDescription.push_back(textureDescriptions[i % 4]);
+		}
+
 		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 								 PrimitiveTopology, squareBufferLayout,
 								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 textureDescriptions);
-								 //sponzaModel.GetTextureDescription());
+								 squareTextureDescription);
 		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 		squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
 
@@ -473,10 +478,12 @@ public:
 		//sponzaDebugMesh.enabled = false;
 		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
-		std::vector<Hedge::TextureDescription> vampireTextureDescriptions =
+		std::vector<Hedge::TextureDescription> vampireTextureDescriptions;
+		for (int i = 0; i < 25; i++)
 		{
-			{ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" },
-		};
+			vampireTextureDescriptions.push_back({ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
+			vampireTextureDescriptions.push_back({ Hedge::TextureType::Normal, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
+		}
 
 		vampireModel.LoadDae("..\\..\\vampire\\dancing_vampire.dae");
 		vampireEntity = scene.CreateEntity("Vampire");
@@ -650,7 +657,7 @@ public:
 		{
 			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 3},
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65},
 		};
 
 		axesEntity = scene.CreateEntity("Axes");
@@ -666,6 +673,11 @@ public:
 													 axesPrimitiveTopology, axesBL,
 													 vertexSrc, fragmentSrc, constBufferDesc);
 		gridEntity.Add<Hedge::Transform>();
+
+		for (int i = 0; i < 65; i++)
+		{
+			ones.push_back(glm::mat4(1.0f));
+		}
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -741,6 +753,7 @@ public:
 		{
 			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+			vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
 			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
@@ -1191,7 +1204,7 @@ private:
 
 	Hedge::Animation animation;
 
-	std::vector<glm::mat4> ones{ glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	std::vector<glm::mat4> ones;
 
 	Hedge::Entity vampireEntity;
 	Hedge::Model vampireModel;

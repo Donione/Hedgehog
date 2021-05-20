@@ -302,7 +302,7 @@ void DirectX12Shader::UploadConstant(const std::string& name, const void* consta
 {
 	if (constantBufferViews.contains(name))
 	{
-		assert(size == constantBufferViews.at(name).size);
+		assert(size <= constantBufferViews.at(name).size);
 
 		DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 		int frameIndex = (dx12context->g_frameIndex % dx12context->NUM_FRAMES_IN_FLIGHT);

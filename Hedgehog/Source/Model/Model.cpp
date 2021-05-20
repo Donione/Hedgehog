@@ -699,15 +699,15 @@ void Model::CreateFlatArraysObj()
 			flatVertices[index * stride + 13] = bitangents[face.v[i].tangent].y;
 			flatVertices[index * stride + 14] = bitangents[face.v[i].tangent].z;
 
-			flatVertices[index * stride + 15] = (float)segmentIDs[face.v[i].vertex].ID[0];
-			flatVertices[index * stride + 16] = (float)segmentIDs[face.v[i].vertex].ID[1];
-			flatVertices[index * stride + 17] = (float)segmentIDs[face.v[i].vertex].ID[2];
-			flatVertices[index * stride + 18] = (float)segmentIDs[face.v[i].vertex].ID[3];
+			flatVertices[index * stride + 15] = type == ModelType::Dae ? (float)segmentIDs[face.v[i].vertex].ID[0] :  0.0f;
+			flatVertices[index * stride + 16] = type == ModelType::Dae ? (float)segmentIDs[face.v[i].vertex].ID[1] : -1.0f;
+			flatVertices[index * stride + 17] = type == ModelType::Dae ? (float)segmentIDs[face.v[i].vertex].ID[2] : -1.0f;
+			flatVertices[index * stride + 18] = type == ModelType::Dae ? (float)segmentIDs[face.v[i].vertex].ID[3] : -1.0f;
 
-			flatVertices[index * stride + 19] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[0]];
-			flatVertices[index * stride + 20] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[1]];
-			flatVertices[index * stride + 21] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[2]];
-			flatVertices[index * stride + 22] = segmentWeights[segmentWeightIndices[face.v[i].vertex].i[3]];
+			flatVertices[index * stride + 19] = type == ModelType::Dae ? segmentWeights[segmentWeightIndices[face.v[i].vertex].i[0]] : 1.0f;
+			flatVertices[index * stride + 20] = type == ModelType::Dae ? segmentWeights[segmentWeightIndices[face.v[i].vertex].i[1]] : 0.0f;
+			flatVertices[index * stride + 21] = type == ModelType::Dae ? segmentWeights[segmentWeightIndices[face.v[i].vertex].i[2]] : 0.0f;
+			flatVertices[index * stride + 22] = type == ModelType::Dae ? segmentWeights[segmentWeightIndices[face.v[i].vertex].i[3]] : 0.0f;
 		}
 	}
 }
