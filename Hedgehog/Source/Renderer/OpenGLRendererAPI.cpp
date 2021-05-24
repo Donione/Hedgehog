@@ -139,7 +139,7 @@ void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexAr
 {
 	GLenum primitiveTopology = GetPipelinePrimitiveTopology(vertexArray->GetVertexBuffers().at(0)->GetPrimitiveType());
 	glDrawElements(primitiveTopology,
-				   count > 0 ? count * 3 : vertexArray->GetIndexBuffer().at(0)->GetCount(),
+				   count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
 				   GL_UNSIGNED_INT,
 				   (const void*)(sizeof(unsigned int) * offset * 3));
 }

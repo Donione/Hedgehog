@@ -105,7 +105,7 @@ void DirectX12VertexArray::Bind() const
 	shader->Bind();
 
 	vertexBuffers[0]->Bind();
-	indexBuffers[0]->Bind();
+	indexBuffer->Bind();
 }
 
 void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
@@ -115,7 +115,7 @@ void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& 
 
 void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 {
-	indexBuffers.push_back(indexBuffer);
+	this->indexBuffer = indexBuffer;
 }
 
 void DirectX12VertexArray::AddTexture(TextureType type, const std::shared_ptr<Texture>& texture)

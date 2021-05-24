@@ -74,7 +74,7 @@ void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 {
 	this->Bind();
 	indexBuffer->Bind();
-	indexBuffers.push_back(indexBuffer);
+	this->indexBuffer = indexBuffer;
 	this->Unbind();
 }
 

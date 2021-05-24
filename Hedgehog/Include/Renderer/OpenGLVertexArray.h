@@ -29,7 +29,7 @@ public:
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
-	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
+	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const override { return indexBuffer; }
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
 
@@ -44,7 +44,7 @@ private:
 	std::vector<TextureDescription> textureDescriptions;
 	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
-	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
+	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::vector<std::pair<VertexGroup, float>> groups;
 
 	// Array of OpenGL base types corresponding to ShaderDataType
