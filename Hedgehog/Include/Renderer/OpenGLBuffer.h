@@ -9,8 +9,7 @@ namespace Hedge
 class OpenGLVertexBuffer : public VertexBuffer
 {
 public:
-	OpenGLVertexBuffer(PrimitiveTopology primitiveTopology,
-					   const BufferLayout& layout,
+	OpenGLVertexBuffer(const BufferLayout& layout,
 					   const float* vertices,
 					   unsigned int size);
 	virtual ~OpenGLVertexBuffer() override;
@@ -19,14 +18,12 @@ public:
 	virtual void Unbind() const override;
 
 
-	virtual const PrimitiveTopology GetPrimitiveType() const override { return primitiveTopology; }
 	virtual const BufferLayout& GetLayout() const override { return layout; }
 
 	virtual void SetData(const float* vertices, unsigned int size) override;
 
 private:
 	unsigned int rendererID = 0;
-	PrimitiveTopology primitiveTopology;
 	BufferLayout layout;
 };
 

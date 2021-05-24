@@ -104,6 +104,7 @@ void DirectX12VertexArray::Bind() const
 
 	shader->Bind();
 
+	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(GetDirectX12PrimitiveTopology(primitiveTopology));
 	vertexBuffers[0]->Bind();
 	indexBuffer->Bind();
 }

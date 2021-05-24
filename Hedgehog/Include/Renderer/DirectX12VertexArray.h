@@ -30,6 +30,7 @@ public:
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 
+	virtual PrimitiveTopology GetPrimitiveTopology() const override { return primitiveTopology; }
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const override { return indexBuffer; }
 	// TODO why doesn't returning a shared_ptr reference work when upcasting?
@@ -41,6 +42,7 @@ public:
 private:
 	DXGI_FORMAT GetDirectXFormat(ShaderDataType type) const { return DirectXFormats[(int)type]; }
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
+	D3D12_PRIMITIVE_TOPOLOGY GetDirectX12PrimitiveTopology(PrimitiveTopology type) const { return DirectX12PrimitiveTopologies[(int)type]; }
 
 	void CreatePSO();
 	void CreateSRVHeap();
@@ -93,6 +95,14 @@ private:
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE,
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+	};
+
+	const D3D12_PRIMITIVE_TOPOLOGY DirectX12PrimitiveTopologies[4]
+	{
+		D3D_PRIMITIVE_TOPOLOGY_UNDEFINED,
+		D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
+		D3D_PRIMITIVE_TOPOLOGY_LINELIST,
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 	};
 };
 

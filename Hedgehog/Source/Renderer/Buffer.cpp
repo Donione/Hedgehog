@@ -8,18 +8,17 @@
 namespace Hedge
 {
 
-VertexBuffer* VertexBuffer::Create(PrimitiveTopology primitiveTopology,
-								   const BufferLayout& layout,
+VertexBuffer* VertexBuffer::Create(const BufferLayout& layout,
 								   const float* vertices,
 								   unsigned int size)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexBuffer(primitiveTopology, layout, vertices, size);
+		return new OpenGLVertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::DirectX12:
-		return new DirectX12VertexBuffer(primitiveTopology, layout, vertices, size);
+		return new DirectX12VertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::None:
 		return nullptr;

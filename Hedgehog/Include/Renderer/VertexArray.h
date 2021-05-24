@@ -31,6 +31,7 @@ public:
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) = 0;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) = 0;
 
+	virtual PrimitiveTopology GetPrimitiveTopology() const = 0;
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const = 0;
 	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const = 0;
 	virtual const std::shared_ptr<Shader> GetShader() const = 0;

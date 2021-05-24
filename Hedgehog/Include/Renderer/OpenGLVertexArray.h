@@ -28,6 +28,7 @@ public:
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 
+	virtual PrimitiveTopology GetPrimitiveTopology() const override { return primitiveTopology; }
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const override { return indexBuffer; }
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
