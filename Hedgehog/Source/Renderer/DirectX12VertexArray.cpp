@@ -105,7 +105,13 @@ void DirectX12VertexArray::Bind() const
 	shader->Bind();
 
 	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(GetDirectX12PrimitiveTopology(primitiveTopology));
-	vertexBuffers[0]->Bind();
+
+	unsigned int slot = 0;
+	for (auto& vertexBuffer : vertexBuffers)
+	{
+		vertexBuffer->Bind(slot++);
+	}
+
 	indexBuffer->Bind();
 }
 
@@ -185,8 +191,16 @@ void DirectX12VertexArray::CreatePSO()
 	{
 		// TODO learn what all of these do
 		//SemanticName, SemanticIndex, Format, InputSlot, AlignedByteOffset, InputSlotClass, InstanceDataStepRate
-		inputElementDescs.push_back({ input.name.c_str(), 0, GetDirectXFormat(input.type), 0, offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-		offset += input.size;
+		inputElementDescs.push_back(
+			{
+				input.name.c_str(),
+				0,
+				GetDirectXFormat(input.type),
+				input.inputSlot,
+				(UINT)input.offset,
+				D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+				0
+			});
 	}
 
 	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

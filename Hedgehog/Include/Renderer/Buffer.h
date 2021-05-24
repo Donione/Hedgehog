@@ -58,12 +58,21 @@ static unsigned int GetShaderDataTypeCount(ShaderDataType type) { return shaderD
 struct BufferElement
 {
 	BufferElement() = default;
-	BufferElement(ShaderDataType type, const std::string& name, bool normalized = false)
-		: type(type), name(name), normalized(normalized), size(GetShaderDataTypeSize(type)), offset(0) {}
+	BufferElement(ShaderDataType type,
+				  const std::string& name,
+				  bool normalized = false)
+		:
+		type(type),
+		name(name),
+		normalized(normalized),
+		inputSlot(0), // used by DirectX only
+		size(GetShaderDataTypeSize(type)),
+		offset(0) {}
 
 	ShaderDataType type;
 	std::string name;
 	unsigned int size;
+	unsigned int inputSlot;
 	bool normalized;
 	// For OpenGL, the offset is later used via casting it to void*
 	// having 'unsigned int offset' is a problem on 64-bit since void* is larger
@@ -88,6 +97,8 @@ public:
 	std::vector<BufferElement>::const_iterator begin() const { return elements.begin(); }
 	std::vector<BufferElement>::const_iterator end() const { return elements.end(); }
 
+	BufferLayout operator + (const BufferLayout& other);
+
 private:
 	void CalculateOffsetsAndStride();
 
@@ -105,7 +116,7 @@ public:
 								unsigned int size);
 	virtual ~VertexBuffer() {}
 
-	virtual void Bind() const = 0;
+	virtual void Bind(unsigned int slot = 0) const = 0;
 	virtual void Unbind() const = 0;
 
 	virtual const BufferLayout& GetLayout() const = 0;

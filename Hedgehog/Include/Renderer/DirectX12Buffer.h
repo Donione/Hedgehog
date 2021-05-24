@@ -18,7 +18,7 @@ public:
 						  unsigned int size);
 	virtual ~DirectX12VertexBuffer() override { /* Nothing to do */ }
 
-	virtual void Bind() const override;
+	virtual void Bind(unsigned int slot = 0) const override;
 	virtual void Unbind() const override { /* do nothing */ }
 
 	virtual const BufferLayout& GetLayout() const override { return layout; }

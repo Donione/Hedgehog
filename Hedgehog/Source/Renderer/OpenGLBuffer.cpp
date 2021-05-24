@@ -23,7 +23,7 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	glDeleteBuffers(1, &rendererID);
 }
 
-void OpenGLVertexBuffer::Bind() const
+void OpenGLVertexBuffer::Bind(unsigned int slot) const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, rendererID);
 }

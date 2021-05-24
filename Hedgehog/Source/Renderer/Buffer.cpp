@@ -46,6 +46,20 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	}
 }
 
+BufferLayout BufferLayout::operator+(const BufferLayout& other)
+{
+	BufferLayout result(*this);
+	unsigned int inputSlot = result.begin()->inputSlot + 1;
+
+	for (auto& element : other)
+	{
+		result.elements.push_back(element);
+		result.elements.back().inputSlot = inputSlot;
+	}
+
+	return result;
+}
+
 void BufferLayout::CalculateOffsetsAndStride()
 {
 	unsigned int offset = 0;

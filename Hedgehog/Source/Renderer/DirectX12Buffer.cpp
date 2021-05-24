@@ -50,13 +50,13 @@ DirectX12VertexBuffer::DirectX12VertexBuffer(const BufferLayout& layout,
 	vertexBufferView.SizeInBytes = size;
 }
 
-void DirectX12VertexBuffer::Bind() const
+void DirectX12VertexBuffer::Bind(unsigned int slot) const
 {
 	assert(vertexBuffer);
 
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
-	dx12context->g_pd3dCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+	dx12context->g_pd3dCommandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
 }
 
 void DirectX12VertexBuffer::SetData(const float* vertices, unsigned int size)
