@@ -44,6 +44,7 @@ private:
 	PrimitiveTopology primitiveTopology;
 	std::vector<TextureDescription> textureDescriptions;
 	std::vector<std::shared_ptr<Texture>> textures;
+	unsigned int vertexAttribIndex = 0;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::vector<std::pair<VertexGroup, float>> groups;
