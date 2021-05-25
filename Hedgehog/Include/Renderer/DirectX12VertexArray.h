@@ -29,6 +29,7 @@ public:
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
+	virtual void SetInstanceCount(unsigned int instanceCount) override { this->instanceCount = instanceCount; }
 
 	virtual PrimitiveTopology GetPrimitiveTopology() const override { return primitiveTopology; }
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
@@ -36,6 +37,7 @@ public:
 	// TODO why doesn't returning a shared_ptr reference work when upcasting?
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
+	virtual unsigned int GetInstanceCount() const override { return instanceCount; }
 
 	void UpdateRenderSettings();
 
@@ -73,6 +75,7 @@ private:
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::vector<std::pair<VertexGroup, float>> groups;
+	unsigned int instanceCount = 1;
 
 	// TODO check all of these
 	const DXGI_FORMAT DirectXFormats[10] =

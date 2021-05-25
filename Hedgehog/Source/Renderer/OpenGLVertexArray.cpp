@@ -61,6 +61,7 @@ void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& ver
 							  element.normalized ? GL_TRUE : GL_FALSE,
 							  layout.GetStride(),
 							  (const void*)element.offset);
+		glVertexAttribDivisor(vertexAttribIndex, element.instanceDataStep);
 
 		vertexAttribIndex++;
 	}
