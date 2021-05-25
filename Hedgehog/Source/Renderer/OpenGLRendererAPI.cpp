@@ -137,11 +137,12 @@ void OpenGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexAr
 									unsigned int count,
 									unsigned int offset)
 {
-	GLenum primitiveTopology = GetPipelinePrimitiveTopology(vertexArray->GetVertexBuffers().at(0)->GetPrimitiveType());
-	glDrawElements(primitiveTopology,
-				   count > 0 ? count * 3 : vertexArray->GetIndexBuffer().at(0)->GetCount(),
-				   GL_UNSIGNED_INT,
-				   (const void*)(sizeof(unsigned int) * offset * 3));
+	GLenum primitiveTopology = GetPipelinePrimitiveTopology(vertexArray->GetPrimitiveTopology());
+	glDrawElementsInstanced(primitiveTopology,
+							count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
+							GL_UNSIGNED_INT,
+							(const void*)(sizeof(unsigned int) * offset * 3),
+							vertexArray->GetInstanceCount());
 }
 
 } // namespace Hedge

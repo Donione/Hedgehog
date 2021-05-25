@@ -24,7 +24,7 @@ OpenGLVertexArray::~OpenGLVertexArray()
 	glDeleteVertexArrays(1, &rendererID);
 }
 
-void OpenGLVertexArray::Bind() const
+void OpenGLVertexArray::Bind()
 {
 	// TODO check if we have all the textures, a vertex buffer and an index buffer
 
@@ -51,20 +51,19 @@ void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& ver
 	vertexBuffer->Bind();
 	vertexBuffers.push_back(vertexBuffer);
 
-	unsigned int index = 0;
-
 	const BufferLayout& layout = vertexBuffer->GetLayout();
 	for (const auto& element : layout)
 	{
-		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index,
+		glEnableVertexAttribArray(vertexAttribIndex);
+		glVertexAttribPointer(vertexAttribIndex,
 							  GetShaderDataTypeCount(element.type),
 							  GetOpenGLBaseType(element.type),
 							  element.normalized ? GL_TRUE : GL_FALSE,
 							  layout.GetStride(),
 							  (const void*)element.offset);
+		glVertexAttribDivisor(vertexAttribIndex, element.instanceDataStep);
 
-		index++;
+		vertexAttribIndex++;
 	}
 
 	this->Unbind();
@@ -74,7 +73,7 @@ void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 {
 	this->Bind();
 	indexBuffer->Bind();
-	indexBuffers.push_back(indexBuffer);
+	this->indexBuffer = indexBuffer;
 	this->Unbind();
 }
 

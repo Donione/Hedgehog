@@ -17,7 +17,6 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	// TODO for fun, see how the ref count changes
 	this->shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
-	this->bufferLayout = inputLayout;
 	this->textureDescriptions = textureDescriptions;
 	textures.resize(textureDescriptions.size());
 
@@ -80,16 +79,19 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 												   signature->GetBufferPointer(),
 												   signature->GetBufferSize(),
 												   IID_PPV_ARGS(&m_rootSignature));
-
-	CreatePSO();
 }
 
 DirectX12VertexArray::~DirectX12VertexArray()
 {
 }
 
-void DirectX12VertexArray::Bind() const
+void DirectX12VertexArray::Bind()
 {
+	if (currentPSO == -1)
+	{
+		CreatePSO();
+	}
+
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
 	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState[currentPSO].Get());
@@ -104,18 +106,29 @@ void DirectX12VertexArray::Bind() const
 
 	shader->Bind();
 
-	vertexBuffers[0]->Bind();
-	indexBuffers[0]->Bind();
+	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(GetDirectX12PrimitiveTopology(primitiveTopology));
+
+	// ASSUME vertex buffers were added in order according to their respective slots
+	// and that the input layout passed into vertex array was constructed also in correct order
+	// TODO might want to do some checking and/or explicit slot assignments
+	unsigned int slot = 0;
+	for (auto& vertexBuffer : vertexBuffers)
+	{
+		vertexBuffer->Bind(slot++);
+	}
+
+	indexBuffer->Bind();
 }
 
 void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 {
 	vertexBuffers.push_back(vertexBuffer);
+	bufferLayout += vertexBuffer->GetLayout();
 }
 
 void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 {
-	indexBuffers.push_back(indexBuffer);
+	this->indexBuffer = indexBuffer;
 }
 
 void DirectX12VertexArray::AddTexture(TextureType type, const std::shared_ptr<Texture>& texture)
@@ -184,8 +197,16 @@ void DirectX12VertexArray::CreatePSO()
 	{
 		// TODO learn what all of these do
 		//SemanticName, SemanticIndex, Format, InputSlot, AlignedByteOffset, InputSlotClass, InstanceDataStepRate
-		inputElementDescs.push_back({ input.name.c_str(), 0, GetDirectXFormat(input.type), 0, offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-		offset += input.size;
+		inputElementDescs.push_back(
+			{
+				input.name.c_str(),
+				0,
+				GetDirectXFormat(input.type),
+				input.inputSlot,
+				(UINT)input.offset,
+				input.instanceDataStep == 0 ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA,
+				input.instanceDataStep
+			});
 	}
 
 	auto depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

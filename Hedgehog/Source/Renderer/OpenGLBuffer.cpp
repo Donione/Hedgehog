@@ -6,12 +6,10 @@
 namespace Hedge
 {
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(PrimitiveTopology primitiveTopology,
-									   const BufferLayout& layout,
+OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout& layout,
 									   const float* vertices,
 									   unsigned int size)
 {
-	this->primitiveTopology = primitiveTopology;
 	this->layout = layout;
 
 	glCreateBuffers(1, &rendererID);
@@ -25,7 +23,7 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	glDeleteBuffers(1, &rendererID);
 }
 
-void OpenGLVertexBuffer::Bind() const
+void OpenGLVertexBuffer::Bind(unsigned int slot) const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, rendererID);
 }

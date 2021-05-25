@@ -70,16 +70,14 @@ void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 	{
 		if (!textureDesc.filename.empty())
 		{
-			//auto texture = std::make_shared<Texture>(Hedge::Texture2D::Create(textureDesc.filename));
 			std::shared_ptr<Texture> texture;
 			texture.reset(Hedge::Texture2D::Create(textureDesc.filename));
 
-			//textures.push_back(texture);
 			vertexArray->AddTexture(textureDesc.type, texturePosition[textureDesc.type]++, texture);
 		}
 	}
 
-	auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(primitiveTopology, bufferLayout, vertices, sizeOfVertices));
+	auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(bufferLayout, vertices, sizeOfVertices));
 	vertexArray->AddVertexBuffer(vertexBuffer);
 
 	auto indexBuffer = std::shared_ptr<IndexBuffer>(Hedge::IndexBuffer::Create(indices, numberOfIndices));

@@ -134,8 +134,8 @@ void DirectX12RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& verte
 									   unsigned int offset)
 {
 	// TODO experiment with SV_InstanceID
-	renderContext->g_pd3dCommandList->DrawIndexedInstanced(count > 0 ? count * 3 : vertexArray->GetIndexBuffer().at(0)->GetCount(),
-														   1,
+	renderContext->g_pd3dCommandList->DrawIndexedInstanced(count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
+														   vertexArray->GetInstanceCount(),
 														   offset * 3,
 														   0,
 														   0);

@@ -20,7 +20,7 @@ public:
 						 const std::vector<Hedge::TextureDescription>& textureDescriptions);
 	virtual ~DirectX12VertexArray() override;
 
-	virtual void Bind() const override;
+	virtual void Bind() override;
 	virtual void Unbind() const override { /* do nothing */ }
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
@@ -29,18 +29,22 @@ public:
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
+	virtual void SetInstanceCount(unsigned int instanceCount) override { this->instanceCount = instanceCount; }
 
+	virtual PrimitiveTopology GetPrimitiveTopology() const override { return primitiveTopology; }
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
-	virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffer() const override { return indexBuffers; }
+	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const override { return indexBuffer; }
 	// TODO why doesn't returning a shared_ptr reference work when upcasting?
 	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
+	virtual unsigned int GetInstanceCount() const override { return instanceCount; }
 
 	void UpdateRenderSettings();
 
 private:
 	DXGI_FORMAT GetDirectXFormat(ShaderDataType type) const { return DirectXFormats[(int)type]; }
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
+	D3D12_PRIMITIVE_TOPOLOGY GetDirectX12PrimitiveTopology(PrimitiveTopology type) const { return DirectX12PrimitiveTopologies[(int)type]; }
 
 	void CreatePSO();
 	void CreateSRVHeap();
@@ -69,8 +73,9 @@ private:
 	std::vector<Hedge::TextureDescription> textureDescriptions;
 	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
-	std::vector<std::shared_ptr<IndexBuffer>> indexBuffers;
+	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::vector<std::pair<VertexGroup, float>> groups;
+	unsigned int instanceCount = 1;
 
 	// TODO check all of these
 	const DXGI_FORMAT DirectXFormats[10] =
@@ -93,6 +98,14 @@ private:
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE,
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+	};
+
+	const D3D12_PRIMITIVE_TOPOLOGY DirectX12PrimitiveTopologies[4]
+	{
+		D3D_PRIMITIVE_TOPOLOGY_UNDEFINED,
+		D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
+		D3D_PRIMITIVE_TOPOLOGY_LINELIST,
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 	};
 };
 

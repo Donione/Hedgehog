@@ -8,18 +8,17 @@
 namespace Hedge
 {
 
-VertexBuffer* VertexBuffer::Create(PrimitiveTopology primitiveTopology,
-								   const BufferLayout& layout,
+VertexBuffer* VertexBuffer::Create(const BufferLayout& layout,
 								   const float* vertices,
 								   unsigned int size)
 {
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexBuffer(primitiveTopology, layout, vertices, size);
+		return new OpenGLVertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::DirectX12:
-		return new DirectX12VertexBuffer(primitiveTopology, layout, vertices, size);
+		return new DirectX12VertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::None:
 		return nullptr;
@@ -45,6 +44,41 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	default:
 		return nullptr;
 	}
+}
+
+BufferLayout BufferLayout::operator+(const BufferLayout& other) const
+{
+	BufferLayout result(*this);
+
+	// The stride is unused in the complete buffer layout
+	result.stride = 0;
+
+	// The second buffer layout that is being added has a different input slot assigned
+	// ASSUME creating the complete buffer layout by adding individual ones
+	// is done in the same order as vertex buffers will be added to the vertex array
+	unsigned int inputSlot = 0;
+	if (!result.elements.empty())
+	{
+		inputSlot = result.begin()->inputSlot + 1;
+	}
+
+	for (auto& element : other)
+	{
+		result.elements.push_back(element);
+		result.elements.back().inputSlot = inputSlot;
+	}
+
+	return result;
+}
+
+BufferLayout& BufferLayout::operator+=(const BufferLayout& other)
+{
+	BufferLayout result(*this);
+
+	result = result + other;
+	*this = result;
+
+	return *this;
 }
 
 void BufferLayout::CalculateOffsetsAndStride()
