@@ -130,9 +130,11 @@ public:
 
 
 		std::string modelFilename = "c:\\Users\\Don\\Programming\\Hedgehog\\Hedgehog\\Asset\\Model\\bunny.tri";
+		Hedge::Model bunnyModel;
+		bunnyModel.LoadTri(modelFilename);
 
 		auto modelPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
-		Hedge::BufferLayout modelVertexBufferArrayLayout =
+		Hedge::BufferLayout modelVertexBufferLayout =
 		{
 			{ Hedge::ShaderDataType::Float3, "a_position" },
 			{ Hedge::ShaderDataType::Float3, "a_normal" },
@@ -163,13 +165,40 @@ public:
 		}
 
 		auto bunnyEntity = scene.CreateEntity("Bunny");
-		bunnyEntity.Add<Hedge::Mesh>(modelFilename, modelPrimitiveTopology, modelVertexBufferArrayLayout,
-									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc).enabled = false;
+		bunnyEntity.Add<Hedge::Mesh>(modelFilename,
+									 modelPrimitiveTopology, modelVertexBufferLayout,
+									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc).enabled = true;
 		auto& bunnyEntityTransform = bunnyEntity.Add<Hedge::Transform>();
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
 		bunnyEntityTransform.SetUniformScale(scale);
 
+		Hedge::BufferLayout modelInstanceVertexBufferLayout =
+		{
+			{ Hedge::ShaderDataType::Float3, "a_offset", 1 },
+		};
+
+		float offsets[5 * 5 * 5 * 3]{};
+
+		int i = 0;
+		for (int x = 0; x < 5; x++)
+		{
+			for (int y = 0; y < 5; y++)
+			{
+				for (int z = 0; z < 5; z++)
+				{
+					offsets[i++] = (float)x * 2;
+					offsets[i++] = (float)y * 2;
+					offsets[i++] = (float)z * 2;
+				}
+			}
+		}
+
+		auto vertexBuffer = std::shared_ptr<Hedge::VertexBuffer>(Hedge::VertexBuffer::Create(modelInstanceVertexBufferLayout,
+																							 offsets,
+																							 sizeof(offsets)));
+		bunnyEntity.Get<Hedge::Mesh>().Get()->AddVertexBuffer(vertexBuffer);
+		bunnyEntity.Get<Hedge::Mesh>().Get()->SetInstanceCount(5 * 5 * 5);
 
 
 
@@ -265,16 +294,16 @@ public:
 		// We want to share this mesh for multiple render objects
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
 		// (not that there is a lot of data held within mesh components)
-		cubeMesh = Hedge::Mesh(vertices, sizeof(vertices),
-								indices, sizeof(indices) / sizeof(unsigned int),
-								PrimitiveTopology, vertexBufferLayout,
-								vertexSrc, fragmentSrc, constBufferDesc);
+		//cubeMesh = Hedge::Mesh(vertices, sizeof(vertices),
+		//						indices, sizeof(indices) / sizeof(unsigned int),
+		//						PrimitiveTopology, vertexBufferLayout,
+		//						vertexSrc, fragmentSrc, constBufferDesc);
 
-		auto cube1 = scene.CreateEntity("Cube 1");
-		cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
-		auto& cube1Transform = cube1.Add<Hedge::Transform>();
-		cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
-		cube1.Add<Hedge::Animator>(&animation);
+		//auto cube1 = scene.CreateEntity("Cube 1");
+		//cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
+		//auto& cube1Transform = cube1.Add<Hedge::Transform>();
+		//cube1Transform.SetTranslation(glm::vec3(-2.0f, 0.0f, 0.0f));
+		//cube1.Add<Hedge::Animator>(&animation);
 
 		//auto cube2 = scene.CreateEntity("Cube 2");
 		//cube2.Add<Hedge::Mesh>(mesh).enabled = false;
@@ -414,24 +443,24 @@ public:
 		//Hedge::Model sponzaModel;
 		//sponzaModel.LoadObj(sponzaFilename);
 
-		std::vector<Hedge::TextureDescription> squareTextureDescription;
-		for (int i = 0; i < 50; i++)
-		{
-			squareTextureDescription.push_back(textureDescriptions[i % 4]);
-		}
+		//std::vector<Hedge::TextureDescription> squareTextureDescription;
+		//for (int i = 0; i < 50; i++)
+		//{
+		//	squareTextureDescription.push_back(textureDescriptions[i % 4]);
+		//}
 
-		squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
-								 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
-								 PrimitiveTopology, squareBufferLayout,
-								 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-								 squareTextureDescription);
-		//squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
-		squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
+		//squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
+		//						 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
+		//						 PrimitiveTopology, squareBufferLayout,
+		//						 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//						 squareTextureDescription);
+		////squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
+		//squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
 
-		auto square = scene.CreateEntity("Square");
-		square.Add<Hedge::Mesh>(squareMesh).enabled = true;
-		square.Add<Hedge::Transform>(squareTransform);
-		square.Add<Hedge::Animator>(&animation);
+		//auto square = scene.CreateEntity("Square");
+		//square.Add<Hedge::Mesh>(squareMesh).enabled = true;
+		//square.Add<Hedge::Transform>(squareTransform);
+		//square.Add<Hedge::Animator>(&animation);
 
 
 
@@ -478,25 +507,25 @@ public:
 		//sponzaDebugMesh.enabled = false;
 		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
-		std::vector<Hedge::TextureDescription> vampireTextureDescriptions;
-		for (int i = 0; i < 25; i++)
-		{
-			vampireTextureDescriptions.push_back({ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
-			vampireTextureDescriptions.push_back({ Hedge::TextureType::Normal, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
-		}
+		//std::vector<Hedge::TextureDescription> vampireTextureDescriptions;
+		//for (int i = 0; i < 25; i++)
+		//{
+		//	vampireTextureDescriptions.push_back({ Hedge::TextureType::Diffuse, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
+		//	vampireTextureDescriptions.push_back({ Hedge::TextureType::Normal, "..\\..\\vampire\\textures\\Vampire_diffuse.png" });
+		//}
 
-		vampireModel.LoadDae("..\\..\\vampire\\dancing_vampire.dae");
-		vampireEntity = scene.CreateEntity("Vampire");
-		auto& vampireMesh = vampireEntity.Add<Hedge::Mesh>(vampireModel.GetVertices(), vampireModel.GetSizeOfVertices(),
-														   vampireModel.GetIndices(), vampireModel.GetNumberOfIndices(),
-														   Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-														   vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
-														   vampireTextureDescriptions
-														   );
-		vampireMesh.enabled = true;
-		auto& vampireTransform = vampireEntity.Add<Hedge::Transform>();
-		vampireTransform.SetUniformScale(0.01f);
-		vampireEntity.Add<Hedge::Animator>(vampireModel.GetAnimation());
+		//vampireModel.LoadDae("..\\..\\vampire\\dancing_vampire.dae");
+		//vampireEntity = scene.CreateEntity("Vampire");
+		//auto& vampireMesh = vampireEntity.Add<Hedge::Mesh>(vampireModel.GetVertices(), vampireModel.GetSizeOfVertices(),
+		//												   vampireModel.GetIndices(), vampireModel.GetNumberOfIndices(),
+		//												   Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
+		//												   vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//												   vampireTextureDescriptions
+		//												   );
+		//vampireMesh.enabled = true;
+		//auto& vampireTransform = vampireEntity.Add<Hedge::Transform>();
+		//vampireTransform.SetUniformScale(0.01f);
+		//vampireEntity.Add<Hedge::Animator>(vampireModel.GetAnimation());
 
 
 
@@ -751,13 +780,13 @@ public:
 
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
-			squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+			//squareMesh.GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
-			vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
+			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
 			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
-			vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			scene.OnUpdate(duration);
 			
@@ -805,7 +834,7 @@ public:
 			// per frame which breaks the pipelines in flight unless the buffer of PSOs is large enough
 			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 			{
-				std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(squareMesh.Get())->UpdateRenderSettings();
+				//std::dynamic_pointer_cast<Hedge::DirectX12VertexArray>(squareMesh.Get())->UpdateRenderSettings();
 
 				scene.UpdateRenderSettings();
 			}

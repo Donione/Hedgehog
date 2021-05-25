@@ -59,11 +59,11 @@ struct PSInput
     float3 normal : NORMAL;
 };
 
-PSInput VSMain(float3 position : a_position, float3 normal : a_normal)
+PSInput VSMain(float3 position : a_position, float3 normal : a_normal, float3 offset : a_offset)
 {
     PSInput result;
 
-    float4 pos = mul(u_Transform, float4(position, 1.0f));
+    float4 pos = mul(u_Transform, float4(position + offset, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
