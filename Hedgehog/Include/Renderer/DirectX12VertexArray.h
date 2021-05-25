@@ -20,7 +20,7 @@ public:
 						 const std::vector<Hedge::TextureDescription>& textureDescriptions);
 	virtual ~DirectX12VertexArray() override;
 
-	virtual void Bind() const override;
+	virtual void Bind() override;
 	virtual void Unbind() const override { /* do nothing */ }
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;

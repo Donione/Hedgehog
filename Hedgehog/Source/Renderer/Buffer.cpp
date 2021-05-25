@@ -46,10 +46,21 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	}
 }
 
-BufferLayout BufferLayout::operator+(const BufferLayout& other)
+BufferLayout BufferLayout::operator+(const BufferLayout& other) const
 {
 	BufferLayout result(*this);
-	unsigned int inputSlot = result.begin()->inputSlot + 1;
+
+	// The stride is unused in the complete buffer layout
+	result.stride = 0;
+
+	// The second buffer layout that is being added has a different input slot assigned
+	// ASSUME creating the complete buffer layout by adding individual ones
+	// is done in the same order as vertex buffers will be added to the vertex array
+	unsigned int inputSlot = 0;
+	if (!result.elements.empty())
+	{
+		inputSlot = result.begin()->inputSlot + 1;
+	}
 
 	for (auto& element : other)
 	{
@@ -58,6 +69,16 @@ BufferLayout BufferLayout::operator+(const BufferLayout& other)
 	}
 
 	return result;
+}
+
+BufferLayout& BufferLayout::operator+=(const BufferLayout& other)
+{
+	BufferLayout result(*this);
+
+	result = result + other;
+	*this = result;
+
+	return *this;
 }
 
 void BufferLayout::CalculateOffsetsAndStride()

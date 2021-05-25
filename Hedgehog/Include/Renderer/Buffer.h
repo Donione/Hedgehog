@@ -97,7 +97,8 @@ public:
 	std::vector<BufferElement>::const_iterator begin() const { return elements.begin(); }
 	std::vector<BufferElement>::const_iterator end() const { return elements.end(); }
 
-	BufferLayout operator + (const BufferLayout& other);
+	BufferLayout operator + (const BufferLayout& other) const;
+	BufferLayout& operator += (const BufferLayout& other);
 
 private:
 	void CalculateOffsetsAndStride();

@@ -18,7 +18,7 @@ public:
 					  const std::vector<Hedge::TextureDescription>& textureDescriptions);
 	virtual ~OpenGLVertexArray() override;
 
-	virtual void Bind() const override;
+	virtual void Bind() override;
 	virtual void Unbind() const override;
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;

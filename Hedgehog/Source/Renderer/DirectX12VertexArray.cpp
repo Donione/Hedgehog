@@ -17,7 +17,6 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	// TODO for fun, see how the ref count changes
 	this->shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
-	this->bufferLayout = inputLayout;
 	this->textureDescriptions = textureDescriptions;
 	textures.resize(textureDescriptions.size());
 
@@ -80,16 +79,19 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 												   signature->GetBufferPointer(),
 												   signature->GetBufferSize(),
 												   IID_PPV_ARGS(&m_rootSignature));
-
-	CreatePSO();
 }
 
 DirectX12VertexArray::~DirectX12VertexArray()
 {
 }
 
-void DirectX12VertexArray::Bind() const
+void DirectX12VertexArray::Bind()
 {
+	if (currentPSO == -1)
+	{
+		CreatePSO();
+	}
+
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
 
 	dx12context->g_pd3dCommandList->SetPipelineState(m_pipelineState[currentPSO].Get());
@@ -106,6 +108,9 @@ void DirectX12VertexArray::Bind() const
 
 	dx12context->g_pd3dCommandList->IASetPrimitiveTopology(GetDirectX12PrimitiveTopology(primitiveTopology));
 
+	// ASSUME vertex buffers were added in order according to their respective slots
+	// and that the input layout passed into vertex array was constructed also in correct order
+	// TODO might want to do some checking and/or explicit slot assignments
 	unsigned int slot = 0;
 	for (auto& vertexBuffer : vertexBuffers)
 	{
@@ -118,6 +123,7 @@ void DirectX12VertexArray::Bind() const
 void DirectX12VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 {
 	vertexBuffers.push_back(vertexBuffer);
+	bufferLayout += vertexBuffer->GetLayout();
 }
 
 void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)

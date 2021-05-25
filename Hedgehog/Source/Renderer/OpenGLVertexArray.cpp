@@ -24,7 +24,7 @@ OpenGLVertexArray::~OpenGLVertexArray()
 	glDeleteVertexArrays(1, &rendererID);
 }
 
-void OpenGLVertexArray::Bind() const
+void OpenGLVertexArray::Bind()
 {
 	// TODO check if we have all the textures, a vertex buffer and an index buffer
 
