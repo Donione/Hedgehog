@@ -17,7 +17,7 @@ cbuffer SceneConstantBuffer : register(b0)
 cbuffer ObjectConstantBuffer : register(b1)
 {
     matrix u_Transform;
-    float4x4 u_segmentTransforms[3];
+    float4x4 u_segmentTransforms[65];
 }
 
 struct PSInput

@@ -498,14 +498,16 @@ public:
 		//{
 		//	{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 		//	{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		//	{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65 },
 		//};
-		//auto sponzaDebug = scene.CreateEntity("Sponza Debug");
-		//auto& sponzaDebugMesh = sponzaDebug.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
-		//													 sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
-		//													 Hedge::PrimitiveTopology::Line, TBNBL,
-		//													 vertexSrc, fragmentSrc, constBufferDesc);
+
+		//sponzaDebugEntity = scene.CreateEntity("Sponza Debug");
+		//auto& sponzaDebugMesh = sponzaDebugEntity.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
+		//														   sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
+		//														   Hedge::PrimitiveTopology::Line, TBNBL,
+		//														   vertexSrc, fragmentSrc, constBufferDesc);
 		//sponzaDebugMesh.enabled = false;
-		//sponzaDebug.Add<Hedge::Transform>().SetUniformScale(0.01f);
+		//sponzaDebugEntity.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
 		//std::vector<Hedge::TextureDescription> vampireTextureDescriptions;
 		//for (int i = 0; i < 25; i++)
@@ -786,6 +788,8 @@ public:
 
 			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
+			//sponzaDebugEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			scene.OnUpdate(duration);
@@ -1201,6 +1205,7 @@ private:
 	Hedge::Transform squareTransform;
 
 	Hedge::Entity spozaTestEntity;
+	Hedge::Entity sponzaDebugEntity;
 
 	glm::vec3 translation = glm::vec3(0.0f);
 	glm::vec3 rotate = glm::vec3(0.0f, 180.0f, 180.0f);
