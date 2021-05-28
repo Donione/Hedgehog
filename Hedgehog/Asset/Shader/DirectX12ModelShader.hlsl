@@ -50,6 +50,41 @@ cbuffer SceneLightsBuffer : register(b1)
 cbuffer ObjectConstantBuffer : register(b2)
 {
     float4x4 u_Transform;
+    float u_magnitude;
+}
+
+
+struct GSInput
+{
+    float4 position : SV_POSITION;
+    float3 pos : POSITIONT;
+    float3 normal : NORMAL;
+};
+
+GSInput VSMain(float3 position : a_position, float3 normal : a_normal, float3 offset : a_offset)
+{
+    GSInput result;
+
+    float4 pos = mul(u_Transform, float4(position, 1.0f));
+
+    result.position = mul(u_ViewProjection, pos);
+    result.pos = pos.xyz;
+    result.normal = mul(u_Transform, float4(normal, 0.0f)).xyz;
+
+    return result;
+}
+
+
+float3 GetDirection(float3 v0, float3 v1, float3 v2)
+{
+    float3 a = v1 - v0;
+    float3 b = v2 - v0;
+    return normalize(cross(a, b));
+}
+
+float3 Explode(float3 position, float3 direction)
+{
+    return position + direction * u_magnitude;
 }
 
 struct PSInput
@@ -59,17 +94,27 @@ struct PSInput
     float3 normal : NORMAL;
 };
 
-PSInput VSMain(float3 position : a_position, float3 normal : a_normal, float3 offset : a_offset)
+[maxvertexcount(3)]
+void GSMain(triangle GSInput input[3], inout TriangleStream<PSInput> OutputStream)
 {
     PSInput result;
 
-    float4 pos = mul(u_Transform, float4(position + offset, 1.0f));
+    float3 direction = GetDirection(input[0].pos, input[1].pos, input[2].pos);
 
-    result.position = mul(u_ViewProjection, pos);
-    result.pos = pos.xyz;
-    result.normal = mul(u_Transform, float4(normal, 0.0f)).xyz;
+    result.pos = Explode(input[0].pos, direction);
+    result.position = mul(u_ViewProjection, float4(result.pos, 1.0f));
+    result.normal = input[0].normal;
+    OutputStream.Append(result);
 
-    return result;
+    result.pos = Explode(input[1].pos, direction);
+    result.position = mul(u_ViewProjection, float4(result.pos, 1.0f));
+    result.normal = input[1].normal;
+    OutputStream.Append(result);
+
+    result.pos = Explode(input[2].pos, direction);
+    result.position = mul(u_ViewProjection, float4(result.pos, 1.0f));
+    result.normal = input[2].normal;
+    OutputStream.Append(result);
 }
 
 

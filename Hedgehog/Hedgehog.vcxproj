@@ -255,6 +255,7 @@
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelExamplePixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelExampleVertexShader.glsl" />
+    <None Include="Asset\Shader\OpenGLModelGeometryShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelPixelShader.glsl" />
     <None Include="Asset\Shader\OpenGLModelVertexShader.glsl" />
     <None Include="Asset\Shader\OpenGLNormalMapPixelShader.glsl" />

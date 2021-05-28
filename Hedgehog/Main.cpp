@@ -151,25 +151,30 @@ public:
 			{ "u_numberOfPointLights", sizeof(int), Hedge::ConstantBufferUsage::Light },
 			{ "u_pointLight", sizeof(Hedge::PointLight), Hedge::ConstantBufferUsage::Light, 3 },
 			{ "u_spotLight", sizeof(Hedge::SpotLight), Hedge::ConstantBufferUsage::Light },
+			{ "u_magnitude", sizeof(float), Hedge::ConstantBufferUsage::Object },
 		};
 
 		std::string modelVertexSrc;
 		std::string modelFragmentSrc;
+		std::string modelGeometrySrc;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			modelVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelVertexShader.glsl";
 			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelPixelShader.glsl";
+			modelGeometrySrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelGeometryShader.glsl";
 		}
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			modelVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
+			modelGeometrySrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
 
-		auto bunnyEntity = scene.CreateEntity("Bunny");
+		bunnyEntity = scene.CreateEntity("Bunny");
 		bunnyEntity.Add<Hedge::Mesh>(modelFilename,
 									 modelPrimitiveTopology, modelVertexBufferLayout,
-									 modelVertexSrc, modelFragmentSrc, modelconstBufferDesc).enabled = true;
+									 modelconstBufferDesc,
+									 modelVertexSrc, modelFragmentSrc, modelGeometrySrc).enabled = true;
 		auto& bunnyEntityTransform = bunnyEntity.Add<Hedge::Transform>();
 		bunnyEntityTransform.SetTranslation(translation);
 		bunnyEntityTransform.SetRotation(rotate);
@@ -805,6 +810,8 @@ public:
 			//sponzaDebugEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
+			bunnyEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_magnitude", magnitude);
+
 			scene.OnUpdate(duration);
 			
 			// Order matters when we want to blend
@@ -941,6 +948,8 @@ public:
 
 
 		ImGui::Begin("Scene");
+
+		ImGui::SliderFloat("Magnitude", &magnitude, 0.0f, 1.0f);
 
 		ImGui::Checkbox("Show Axes", &axesEntity.Get<Hedge::Mesh>().enabled);
 		ImGui::SameLine(); ImGui::Checkbox("Show Grid", &gridEntity.Get<Hedge::Mesh>().enabled);
@@ -1255,6 +1264,9 @@ private:
 
 	Hedge::Entity vampireEntity;
 	Hedge::Model vampireModel;
+
+	Hedge::Entity bunnyEntity;
+	float magnitude = 0.0f;
 };
 
 class ExampleOverlay : public Hedge::Layer

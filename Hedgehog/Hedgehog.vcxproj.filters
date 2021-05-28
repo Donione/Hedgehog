@@ -343,6 +343,9 @@
     <None Include="Asset\Shader\OpenGLNormalMapVertexShader.glsl">
       <Filter>Assets\Shader</Filter>
     </None>
+    <None Include="Asset\Shader\OpenGLModelGeometryShader.glsl">
+      <Filter>Assets\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\DirectX12ModelShader.hlsl">
