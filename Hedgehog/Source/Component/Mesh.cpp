@@ -9,8 +9,10 @@
 namespace Hedge
 {
 
-Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
-		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
+Mesh::Mesh(const std::string& modelFilename,
+		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
+		   ConstantBufferDescription constBufferDesc,
+		   const std::string& VSfilename, const std::string& PSfilename, const std::string& GSfilename,
 		   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
 	Model model;
@@ -26,7 +28,8 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 	CreateMesh(model.GetVertices(), model.GetSizeOfVertices(),
 			   model.GetIndices(), model.GetNumberOfIndices(),
 			   primitiveTopology, bufferLayout,
-			   VSfilename, PSfilename, constBufferDesc,
+			   constBufferDesc,
+			   VSfilename, PSfilename, GSfilename,
 			   textureDescriptions,
 			   {});
 }
@@ -34,27 +37,29 @@ Mesh::Mesh(const std::string& modelFilename, PrimitiveTopology primitiveTopology
 Mesh::Mesh(const float* vertices, unsigned int sizeOfVertices,
 		   const unsigned int* indices, unsigned int numberOfIndices,
 		   PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
-		   const std::string& VSfilename, const std::string& PSfilename, ConstantBufferDescription constBufferDesc,
+		   ConstantBufferDescription constBufferDesc,
+		   const std::string& VSfilename, const std::string& PSfilename, const std::string& GSfilename,
 		   const std::vector<Hedge::TextureDescription>& textureDescriptions,
 		   const std::vector<VertexGroup>& groups)
 {
 	CreateMesh(vertices, sizeOfVertices,
-			  indices, numberOfIndices,
-			  primitiveTopology, bufferLayout,
-			  VSfilename, PSfilename, constBufferDesc,
-			  textureDescriptions,
-			  groups);
+			   indices, numberOfIndices,
+			   primitiveTopology, bufferLayout,
+			   constBufferDesc,
+			   VSfilename, PSfilename, GSfilename,
+			   textureDescriptions,
+			   groups);
 }
 
 void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 					 const unsigned int* indices, unsigned int numberOfIndices,
 					 PrimitiveTopology primitiveTopology, BufferLayout bufferLayout,
-					 const std::string& VSfilename, const std::string& PSfilename,
 					 ConstantBufferDescription constBufferDesc,
+					 const std::string& VSfilename, const std::string& PSfilename, const std::string& GSfilename,
 					 const std::vector<Hedge::TextureDescription>& textureDescriptions,
 					 const std::vector<VertexGroup>& groups)
 {
-	auto shader = std::shared_ptr<Shader>(Hedge::Shader::Create(VSfilename, PSfilename));
+	auto shader = std::shared_ptr<Shader>(Hedge::Shader::Create(VSfilename, PSfilename, GSfilename));
 	shader->SetupConstantBuffers(constBufferDesc);
 
 	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, textureDescriptions));
