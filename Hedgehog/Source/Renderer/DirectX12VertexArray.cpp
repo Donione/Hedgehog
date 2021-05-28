@@ -64,7 +64,6 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | // Only the input assembler stage needs access to the constant buffer.
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
@@ -232,6 +231,7 @@ void DirectX12VertexArray::CreatePSO()
 	psoDesc.pRootSignature = m_rootSignature.Get();
 	psoDesc.VS = shader->GetVSBytecode();
 	psoDesc.PS = shader->GetPSBytecode();
+	psoDesc.GS = shader->GetGSBytecode();
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.RasterizerState.CullMode = RenderCommand::GetFaceCulling() ? D3D12_CULL_MODE_FRONT : D3D12_CULL_MODE_NONE;
 	psoDesc.RasterizerState.FillMode = RenderCommand::GetWireframeMode() ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;

@@ -12,7 +12,9 @@ namespace Hedge
 class OpenGLShader : public Shader
 {
 public:
-	OpenGLShader(const std::string& vertexFilePath, const std::string& pixelFilePath);
+	OpenGLShader(const std::string& vertexFilePath,
+				 const std::string& pixelFilePath,
+				 const std::string& geometryFilePath = "");
 	virtual ~OpenGLShader() override;
 
 	virtual void Bind() override;
@@ -43,6 +45,7 @@ public:
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override;
 
 private:
+	GLuint CompileShader(GLenum shaderType, const std::string& srcFilePath);
 	std::string ReadFile(const std::string& filePath);
 
 	std::vector<GLchar> getShaderInfoLog(GLint id);

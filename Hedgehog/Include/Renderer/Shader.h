@@ -91,7 +91,9 @@ public:
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) = 0;
 
 	static Shader* Create(const std::string& filePath);
-	static Shader* Create(const std::string& vertexFilePath, const std::string& pixelFilePath);
+	static Shader* Create(const std::string& vertexFilePath,
+						  const std::string& pixelFilePath,
+						  const std::string& geometryFilePath = "");
 };
 
 } // namespace Hedge

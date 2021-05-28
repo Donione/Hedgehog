@@ -15,7 +15,9 @@ namespace Hedge
 void DirectX12Shader::Create(const std::wstring& VSFilePath,
 							 const std::string& VSEntryPoint,
 							 const std::wstring& PSFilePath,
-							 const std::string& PSEntryPoint)
+							 const std::string& PSEntryPoint,
+							 const std::wstring& GSFilePath,
+							 const std::string& GSEntryPoint)
 {
 	#if defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
@@ -24,40 +26,54 @@ void DirectX12Shader::Create(const std::wstring& VSFilePath,
 	UINT compileFlags = 0;
 	#endif
 
+	bool useGeometryShader = !GSFilePath.empty() && !GSEntryPoint.empty();
+
 	ID3DBlob* pErrorBlob;
-	HRESULT isOK = D3DCompileFromFile(VSFilePath.c_str(),
-									  nullptr,
-									  nullptr,
-									  VSEntryPoint.c_str(),
-									  "vs_5_0",
-									  compileFlags,
-									  0,
-									  &vertexShader,
-									  &pErrorBlob);
+	HRESULT result = D3DCompileFromFile(VSFilePath.c_str(),
+										nullptr,
+										nullptr,
+										VSEntryPoint.c_str(),
+										"vs_5_0",
+										compileFlags,
+										0,
+										&vertexShader,
+										&pErrorBlob);
+	assert(CheckCompileError(result, pErrorBlob));
 
+	result = D3DCompileFromFile(PSFilePath.c_str(),
+								nullptr,
+								nullptr,
+								PSEntryPoint.c_str(),
+								"ps_5_0",
+								compileFlags,
+								0,
+								&pixelShader,
+								&pErrorBlob);
+	assert(CheckCompileError(result, pErrorBlob));
+
+	if (useGeometryShader)
+	{
+		result = D3DCompileFromFile(GSFilePath.c_str(),
+									nullptr,
+									nullptr,
+									GSEntryPoint.c_str(),
+									"gs_5_0",
+									compileFlags,
+									0,
+									&geometryShader,
+									&pErrorBlob);
+		assert(CheckCompileError(result, pErrorBlob));
+	}
+}
+
+bool DirectX12Shader::CheckCompileError(HRESULT result, ID3DBlob* pErrorBlob)
+{
 	if (pErrorBlob != nullptr)
 	{
 		printf("%s\n", (char*)pErrorBlob->GetBufferPointer());
 		pErrorBlob->Release();
 	}
-	assert(SUCCEEDED(isOK));
-
-	isOK = D3DCompileFromFile(PSFilePath.c_str(),
-							  nullptr,
-							  nullptr,
-							  PSEntryPoint.c_str(),
-							  "ps_5_0",
-							  compileFlags,
-							  0,
-							  &pixelShader,
-							  &pErrorBlob);
-
-	if (pErrorBlob != nullptr)
-	{
-		printf("%s\n", (char*)pErrorBlob->GetBufferPointer());
-		pErrorBlob->Release();
-	}
-	assert(SUCCEEDED(isOK));
+	return SUCCEEDED(result);
 }
 
 DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBufferUsage usage)
@@ -329,6 +345,18 @@ const D3D12_SHADER_BYTECODE DirectX12Shader::GetPSBytecode() const
 	if (pixelShader)
 	{
 		return { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
+	}
+	else
+	{
+		return { nullptr, 0 };
+	}
+}
+
+const D3D12_SHADER_BYTECODE DirectX12Shader::GetGSBytecode() const
+{
+	if (geometryShader)
+	{
+		return { geometryShader->GetBufferPointer(), geometryShader->GetBufferSize() };
 	}
 	else
 	{

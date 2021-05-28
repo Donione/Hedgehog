@@ -19,16 +19,23 @@ class DirectX12Shader : public Shader
 public:
 	DirectX12Shader(const std::wstring& filePath,
 					const std::string& VSEntryPoint,
-					const std::string& PSEntryPoint)
+					const std::string& PSEntryPoint,
+					const std::string& GSEntryPoint = "")
 	{
-		Create(filePath, VSEntryPoint, filePath, PSEntryPoint);
+		Create(filePath, VSEntryPoint,
+			   filePath, PSEntryPoint,
+			   filePath, GSEntryPoint);
 	}
 	DirectX12Shader(const std::wstring& VSFilePath,
 					const std::string& VSEntryPoint,
 					const std::wstring& PSFilePath,
-					const std::string& PSEntryPoint)
+					const std::string& PSEntryPoint,
+					const std::wstring& GSFilePath = std::wstring(),
+					const std::string& GSEntryPoint = "")
 	{
-		Create(VSFilePath, VSEntryPoint, PSFilePath, PSEntryPoint);
+		Create(VSFilePath, VSEntryPoint,
+			   PSFilePath, PSEntryPoint,
+			   GSFilePath, GSEntryPoint);
 	}
 	virtual ~DirectX12Shader() override;
 
@@ -62,12 +69,17 @@ public:
 	const size_t GetConstBufferCount() const { return constantBuffers.size(); }
 	const D3D12_SHADER_BYTECODE GetVSBytecode() const;
 	const D3D12_SHADER_BYTECODE GetPSBytecode() const;
+	const D3D12_SHADER_BYTECODE GetGSBytecode() const;
 
 private:
 	void Create(const std::wstring& VSFilePath,
 				const std::string& VSEntryPoint,
 				const std::wstring& PSFilePath,
-				const std::string& PSEntryPoint);
+				const std::string& PSEntryPoint,
+				const std::wstring& GSFilePath = std::wstring(),
+				const std::string& GSEntryPoint = "");
+
+	bool CheckCompileError(HRESULT result, ID3DBlob* pErrorBlob);
 
 	struct ConstantBufferView
 	{
@@ -92,6 +104,7 @@ private:
 private:
 	ID3DBlob* vertexShader = nullptr;
 	ID3DBlob* pixelShader = nullptr;
+	ID3DBlob* geometryShader = nullptr;
 
 	ConstantBufferDescription description;
 	ID3D12DescriptorHeap* CBVDescHeap = nullptr;

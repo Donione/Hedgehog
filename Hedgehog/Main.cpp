@@ -107,7 +107,8 @@ public:
 		auto& cameraMesh = camera.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
 												   frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
 												   frustumPrimitiveTopology, frustumVertexBufferLayout,
-												   frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+												   frustumConstBufferDesc,
+												   frustumVertexSrc, frustumFragmentSrc);
 		cameraMesh.enabled = false;
 
 		auto camera2 = scene.CreateEntity("Camera 2");
@@ -122,7 +123,8 @@ public:
 		auto& camera2Mesh = camera2.Add<Hedge::Mesh>(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices),
 													 frustumIndices, (unsigned int)(sizeof(frustumIndices) / sizeof(unsigned int)),
 													 frustumPrimitiveTopology, frustumVertexBufferLayout,
-													 frustumVertexSrc, frustumFragmentSrc, frustumConstBufferDesc);
+													 frustumConstBufferDesc,
+													 frustumVertexSrc, frustumFragmentSrc);
 		camera2Mesh.enabled = false;
 
 
@@ -198,7 +200,7 @@ public:
 																							 offsets,
 																							 sizeof(offsets)));
 		bunnyEntity.Get<Hedge::Mesh>().Get()->AddVertexBuffer(vertexBuffer);
-		bunnyEntity.Get<Hedge::Mesh>().Get()->SetInstanceCount(5 * 5 * 5);
+		//bunnyEntity.Get<Hedge::Mesh>().Get()->SetInstanceCount(5 * 5 * 5);
 
 
 
@@ -295,9 +297,10 @@ public:
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
 		// (not that there is a lot of data held within mesh components)
 		//cubeMesh = Hedge::Mesh(vertices, sizeof(vertices),
-		//						indices, sizeof(indices) / sizeof(unsigned int),
-		//						PrimitiveTopology, vertexBufferLayout,
-		//						vertexSrc, fragmentSrc, constBufferDesc);
+		//					   indices, sizeof(indices) / sizeof(unsigned int),
+		//					   PrimitiveTopology, vertexBufferLayout,
+		//					   constBufferDesc,
+		//					   vertexSrc, fragmentSrc);
 
 		//auto cube1 = scene.CreateEntity("Cube 1");
 		//cube1.Add<Hedge::Mesh>(cubeMesh).enabled = true;
@@ -452,7 +455,8 @@ public:
 		//squareMesh = Hedge::Mesh(squareVertices, sizeof(squareVertices),
 		//						 indicesSquare, sizeof(indicesSquare) / sizeof(unsigned int),
 		//						 PrimitiveTopology, squareBufferLayout,
-		//						 vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//						 squareConstBufferDesc,
+		//						 vertexSrcTexture, fragmentSrcTexture, "",
 		//						 squareTextureDescription);
 		////squareTransform.SetTranslation(glm::vec3(-1.0f, 2.0f, 0.0f));
 		//squareTransform.SetTranslation(glm::vec3(2.0f, 0.0f, 0.0f));
@@ -468,7 +472,8 @@ public:
 		//auto& spoznaMesh = spozaTestEntity.Add<Hedge::Mesh>(sponzaModel.GetVertices(), sponzaModel.GetSizeOfVertices(),
 		//													sponzaModel.GetIndices(), sponzaModel.GetNumberOfIndices(),
 		//													Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-		//													vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//													squareConstBufferDesc,
+		//													vertexSrcTexture, fragmentSrcTexture, "",
 		//													sponzaModel.GetTextureDescription(),
 		//													sponzaModel.GetGroups());
 		//spoznaMesh.enabled = false;
@@ -505,7 +510,8 @@ public:
 		//auto& sponzaDebugMesh = sponzaDebugEntity.Add<Hedge::Mesh>(sponzaModel.GetTBNVertices(), sponzaModel.GetSizeOfTBNVertices(),
 		//														   sponzaModel.GetTBNIndices(), sponzaModel.GetNumberOfTBNIndices(),
 		//														   Hedge::PrimitiveTopology::Line, TBNBL,
-		//														   vertexSrc, fragmentSrc, constBufferDesc);
+		//														   constBufferDesc,
+		//														   vertexSrc, fragmentSrc);
 		//sponzaDebugMesh.enabled = false;
 		//sponzaDebugEntity.Add<Hedge::Transform>().SetUniformScale(0.01f);
 
@@ -521,7 +527,8 @@ public:
 		//auto& vampireMesh = vampireEntity.Add<Hedge::Mesh>(vampireModel.GetVertices(), vampireModel.GetSizeOfVertices(),
 		//												   vampireModel.GetIndices(), vampireModel.GetNumberOfIndices(),
 		//												   Hedge::PrimitiveTopology::Triangle, squareBufferLayout,
-		//												   vertexSrcTexture, fragmentSrcTexture, squareConstBufferDesc,
+		//												   squareConstBufferDesc,
+		//												   vertexSrcTexture, fragmentSrcTexture, "",
 		//												   vampireTextureDescriptions
 		//												   );
 		//vampireMesh.enabled = true;
@@ -571,8 +578,10 @@ public:
 			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
 		}
 		
-		auto pointLightMesh = Hedge::Mesh(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-										  lightVertexSrc, lightFragmentSrc, lightconstBufferDesc);
+		auto pointLightMesh = Hedge::Mesh(modelFilename,
+										  lightPrimitiveTopology, lightVertexBufferArrayLayout,
+										  lightconstBufferDesc,
+										  lightVertexSrc, lightFragmentSrc);
 		
 		pointLight1 = scene.CreateEntity("Point Light 1");
 		auto& pointLight1Light = pointLight1.Add<Hedge::PointLight>();
@@ -612,8 +621,10 @@ public:
 		spotLightLight.attenuation = glm::vec3(1.0f, 0.027f, 0.0028f);
 		spotLightLight.position = glm::vec3(0.0f, 0.0f, 2.0f);
 		spotLightLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
-		spotlight.Add<Hedge::Mesh>(modelFilename, lightPrimitiveTopology, lightVertexBufferArrayLayout,
-								   lightVertexSrc, lightFragmentSrc, lightconstBufferDesc).enabled = false;
+		spotlight.Add<Hedge::Mesh>(modelFilename,
+								   lightPrimitiveTopology, lightVertexBufferArrayLayout,
+								   lightconstBufferDesc,
+								   lightVertexSrc, lightFragmentSrc).enabled = false;
 		auto& spotLightTransform = spotlight.Add<Hedge::Transform>();
 		spotLightTransform.SetUniformScale(0.1f);
 		spotLightTransform.SetTranslation(spotLightLight.position);
@@ -695,14 +706,16 @@ public:
 		axesEntity.Add<Hedge::Mesh>(&axesVertices[0].x, (unsigned int)sizeof(axesVertices),
 									axesIndices, (unsigned int)(sizeof(axesIndices) / sizeof(unsigned int)),
 									axesPrimitiveTopology, axesBL,
-									vertexSrc, fragmentSrc, constBufferDesc);
+									constBufferDesc,
+									vertexSrc, fragmentSrc);
 		axesEntity.Add<Hedge::Transform>();
 		
 		gridEntity = scene.CreateEntity("Grid");
 		auto& gridMesh = gridEntity.Add<Hedge::Mesh>(&gridVertices[0].x, (unsigned int)sizeof(gridVertices),
 													 gridIndices, (unsigned int)(sizeof(gridIndices) / sizeof(unsigned int)),
 													 axesPrimitiveTopology, axesBL,
-													 vertexSrc, fragmentSrc, constBufferDesc);
+													 constBufferDesc,
+													 vertexSrc, fragmentSrc);
 		gridEntity.Add<Hedge::Transform>();
 
 		for (int i = 0; i < 65; i++)

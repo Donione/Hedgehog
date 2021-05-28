@@ -7,63 +7,40 @@
 namespace Hedge
 {
 
-OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string& pixelFilePath)
+OpenGLShader::OpenGLShader(const std::string& vertexFilePath,
+						   const std::string& pixelFilePath,
+						   const std::string& geometryFilePath)
 {
-	// Create an empty vertex shader handle
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	bool useGeometryShader = !geometryFilePath.empty();
 
-	// Send the vertex shader source code to GL
-	// Note that std::string's .c_str is NULL character terminated.
-	std::string vertexSrc = ReadFile(vertexFilePath);
-	const GLchar* source = (const GLchar*)vertexSrc.c_str();
-	glShaderSource(vertexShader, 1, &source, 0);
-
-	// Compile the vertex shader
-	glCompileShader(vertexShader);
-
-	GLint isCompiled = 0;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
-	if (isCompiled == GL_FALSE)
+	GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexFilePath);
+	if (vertexShader == 0)
 	{
-		std::vector<GLchar> infoLog = getShaderInfoLog(vertexShader);
-
-		// Use the infoLog as you see fit.
-		printf("Vertex shader compilation error.\n");
-		printf("%s", infoLog.data());
-
-		// In this simple program, we'll just leave
 		return;
 	}
 
-	// Create an empty fragment shader handle
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	// Send the fragment shader source code to GL
-	// Note that std::string's .c_str is NULL character terminated.
-	std::string fragmentSrc = ReadFile(pixelFilePath);
-	source = (const GLchar*)fragmentSrc.c_str();
-	glShaderSource(fragmentShader, 1, &source, 0);
-
-	// Compile the fragment shader
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
-	if (isCompiled == GL_FALSE)
+	GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, pixelFilePath);
+	if (fragmentShader == 0)
 	{
-		std::vector<GLchar> infoLog = getShaderInfoLog(fragmentShader);
-
-		// We don't need the shader anymore. Don't leak shaders.
+		// Clean-up the previous shaders
 		glDeleteShader(vertexShader);
-
-		// Use the infoLog as you see fit.
-		printf("Fragment shader compilation error.\n");
-		printf("%s", infoLog.data());
-
-		// In this simple program, we'll just leave
 		return;
 	}
 
-	// Vertex and fragment shaders are successfully compiled.
+	GLuint geometryShader = 0;
+	if (useGeometryShader)
+	{
+		geometryShader = CompileShader(GL_GEOMETRY_SHADER, geometryFilePath);
+		if (geometryShader == 0)
+		{
+			// Clean-up the previous shaders
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
+			return;
+		}
+	}
+
+	// All shaders are successfully compiled.
 	// Now time to link them together into a program.
 	// Get a program object.
 	shaderID = glCreateProgram();
@@ -71,6 +48,10 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 	// Attach our shaders to our program
 	glAttachShader(shaderID, vertexShader);
 	glAttachShader(shaderID, fragmentShader);
+	if (useGeometryShader)
+	{
+		glAttachShader(shaderID, geometryShader);
+	}
 
 	// Link our program
 	glLinkProgram(shaderID);
@@ -87,11 +68,15 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 		std::vector<GLchar> infoLog(maxLength);
 		glGetProgramInfoLog(shaderID, maxLength, &maxLength, &infoLog[0]);
 
-		// We don't need the program anymore.
+		// Clean-up the program
 		glDeleteProgram(shaderID);
-		// Don't leak shaders either.
+		// Clean-up the shaders
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
+		if (useGeometryShader)
+		{
+			glDeleteShader(geometryShader);
+		}
 
 		// Use the infoLog as you see fit.
 		printf("Program linking error.\n");
@@ -101,9 +86,16 @@ OpenGLShader::OpenGLShader(const std::string& vertexFilePath, const std::string&
 		return;
 	}
 
-	// Always detach shaders after a successful link.
+	// Always detach and delete shaders after a successful link.
 	glDetachShader(shaderID, vertexShader);
+	glDeleteShader(vertexShader);
 	glDetachShader(shaderID, fragmentShader);
+	glDeleteShader(fragmentShader);
+	if (useGeometryShader)
+	{
+		glDetachShader(shaderID, geometryShader);
+		glDeleteShader(geometryShader);
+	}
 }
 
 OpenGLShader::~OpenGLShader()
@@ -271,6 +263,41 @@ void OpenGLShader::UploadConstant(const std::string& name, const void* constant,
 	assert(false);
 }
 
+GLuint OpenGLShader::CompileShader(GLenum shaderType, const std::string& srcFilePath)
+{
+	// Create an empty shader handle
+	GLuint shader = glCreateShader(shaderType);
+
+	// Send the shader source code to GL
+	// Note that std::string's .c_str is NULL character terminated.
+	std::string shaderSrc = ReadFile(srcFilePath);
+	const GLchar* source = (const GLchar*)shaderSrc.c_str();
+	glShaderSource(shader, 1, &source, 0);
+
+	// Compile the shader
+	glCompileShader(shader);
+
+	// Check the compilation status
+	GLint isCompiled = 0;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled == GL_FALSE)
+	{
+		std::vector<GLchar> infoLog = getShaderInfoLog(shader);
+
+		// We don't need the shader anymore.
+		glDeleteShader(shader);
+
+		// Use the infoLog as you see fit.
+		printf("'%s' compilation error.\n", srcFilePath.c_str());
+		printf("%s", infoLog.data());
+
+		// In this simple program, we'll just leave
+		return 0;
+	}
+
+	return shader;
+}
+
 std::string OpenGLShader::ReadFile(const std::string& filePath)
 {
 	std::string content;
@@ -303,9 +330,6 @@ std::vector<GLchar> OpenGLShader::getShaderInfoLog(GLint id)
 	// The maxLength includes the NULL character
 	std::vector<GLchar> infoLog(maxLength);
 	glGetShaderInfoLog(id, maxLength, &maxLength, &infoLog[0]);
-
-	// We don't need the shader anymore.
-	glDeleteShader(id);
 
 	return infoLog;
 }
