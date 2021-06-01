@@ -12,7 +12,7 @@ out vec3 vv_Normal;
 
 void main()
 {
-	vec4 position = u_Transform * vec4(a_position, 1.0f);
+	vec4 position = u_Transform * vec4(a_position + a_offset, 1.0f);
 	
 	gl_Position = u_ViewProjection * position;
 

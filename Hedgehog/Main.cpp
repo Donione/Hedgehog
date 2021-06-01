@@ -185,14 +185,17 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_offset", 1 },
 		};
 
-		float offsets[5 * 5 * 5 * 3]{};
+		const int numX = 1;
+		const int numY = 1;
+		const int numZ = 1;
+		float offsets[numX * numY * numZ * 3]{};
 
 		int i = 0;
-		for (int x = 0; x < 5; x++)
+		for (int x = 0; x < numX; x++)
 		{
-			for (int y = 0; y < 5; y++)
+			for (int y = 0; y < numY; y++)
 			{
-				for (int z = 0; z < 5; z++)
+				for (int z = 0; z < numZ; z++)
 				{
 					offsets[i++] = (float)x * 2;
 					offsets[i++] = (float)y * 2;
@@ -205,7 +208,7 @@ public:
 																							 offsets,
 																							 sizeof(offsets)));
 		bunnyEntity.Get<Hedge::Mesh>().Get()->AddVertexBuffer(vertexBuffer);
-		//bunnyEntity.Get<Hedge::Mesh>().Get()->SetInstanceCount(5 * 5 * 5);
+		bunnyEntity.Get<Hedge::Mesh>().Get()->SetInstanceCount(numX * numY * numZ);
 
 
 

@@ -54,18 +54,18 @@ cbuffer ObjectConstantBuffer : register(b2)
 }
 
 
-struct GSInput
+struct PSInput
 {
     float4 position : SV_POSITION;
     float3 pos : POSITIONT;
     float3 normal : NORMAL;
 };
 
-GSInput VSMain(float3 position : a_position, float3 normal : a_normal, float3 offset : a_offset)
+PSInput VSMain(float3 position : a_position, float3 normal : a_normal, float3 offset : a_offset)
 {
-    GSInput result;
+    PSInput result;
 
-    float4 pos = mul(u_Transform, float4(position, 1.0f));
+    float4 pos = mul(u_Transform, float4(position + offset, 1.0f));
 
     result.position = mul(u_ViewProjection, pos);
     result.pos = pos.xyz;
@@ -87,15 +87,8 @@ float3 Explode(float3 position, float3 direction)
     return position + direction * u_magnitude;
 }
 
-struct PSInput
-{
-    float4 position : SV_POSITION;
-    float3 pos : POSITIONT;
-    float3 normal : NORMAL;
-};
-
 [maxvertexcount(3)]
-void GSMain(triangle GSInput input[3], inout TriangleStream<PSInput> OutputStream)
+void GSMain(triangle PSInput input[3], inout TriangleStream<PSInput> OutputStream)
 {
     PSInput result;
 
