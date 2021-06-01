@@ -4,6 +4,7 @@
 
 #include <Renderer/OpenGLContext.h>
 #include <Renderer/DirectX12Context.h>
+#include <Renderer/VulkanContext.h>
 
 #include <iostream>
 
@@ -91,7 +92,11 @@ void Application::Init()
 		break;
 
 	case RendererAPI::API::DirectX12:
-		renderContext = new DirectX12Context(window.GetHandle());;
+		renderContext = new DirectX12Context(window.GetHandle());
+		break;
+
+	case RendererAPI::API::Vulkan:
+		renderContext = new VulkanContext(window.GetHandle());
 		break;
 
 	case RendererAPI::API::None:
@@ -102,6 +107,8 @@ void Application::Init()
 		renderContext = nullptr;
 		break;
 	}
+
+	assert(renderContext);
 
 	// Setup VSYNC
 	renderContext->SetSwapInterval(0);

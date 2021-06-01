@@ -201,6 +201,9 @@
     <ClInclude Include="..\modules\pugixml\src\pugixml.hpp">
       <Filter>Include\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanContext.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -310,6 +313,9 @@
     </ClCompile>
     <ClCompile Include="..\modules\pugixml\src\pugixml.cpp">
       <Filter>Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanContext.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
