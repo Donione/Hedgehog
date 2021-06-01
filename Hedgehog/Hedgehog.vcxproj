@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\vk-bootstrap\;$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\vk-bootstrap\;$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\vk-bootstrap\;$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)modules\vk-bootstrap\;$(VULKAN_SDK)\Include;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)modules\stb\;$(SolutionDir)modules\glm\;$(SolutionDir)modules\ImGui\;$(SolutionDir)..\DirectX12\;$(SolutionDir)GLAD\include\;Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="..\modules\pugixml\src\pugiconfig.hpp" />
     <ClInclude Include="..\modules\pugixml\src\pugixml.hpp" />
+    <ClInclude Include="..\modules\vk-bootstrap\VkBootstrap.h" />
     <ClInclude Include="Include\Animation\Animation.h" />
     <ClInclude Include="Include\Animation\Animator.h" />
     <ClInclude Include="Include\Animation\Segment.h" />
@@ -207,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\modules\pugixml\src\pugixml.cpp" />
+    <ClCompile Include="..\modules\vk-bootstrap\VkBootstrap.cpp" />
     <ClCompile Include="Include\Component\Entity.cpp" />
     <ClCompile Include="Source\Animation\Animation.cpp" />
     <ClCompile Include="Source\Animation\Animator.cpp" />
