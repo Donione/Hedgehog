@@ -7,6 +7,8 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
+#include <VkBootstrap.h>
+
 #include <vector>
 
 // This implementation is directly based (copy-pasted from) on VulkanGuide (https://vkguide.dev)
@@ -25,10 +27,29 @@ public:
 	void MakeCurrent() override { /* Do Nothing */ }
 	void SwapBuffers() override;
 
+	friend class VulkanRendererAPI;
+
+private:
+	vkb::Instance CreateInstance();
+	void CreateDevice(vkb::Instance& vkbInst);
+	void CreateSwapChain(unsigned int width, unsigned int height);
+	void CreateCommandBuffers();
+	void CreateRenderPass();
+	void CreateFrameBuffers(unsigned int width, unsigned int height);
+	void CreateSyncObjects();
+
+	void DestroySwapChain();
+	void DestroySyncObjects();
+
+	void ResizeSwapChain(unsigned int width, unsigned int height);
+
+	uint32_t WaitForNextFrame();
+
+
 private:
 	HWND windowHandle = NULL;
-
 	int swapInterval = 0;
+	uint32_t frameIndex = 0;
 
 	VkInstance instance; // Vulkan library handle
 	VkDebugUtilsMessengerEXT debugMessenger; // Vulkan debug output handle
@@ -47,6 +68,21 @@ private:
 	//array of image-views from the swapchain
 	std::vector<VkImageView> swapchainImageViews;
 
+	VkQueue graphicsQueue; //queue we will submit to
+	uint32_t graphicsQueueFamily; //family of that queue
+
+	VkCommandPool commandPool; //the command pool for our commands
+	VkCommandBuffer mainCommandBuffer; //the buffer we will record into
+
+	VkRenderPass renderPass;
+
+	std::vector<VkFramebuffer> framebuffers;
+
+	// Semaphores are used for GPU-GPU synchronization
+	VkSemaphore presentSemaphore;
+	VkSemaphore renderSemaphore;
+	// Fences are used for CPU-GPU synchronization
+	VkFence renderFence;
 };
 
 }  // namespace Hedge
