@@ -207,6 +207,9 @@
     <ClInclude Include="..\modules\vk-bootstrap\VkBootstrap.h">
       <Filter>Include\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanRendererAPI.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -322,6 +325,9 @@
     </ClCompile>
     <ClCompile Include="..\modules\vk-bootstrap\VkBootstrap.cpp">
       <Filter>Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanRendererAPI.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
