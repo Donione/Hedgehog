@@ -39,6 +39,9 @@
     <ClCompile Include="..\modules\ImGui\backends\imgui_impl_win32.cpp">
       <Filter>Source\backends</Filter>
     </ClCompile>
+    <ClCompile Include="..\modules\ImGui\backends\imgui_impl_vulkan.cpp">
+      <Filter>Source\backends</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\modules\ImGui\backends\imgui_impl_dx12.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="..\modules\ImGui\imgui.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\ImGui\backends\imgui_impl_vulkan.h">
+      <Filter>Include\backends</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

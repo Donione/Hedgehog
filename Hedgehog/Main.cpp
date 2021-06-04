@@ -1412,7 +1412,7 @@ class VulkanTest : public Hedge::Application
 public:
 	VulkanTest(HINSTANCE hInstance) : Application(hInstance)
 	{
-		//layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
+		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
 		layers.Push(new VulkanTestLayer());
 	}
 

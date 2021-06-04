@@ -28,6 +28,7 @@ public:
 	void SwapBuffers() override;
 
 	friend class VulkanRendererAPI;
+	friend class ImGuiComponent;
 
 private:
 	vkb::Instance CreateInstance();

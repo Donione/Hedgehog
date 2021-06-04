@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(VULKAN_SDK)\Include\;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(VULKAN_SDK)\Include\;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(VULKAN_SDK)\Include\;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(VULKAN_SDK)\Include\;$(SolutionDir)modules\pugixml\src\;$(SolutionDir)modules\EnTT\;$(SolutionDir)..\DirectX12\;$(SolutionDir)modules\glm\;$(SolutionDir)GLAD\include\;$(SolutionDir)modules\ImGui\;$(SolutionDir)Hedgehog\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
