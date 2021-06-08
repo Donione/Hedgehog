@@ -204,6 +204,7 @@
     <ClInclude Include="Include\Renderer\VertexArray.h" />
     <ClInclude Include="Include\Renderer\VulkanContext.h" />
     <ClInclude Include="Include\Renderer\VulkanRendererAPI.h" />
+    <ClInclude Include="Include\Renderer\VulkanShader.h" />
     <ClInclude Include="Include\Utilities\Stopwatch.h" />
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
@@ -245,6 +246,7 @@
     <ClCompile Include="Source\Renderer\VertexArray.cpp" />
     <ClCompile Include="Source\Renderer\VulkanContext.cpp" />
     <ClCompile Include="Source\Renderer\VulkanRendererAPI.cpp" />
+    <ClCompile Include="Source\Renderer\VulkanShader.cpp" />
     <ClCompile Include="Source\Utilities\stb_image_implementation.cpp" />
     <ClCompile Include="Source\Window\Window.cpp" />
   </ItemGroup>

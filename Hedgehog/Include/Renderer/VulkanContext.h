@@ -12,6 +12,7 @@
 #include <vector>
 
 // This implementation is directly based (copy-pasted from) on VulkanGuide (https://vkguide.dev)
+// and Vulkan Tutorial (https://vulkan-tutorial.com)
 
 
 namespace Hedge
@@ -29,6 +30,7 @@ public:
 
 	friend class VulkanRendererAPI;
 	friend class ImGuiComponent;
+	friend class VulkanShader;
 
 private:
 	vkb::Instance CreateInstance();

@@ -210,6 +210,9 @@
     <ClInclude Include="Include\Renderer\VulkanRendererAPI.h">
       <Filter>Include\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanShader.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -327,6 +330,9 @@
       <Filter>Source\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\VulkanRendererAPI.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanShader.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
