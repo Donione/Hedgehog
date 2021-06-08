@@ -388,4 +388,12 @@
       <Filter>Assets\Shader</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Asset\Shader\VulkanExampleVertexShader.vert">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanExamplePixelShader.frag">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>
