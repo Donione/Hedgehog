@@ -51,9 +51,12 @@ private:
 
 
 private:
+	static int const NUM_FRAMES_IN_FLIGHT = 3;
+
 	HWND windowHandle = NULL;
 	int swapInterval = 0;
-	uint32_t frameIndex = 0;
+	uint32_t swapChainImageIndex = 0;
+	int frameInFlightIndex = 0;
 
 	VkInstance instance; // Vulkan library handle
 	VkDebugUtilsMessengerEXT debugMessenger; // Vulkan debug output handle
@@ -76,17 +79,17 @@ private:
 	uint32_t graphicsQueueFamily; //family of that queue
 
 	VkCommandPool commandPool; //the command pool for our commands
-	VkCommandBuffer mainCommandBuffer; //the buffer we will record into
+	std::vector<VkCommandBuffer> commandBuffers; //the buffers we will record into
 
 	VkRenderPass renderPass;
 
 	std::vector<VkFramebuffer> framebuffers;
 
 	// Semaphores are used for GPU-GPU synchronization
-	VkSemaphore presentSemaphore;
-	VkSemaphore renderSemaphore;
+	std::vector<VkSemaphore> presentSemaphores;
+	std::vector<VkSemaphore> renderSemaphores;
 	// Fences are used for CPU-GPU synchronization
-	VkFence renderFence;
+	std::vector<VkFence> renderFences;
 };
 
 }  // namespace Hedge

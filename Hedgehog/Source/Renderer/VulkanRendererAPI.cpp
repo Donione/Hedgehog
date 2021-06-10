@@ -40,14 +40,14 @@ void VulkanRendererAPI::SetScissor(int x, int y, int width, int height)
 
 void VulkanRendererAPI::End()
 {
-	renderContext->WaitForNextFrame();
+	vkDeviceWaitIdle(renderContext->device);
 }
 
 void VulkanRendererAPI::BeginFrame()
 {
 	uint32_t swapchainImageIndex = renderContext->WaitForNextFrame();
 
-	VkCommandBuffer commandBuffer = renderContext->mainCommandBuffer;
+	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->frameInFlightIndex];
 
 	//now that we are sure that the commands finished executing, we can safely reset the command buffer to begin recording again.
 	if (vkResetCommandBuffer(commandBuffer, 0) != VK_SUCCESS)
@@ -95,7 +95,7 @@ void VulkanRendererAPI::BeginFrame()
 
 void VulkanRendererAPI::EndFrame()
 {
-	VkCommandBuffer commandBuffer = renderContext->mainCommandBuffer;
+	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->frameInFlightIndex];
 
 	//finalize the render pass
 	vkCmdEndRenderPass(commandBuffer);
@@ -119,22 +119,24 @@ void VulkanRendererAPI::EndFrame()
 	submit.pWaitDstStageMask = &waitStage;
 
 	submit.waitSemaphoreCount = 1;
-	submit.pWaitSemaphores = &renderContext->presentSemaphore;
+	submit.pWaitSemaphores = &renderContext->presentSemaphores[renderContext->frameInFlightIndex];
 
 	submit.signalSemaphoreCount = 1;
-	submit.pSignalSemaphores = &renderContext->renderSemaphore;
+	submit.pSignalSemaphores = &renderContext->renderSemaphores[renderContext->frameInFlightIndex];
 
 	submit.commandBufferCount = 1;
 	submit.pCommandBuffers = &commandBuffer;
 
 	//submit command buffer to the queue and execute it.
 	// renderFence will now block until the graphic commands finish execution
-	if (vkQueueSubmit(renderContext->graphicsQueue, 1, &submit, renderContext->renderFence) != VK_SUCCESS)
+	if (vkQueueSubmit(renderContext->graphicsQueue, 1, &submit, renderContext->renderFences[renderContext->frameInFlightIndex]) != VK_SUCCESS)
 	{
 		assert(false);
 	}
 
 	renderContext->SwapBuffers();
+
+	renderContext->frameInFlightIndex = (renderContext->frameInFlightIndex + 1) % renderContext->NUM_FRAMES_IN_FLIGHT;
 }
 
 void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, unsigned int count, unsigned int offset)
@@ -147,7 +149,7 @@ void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexAr
 	//				 0, // vertexOffset
 	//				 0); // firstInstance
 
-	vkCmdDraw(renderContext->mainCommandBuffer,
+	vkCmdDraw(renderContext->commandBuffers[renderContext->frameInFlightIndex],
 			  3, // vertexCount
 			  vertexArray->GetInstanceCount(),
 			  0, // firstVertex

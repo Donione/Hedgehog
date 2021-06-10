@@ -47,7 +47,7 @@ VulkanVertexArray::~VulkanVertexArray()
 
 void VulkanVertexArray::Bind()
 {
-	vkCmdBindPipeline(vulkanContext->mainCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindPipeline(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
 void VulkanVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
