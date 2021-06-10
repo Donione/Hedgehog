@@ -1356,6 +1356,15 @@ public:
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
 		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
 		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+
+
+		shader.reset(Hedge::Shader::Create("..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv",
+										   "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv"));
+
+		vertexArray.reset(Hedge::VertexArray::Create(shader,
+													 Hedge::PrimitiveTopology::Triangle,
+													 {},
+													 {}));
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -1364,6 +1373,8 @@ public:
 
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
+			Hedge::Renderer::Submit(vertexArray);
+
 			scene.OnUpdate(duration);
 		}
 		Hedge::Renderer::EndScene();
@@ -1405,6 +1416,8 @@ private:
 	bool previousBlending;
 
 
+	std::shared_ptr<Hedge::Shader> shader;
+	std::shared_ptr<Hedge::VertexArray> vertexArray;
 };
 
 class VulkanTest : public Hedge::Application
