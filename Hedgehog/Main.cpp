@@ -1335,12 +1335,123 @@ public:
 };
 
 
+class VulkanTestLayer : public Hedge::Layer
+{
+public:
+	VulkanTestLayer(bool enable = true) :
+		Layer("Vulkan Test Layer", enable)
+	{
+		previousWireframeMode = wireframeMode = Hedge::RenderCommand::GetWireframeMode();
+		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
+		previousFaceCulling = faceCulling = Hedge::RenderCommand::GetFaceCulling();
+		previousBlending = blending = Hedge::RenderCommand::GetBlending();
+
+		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
+	
+		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
+
+		auto camera = scene.CreateEntity("Scene Camera");
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f)); // camera space, +z goes into the screen
+		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
+		auto& cameraTransform = camera.Add<Hedge::Transform>();
+		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
+		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+
+
+		shader.reset(Hedge::Shader::Create("..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv",
+										   "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv"));
+
+		vertexArray.reset(Hedge::VertexArray::Create(shader,
+													 Hedge::PrimitiveTopology::Triangle,
+													 {},
+													 {}));
+	}
+
+	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
+	{
+		auto primaryCamera = scene.GetPrimaryCamera();
+
+		Hedge::Renderer::BeginScene(primaryCamera);
+		{
+			Hedge::Renderer::Submit(vertexArray);
+
+			scene.OnUpdate(duration);
+		}
+		Hedge::Renderer::EndScene();
+	}
+
+private:
+	Hedge::Scene scene;
+
+	struct ViewportDesc
+	{
+		int x;
+		int y;
+		int width;
+		int height;
+
+		bool operator!=(const ViewportDesc& other)
+		{
+			return x != other.x || y != other.y || width != other.width || height != other.height;
+		}
+	};
+
+	ViewportDesc viewportDesc;
+
+	// Camera
+	float aspectRatio;
+	float cameraFOV = 56.0f;
+	float cameraZoom = 1.0f;
+
+
+	// Render settings
+	bool wireframeMode;
+	bool depthTest;
+	bool faceCulling;
+	bool blending;
+
+	bool previousWireframeMode;
+	bool previousDepthTest;
+	bool previousFaceCulling;
+	bool previousBlending;
+
+
+	std::shared_ptr<Hedge::Shader> shader;
+	std::shared_ptr<Hedge::VertexArray> vertexArray;
+};
+
+class VulkanTest : public Hedge::Application
+{
+public:
+	VulkanTest(HINSTANCE hInstance) : Application(hInstance)
+	{
+		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
+		layers.Push(new VulkanTestLayer());
+	}
+
+	~VulkanTest()
+	{
+		Hedge::Layer* layer;
+		while (layer = layers.TopOverlay())
+		{
+			layers.PopOverlay();
+			delete layer;
+		}
+		while (layer = layers.Top())
+		{
+			layers.Pop();
+			delete layer;
+		}
+	}
+};
 
 // Main function for SubSystem Console
 int main(int argc, char* argv[])
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	Sandbox app(hInstance);
+
+	//Sandbox app(hInstance);
+	VulkanTest app(hInstance);
 	app.Run();
 
 	return 0;

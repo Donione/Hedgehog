@@ -222,7 +222,7 @@ void Window::SetSize(unsigned int width, unsigned int height)
 	this->height = height;
 }
 
-HWND Window::GetHandle(void)
+HWND Window::GetHandle(void) const
 {
 	return hwnd;
 }

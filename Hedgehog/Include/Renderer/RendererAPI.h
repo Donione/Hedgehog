@@ -18,6 +18,7 @@ public:
 		None = 0,
 		OpenGL = 1,
 		DirectX12 = 2,
+		Vulkan = 3,
 	};
 
 public:

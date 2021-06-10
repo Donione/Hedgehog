@@ -3,6 +3,9 @@
 #pragma comment(lib, "D3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "D3DCompiler.lib")
+
+#pragma comment(lib, "vulkan-1.lib")
 
 #include <Window/Window.h>
 #include <Layer/LayerStack.h>
@@ -29,6 +32,7 @@ public:
 
 	RenderContext* GetRenderContext() { return renderContext; }
 	Window& GetWindow() { return window; }
+	const HINSTANCE GetHInstance() const { return hInstance; }
 
 protected:
 	Application(HINSTANCE hInstance)
@@ -44,7 +48,7 @@ protected:
 
 	~Application();
 
-	HWND GetWindowHandle(void);
+	const HWND GetWindowHandle(void) const { return window.GetHandle(); }
 
 private:
 	void Init();

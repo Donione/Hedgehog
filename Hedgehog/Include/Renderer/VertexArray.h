@@ -26,9 +26,7 @@ public:
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) = 0;
 	virtual void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) = 0;
-	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) = 0;
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) = 0;
-	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) = 0;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) = 0;
 	virtual void SetInstanceCount(unsigned int instanceCount) = 0;
 
@@ -38,6 +36,13 @@ public:
 	virtual const std::shared_ptr<Shader> GetShader() const = 0;
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() = 0;
 	virtual unsigned int GetInstanceCount() const = 0;
+
+	void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture);
+	// TODO this one is kinda weird since the textureDescriptions is the entire description,
+	// not just of those in the textures vector
+	void AddTexture(TextureType type,
+					const std::vector<std::shared_ptr<Texture>>& textures,
+					const std::vector<Hedge::TextureDescription>& textureDescriptions);
 
 	static VertexArray* Create(const std::shared_ptr<Shader>& inputShader,
 							   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,

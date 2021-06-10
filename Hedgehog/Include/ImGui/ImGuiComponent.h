@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <d3dx12.h>
 #include <glad/glad.h>
+#include <vulkan/vulkan.h>
 
 #include <Renderer/RenderContext.h>
 
@@ -24,12 +25,19 @@ public:
 	void EndFrame();
 
 private:
+	// DirectX12 implementation specific
 	void CreateSRVDescHeap();
+
+	// Vulkan implementation specific
+	void CreateDescriptorPool();
+	void UploadFonts();
 
 private:
 	RenderContext* renderContext;
 
 	ID3D12DescriptorHeap* SRVDescHeap = nullptr;
+
+	VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 };
 
 } // namespace Hedge

@@ -3,6 +3,7 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/OpenGLRendererAPI.h>
 #include <Renderer/DirectX12RendererAPI.h>
+#include <Renderer/VulkanRendererAPI.h>
 
 
 namespace Hedge
@@ -20,6 +21,10 @@ void RenderCommand::Init(RenderContext* renderContext)
 		rendererAPI = new DirectX12RendererAPI();
 		break;
 
+	case RendererAPI::API::Vulkan:
+		rendererAPI = new VulkanRendererAPI();
+		break;
+
 	case RendererAPI::API::None:
 		rendererAPI = nullptr;
 		break;
@@ -28,6 +33,8 @@ void RenderCommand::Init(RenderContext* renderContext)
 		rendererAPI = nullptr;
 		break;
 	}
+
+	assert(rendererAPI);
 
 	if (rendererAPI)
 	{

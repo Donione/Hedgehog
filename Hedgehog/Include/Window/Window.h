@@ -43,7 +43,7 @@ public:
 
 	void SetSize(unsigned int width, unsigned int height);
 
-	HWND GetHandle(void);
+	HWND GetHandle(void) const;
 
 private:
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);

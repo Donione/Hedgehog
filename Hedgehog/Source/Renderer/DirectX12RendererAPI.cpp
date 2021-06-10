@@ -70,7 +70,7 @@ void DirectX12RendererAPI::End()
 void DirectX12RendererAPI::BeginFrame()
 {
 	// TODO ensure that BeginFrame and EndFrame are always called in pairs and BeginFrame is called first.
-	frameCtxt = frameCtxt = renderContext->WaitForNextFrameResources();
+	frameCtxt = renderContext->WaitForNextFrameResources();
 	backBufferIdx = renderContext->g_pSwapChain->GetCurrentBackBufferIndex();
 
 	frameCtxt->CommandAllocator->Reset();

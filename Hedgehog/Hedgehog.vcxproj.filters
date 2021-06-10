@@ -201,6 +201,21 @@
     <ClInclude Include="..\modules\pugixml\src\pugixml.hpp">
       <Filter>Include\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanContext.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\vk-bootstrap\VkBootstrap.h">
+      <Filter>Include\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanRendererAPI.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanShader.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\VulkanVertexArray.h">
+      <Filter>Include\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\Window.cpp">
@@ -311,6 +326,21 @@
     <ClCompile Include="..\modules\pugixml\src\pugixml.cpp">
       <Filter>Source\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanContext.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\vk-bootstrap\VkBootstrap.cpp">
+      <Filter>Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanRendererAPI.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanShader.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\VulkanVertexArray.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\OpenGLExampleVertexShader.glsl">
@@ -363,5 +393,13 @@
     <FxCompile Include="Asset\Shader\DirectX12NormalMapShader.hlsl">
       <Filter>Assets\Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Asset\Shader\VulkanExampleVertexShader.vert">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanExamplePixelShader.frag">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

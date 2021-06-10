@@ -25,9 +25,7 @@ public:
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
 	virtual void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) override;
-	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
-	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 	virtual void SetInstanceCount(unsigned int instanceCount) override { this->instanceCount = instanceCount; }
 
@@ -35,7 +33,7 @@ public:
 	virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const override { return vertexBuffers; }
 	virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const override { return indexBuffer; }
 	// TODO why doesn't returning a shared_ptr reference work when upcasting?
-	virtual const std::shared_ptr<Shader> GetShader() const override { return shader; }
+	virtual const std::shared_ptr<Shader> GetShader() const override { return baseShader; }
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
 	virtual unsigned int GetInstanceCount() const override { return instanceCount; }
 
@@ -65,6 +63,7 @@ private:
 	//      Is it because of the command allocator/queue or because the command list is recording?
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState[MAX_PSOS];
 
+	std::shared_ptr<Shader> baseShader;
 	std::shared_ptr<DirectX12Shader> shader;
 	PrimitiveTopology primitiveTopology;
 	BufferLayout bufferLayout;
