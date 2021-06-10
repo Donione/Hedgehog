@@ -14,6 +14,7 @@ DirectX12VertexArray::DirectX12VertexArray(const std::shared_ptr<Shader>& inputS
 										   PrimitiveTopology primitiveTopology, const BufferLayout& inputLayout,
 										   const std::vector<Hedge::TextureDescription>& textureDescriptions)
 {
+	this->baseShader = inputShader;
 	// TODO for fun, see how the ref count changes
 	this->shader = std::dynamic_pointer_cast<DirectX12Shader>(inputShader);
 	this->primitiveTopology = primitiveTopology;
@@ -130,12 +131,6 @@ void DirectX12VertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& in
 	this->indexBuffer = indexBuffer;
 }
 
-void DirectX12VertexArray::AddTexture(TextureType type, const std::shared_ptr<Texture>& texture)
-{
-	// TODO warn if adding a single texture when there are multiple textures of the same type described
-	AddTexture(type, 0, texture);
-}
-
 void DirectX12VertexArray::AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture)
 {
 	DirectX12Context* dx12context = dynamic_cast<DirectX12Context*>(Application::GetInstance().GetRenderContext());
@@ -156,17 +151,6 @@ void DirectX12VertexArray::AddTexture(TextureType type, int position, const std:
 											index,
 											dx12context->g_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 	dx12context->g_pd3dDevice->CreateShaderResourceView(std::dynamic_pointer_cast<DirectX12Texture2D>(texture)->Get(), &srvDesc, cpuHandle);
-}
-
-void DirectX12VertexArray::AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures)
-{
-	auto indices = FindIndices(type, textureDescriptions);
-	assert(indices.size() == textures.size());
-
-	for (int i = 0; i < textures.size(); i++)
-	{
-		AddTexture(type, i, textures[i]);
-	}
 }
 
 void DirectX12VertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
@@ -194,7 +178,6 @@ void DirectX12VertexArray::CreatePSO()
 	unsigned int offset = 0;
 	for (auto& input : bufferLayout)
 	{
-		// TODO learn what all of these do
 		//SemanticName, SemanticIndex, Format, InputSlot, AlignedByteOffset, InputSlotClass, InstanceDataStepRate
 		inputElementDescs.push_back(
 			{
@@ -235,7 +218,7 @@ void DirectX12VertexArray::CreatePSO()
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.RasterizerState.CullMode = RenderCommand::GetFaceCulling() ? D3D12_CULL_MODE_FRONT : D3D12_CULL_MODE_NONE;
 	psoDesc.RasterizerState.FillMode = RenderCommand::GetWireframeMode() ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
-	psoDesc.BlendState = blendDesc; // CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = blendDesc;
 	psoDesc.DepthStencilState = depthStencilDesc;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleMask = UINT_MAX; // sample mask has to do with multi-sampling. 0xFFFFFFFF (UINT_MAX) means point sampling is done

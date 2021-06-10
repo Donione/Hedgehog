@@ -23,9 +23,7 @@ public:
 
 	virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
 	virtual void AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) override;
-	virtual void AddTexture(TextureType type, const std::shared_ptr<Texture>& texture) override;
 	virtual void AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture) override;
-	virtual void AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures) override;
 	virtual void SetupGroups(const std::vector<VertexGroup>& groups) override;
 	virtual void SetInstanceCount(unsigned int instanceCount) override { this->instanceCount = instanceCount; }
 

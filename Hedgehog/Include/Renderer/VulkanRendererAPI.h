@@ -37,6 +37,10 @@ public:
 							 unsigned int count = 0,
 							 unsigned int offset = 0) override;
 
+
+	const VkViewport& GetViewport() const { return viewport; }
+	const VkRect2D& GetScissor() const { return scissor; }
+
 private:
 	VulkanContext* renderContext;
 
@@ -46,7 +50,7 @@ private:
 	bool blending = false;
 
 	glm::vec4 clearColor;
-	VkRect2D viewport = {};
+	VkViewport viewport = {};
 	VkRect2D scissor = {};
 };
 

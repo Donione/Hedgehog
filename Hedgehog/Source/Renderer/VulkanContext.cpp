@@ -93,8 +93,11 @@ void VulkanContext::CreateDevice(vkb::Instance& vkbInst)
 	//use vkbootstrap to select a GPU. 
 	//We want a GPU that can write to the SDL surface and supports Vulkan 1.1
 	vkb::PhysicalDeviceSelector selector{ vkbInst };
+	VkPhysicalDeviceFeatures features{};
+	features.fillModeNonSolid = true;
 	vkb::PhysicalDevice physicalDevice = selector
 		.set_minimum_version(1, 1)
+		.set_required_features(features)
 		.set_surface(surface)
 		.select()
 		.value();
@@ -119,7 +122,7 @@ void VulkanContext::CreateSwapChain(unsigned int width, unsigned int height)
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		//.use_default_format_selection()
-		.set_desired_format({ VK_FORMAT_R8G8B8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+		.set_desired_format({ VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
 		//use vsync present mode
 		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
 		.set_desired_extent(width, height)

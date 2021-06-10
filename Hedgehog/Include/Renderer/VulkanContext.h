@@ -31,6 +31,7 @@ public:
 	friend class VulkanRendererAPI;
 	friend class ImGuiComponent;
 	friend class VulkanShader;
+	friend class VulkanVertexArray;
 
 private:
 	vkb::Instance CreateInstance();

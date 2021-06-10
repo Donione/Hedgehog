@@ -22,10 +22,12 @@ void VulkanRendererAPI::Resize(int width, int height, bool fillViewport)
 
 void VulkanRendererAPI::SetViewport(int x, int y, int width, int height)
 {
-	viewport.offset.x = x;
-	viewport.offset.y = y;
-	viewport.extent.width = width;
-	viewport.extent.height = height;
+	viewport.x = (float)x;
+	viewport.y = (float)y;
+	viewport.width = (float)width;
+	viewport.height = (float)height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
 }
 
 void VulkanRendererAPI::SetScissor(int x, int y, int width, int height)
@@ -78,7 +80,10 @@ void VulkanRendererAPI::BeginFrame()
 	rpInfo.pNext = nullptr;
 
 	rpInfo.renderPass = renderContext->renderPass;
-	rpInfo.renderArea = viewport;
+	rpInfo.renderArea.offset.x = (int)viewport.x;
+	rpInfo.renderArea.offset.y = (int)viewport.y;
+	rpInfo.renderArea.extent.width = (int)viewport.width;
+	rpInfo.renderArea.extent.height = (int)viewport.height;
 	rpInfo.framebuffer = renderContext->framebuffers[swapchainImageIndex];
 
 	//connect clear values
@@ -134,6 +139,19 @@ void VulkanRendererAPI::EndFrame()
 
 void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, unsigned int count, unsigned int offset)
 {
+	// TODO we don't have index buffer yet, so no vkCmdDrawIndexed
+	//vkCmdDrawIndexed(renderContext->mainCommandBuffer,
+	//				 count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
+	//				 vertexArray->GetInstanceCount(), 
+	//				 offset * 3,
+	//				 0, // vertexOffset
+	//				 0); // firstInstance
+
+	vkCmdDraw(renderContext->mainCommandBuffer,
+			  3, // vertexCount
+			  vertexArray->GetInstanceCount(),
+			  0, // firstVertex
+			  0); // firstInstance
 }
 
 } // namespace Hedge

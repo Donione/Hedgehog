@@ -55,7 +55,7 @@ const std::unique_ptr<uint32_t> VulkanShader::ReadFile(const std::string& filePa
 
 	file.close();
 
-	*size = dataSize;
+	*size = fileSize;
 	return std::unique_ptr<uint32_t>(data);
 }
 
@@ -71,7 +71,7 @@ VkShaderModule VulkanShader::CreateShaderModule(const std::string& filePath)
 	createInfo.pCode = shaderByteCode.get();
 
 	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
-	if (vkCreateShaderModule(vulkanContext->device, &createInfo, nullptr, &vertexShaderModule) != VK_SUCCESS)
+	if (vkCreateShaderModule(vulkanContext->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
 	{
 		assert(false);
 	}

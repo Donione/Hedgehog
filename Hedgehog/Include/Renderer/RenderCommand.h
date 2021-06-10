@@ -10,6 +10,8 @@ namespace Hedge
 class RenderCommand
 {
 public:
+	static const RendererAPI* GetRenderer() { return rendererAPI; }
+
 	// TODECIDE maybe insted of tying render context and rendererAPI together
 	// create a static render context instance getter
 	static void Init(RenderContext* renderContext);

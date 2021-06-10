@@ -77,12 +77,6 @@ void OpenGLVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 	this->Unbind();
 }
 
-void OpenGLVertexArray::AddTexture(TextureType type, const std::shared_ptr<Texture>& texture)
-{
-	// TODO warn if adding a single texture when there are multiple textures of the same type described
-	AddTexture(type, 0, texture);
-}
-
 void OpenGLVertexArray::AddTexture(TextureType type, int position, const std::shared_ptr<Texture>& texture)
 {
 	auto indices = FindIndices(type, textureDescriptions);
@@ -101,17 +95,6 @@ void OpenGLVertexArray::AddTexture(TextureType type, int position, const std::sh
 	}
 
 	shader->UploadConstant(name, index);
-}
-
-void OpenGLVertexArray::AddTexture(TextureType type, const std::vector<std::shared_ptr<Texture>>& textures)
-{
-	auto indices = FindIndices(type, textureDescriptions);
-	assert(indices.size() == textures.size());
-
-	for (int i = 0; i < textures.size(); i++)
-	{
-		AddTexture(type, i, textures[i]);
-	}
 }
 
 void OpenGLVertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
