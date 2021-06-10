@@ -61,6 +61,7 @@ private:
 	inline static Application* instance = nullptr;
 
 	bool running = true;
+	bool minimized = false;
 
 	HINSTANCE hInstance = nullptr;
 	Window window;
