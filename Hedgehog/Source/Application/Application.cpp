@@ -72,11 +72,6 @@ void Application::Run()
 	RenderCommand::End();
 }
 
-HWND Application::GetWindowHandle(void)
-{
-	return window.GetHandle();
-}
-
 void Application::Init()
 {
 	window.Create(hInstance, Window::WindowProperties("Main Window"));

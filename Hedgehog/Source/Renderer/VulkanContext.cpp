@@ -83,7 +83,7 @@ void VulkanContext::CreateDevice(vkb::Instance& vkbInst)
 	VkWin32SurfaceCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = windowHandle;
-	createInfo.hinstance = GetModuleHandle(nullptr); // TODO get the instance from Application
+	createInfo.hinstance = Application::GetInstance().GetHInstance();
 
 	if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
 	{

@@ -32,6 +32,7 @@ public:
 
 	RenderContext* GetRenderContext() { return renderContext; }
 	Window& GetWindow() { return window; }
+	const HINSTANCE GetHInstance() const { return hInstance; }
 
 protected:
 	Application(HINSTANCE hInstance)
@@ -47,7 +48,7 @@ protected:
 
 	~Application();
 
-	HWND GetWindowHandle(void);
+	const HWND GetWindowHandle(void) const { return window.GetHandle(); }
 
 private:
 	void Init();
