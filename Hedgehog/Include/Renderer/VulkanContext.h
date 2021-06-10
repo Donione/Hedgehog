@@ -64,7 +64,7 @@ private:
 	VkDevice device; // Vulkan device for commands
 	VkSurfaceKHR surface; // Vulkan window surface
 
-	VkSwapchainKHR swapchain;
+	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
 	// image format expected by the windowing system
 	VkFormat swapchainImageFormat;

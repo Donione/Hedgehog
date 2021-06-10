@@ -34,6 +34,9 @@ public:
 	virtual std::vector<std::pair<VertexGroup, float>>& GetGroups() override { return groups; }
 	virtual unsigned int GetInstanceCount() const override { return instanceCount; }
 
+
+	void Resize(int width, int height);
+
 private:
 	void CreatePipeline();
 	VkPipelineVertexInputStateCreateInfo CreateVertexInputState() const;

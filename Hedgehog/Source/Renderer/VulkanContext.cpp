@@ -24,8 +24,8 @@ VulkanContext::VulkanContext(HWND windowHandle)
 VulkanContext::~VulkanContext()
 {
 	DestroySyncObjects();
-	vkDestroyCommandPool(device, commandPool, nullptr);
 	DestroySwapChain();
+	vkDestroyCommandPool(device, commandPool, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkb::destroy_debug_utils_messenger(instance, debugMessenger);
@@ -50,7 +50,8 @@ void VulkanContext::SwapBuffers()
 
 	presentInfo.pImageIndices = &swapChainImageIndex;
 
-	if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS)
+	VkResult ret = vkQueuePresentKHR(graphicsQueue, &presentInfo);
+	if (ret != VK_SUCCESS)
 	{
 		assert(false);
 	}
@@ -305,6 +306,8 @@ void VulkanContext::DestroySwapChain()
 		vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 		vkDestroyImageView(device, swapchainImageViews[i], nullptr);
 	}
+
+	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 }
 
 void VulkanContext::DestroySyncObjects()
@@ -320,7 +323,12 @@ void VulkanContext::DestroySyncObjects()
 void VulkanContext::ResizeSwapChain(unsigned int width, unsigned int height)
 {
 	DestroySwapChain();
+	vkDestroyCommandPool(device, commandPool, nullptr);
+
 	CreateSwapChain(width, height);
+	CreateCommandBuffers();
+	CreateRenderPass();
+	CreateFrameBuffers(width, height);
 }
 
 uint32_t VulkanContext::WaitForNextFrame()

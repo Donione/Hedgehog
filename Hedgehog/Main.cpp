@@ -24,6 +24,8 @@
 #include <imgui_internal.h> // for ImGui::PushItemFlag
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Renderer/VulkanVertexArray.h>
+
 
 struct Vertex
 {
@@ -1374,6 +1376,16 @@ public:
 			scene.OnUpdate(duration);
 		}
 		Hedge::Renderer::EndScene();
+	}
+
+	void OnMessage(const Hedge::Message& message) override
+	{
+		if (message.GetMessageType() == Hedge::MessageType::WindowSize)
+		{
+			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
+
+			std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(vertexArray)->Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+		}
 	}
 
 private:

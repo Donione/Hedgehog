@@ -1,5 +1,7 @@
 #include <Renderer/VulkanRendererAPI.h>
 
+#include <backends/imgui_impl_vulkan.h>
+
 
 namespace Hedge
 {
@@ -11,7 +13,11 @@ void VulkanRendererAPI::Init(RenderContext* renderContext)
 
 void VulkanRendererAPI::Resize(int width, int height, bool fillViewport)
 {
-	// TODO the actuall resizing is not here yet, duh
+	vkDeviceWaitIdle(renderContext->device);
+
+	void ImGui_ImplVulkan_DestroyDeviceObjects();
+	renderContext->ResizeSwapChain(width, height);
+	bool ImGui_ImplVulkan_CreateDeviceObjects();
 
 	if (fillViewport)
 	{

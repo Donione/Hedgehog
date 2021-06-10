@@ -137,7 +137,7 @@ void Application::OnMessage(Message& message)
 
 		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
-		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight(), false);
+		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight(), true);
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 
 		// TODO for continuously update the window while it's being resized (mouse button is down and dragging)
@@ -145,7 +145,8 @@ void Application::OnMessage(Message& message)
 		// done resizing (mouse button up)
 		// The application is effectively stopped during resizing so we don't need to worry about delta time
 		// For now just copy paste most of the main application run loop
-		if (true)
+		// TODO Disable for now because we don't have a good way to update Vulkan pipeline with the new viewport
+		if (false)
 		{
 			RenderCommand::BeginFrame();
 
