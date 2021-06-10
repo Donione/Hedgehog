@@ -113,7 +113,8 @@ void Application::Init()
 
 	RenderCommand::Init(renderContext);
 
-	RenderCommand::Resize(window.GetWidth(), window.GetHeight());
+	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
+	RenderCommand::SetScissor(0, 0, window.GetWidth(), window.GetHeight());
 	RenderCommand::SetClearColor(clear_color);
 
 	Renderer::SetWireframeMode(false);

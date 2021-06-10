@@ -13,6 +13,12 @@ void VulkanRendererAPI::Init(RenderContext* renderContext)
 
 void VulkanRendererAPI::Resize(int width, int height, bool fillViewport)
 {
+	if (width == viewport.width
+		&& height == viewport.height)
+	{
+		return;
+	}
+
 	vkDeviceWaitIdle(renderContext->device);
 
 	void ImGui_ImplVulkan_DestroyDeviceObjects();

@@ -25,6 +25,8 @@ VulkanContext::~VulkanContext()
 {
 	DestroySyncObjects();
 	DestroySwapChain();
+	vkDestroyRenderPass(device, renderPass, nullptr);
+	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 	vkDestroyCommandPool(device, commandPool, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -134,7 +136,6 @@ void VulkanContext::CreateSwapChain(unsigned int width, unsigned int height)
 	swapchain = vkbSwapchain.swapchain;
 	swapchainImages = vkbSwapchain.get_images().value();
 	swapchainImageViews = vkbSwapchain.get_image_views().value();
-
 	swapchainImageFormat = vkbSwapchain.image_format;
 }
 
@@ -297,17 +298,12 @@ void VulkanContext::DestroySwapChain()
 {
 	vkDestroySwapchainKHR(device, swapchain, nullptr);
 
-	//destroy the main renderpass
-	vkDestroyRenderPass(device, renderPass, nullptr);
-
 	//destroy swapchain resources
 	for (int i = 0; i < swapchainImageViews.size(); i++)
 	{
 		vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 		vkDestroyImageView(device, swapchainImageViews[i], nullptr);
 	}
-
-	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 }
 
 void VulkanContext::DestroySyncObjects()
@@ -323,11 +319,7 @@ void VulkanContext::DestroySyncObjects()
 void VulkanContext::ResizeSwapChain(unsigned int width, unsigned int height)
 {
 	DestroySwapChain();
-	vkDestroyCommandPool(device, commandPool, nullptr);
-
 	CreateSwapChain(width, height);
-	CreateCommandBuffers();
-	CreateRenderPass();
 	CreateFrameBuffers(width, height);
 }
 

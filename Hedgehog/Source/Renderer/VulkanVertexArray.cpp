@@ -75,14 +75,12 @@ void VulkanVertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
 
 void VulkanVertexArray::Resize(int width, int height)
 {
-	vkDestroyPipelineLayout(vulkanContext->device, pipelineLayout, nullptr);
 	vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
 
 	const VulkanRendererAPI* renderer = dynamic_cast<const VulkanRendererAPI*>(RenderCommand::GetRenderer());
 	viewport = renderer->GetViewport();
 	scissor = renderer->GetScissor();
 
-	pipelineLayout = CreatePipelineLayout();
 	CreatePipeline();
 }
 

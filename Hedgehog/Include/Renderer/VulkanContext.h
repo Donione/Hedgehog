@@ -65,13 +65,10 @@ private:
 	VkSurfaceKHR surface; // Vulkan window surface
 
 	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
 	// image format expected by the windowing system
 	VkFormat swapchainImageFormat;
-	
 	//array of images from the swapchain
 	std::vector<VkImage> swapchainImages;
-
 	//array of image-views from the swapchain
 	std::vector<VkImageView> swapchainImageViews;
 
