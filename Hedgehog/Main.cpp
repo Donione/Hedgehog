@@ -33,15 +33,15 @@ struct Vertex
 void CreateFrustumVertices(Hedge::Frustum frustum, Vertex (&vertices)[8])
 {
 	// near clip face
-	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top left
-	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top right
-	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom left
-	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom right
+	vertices[0] = { frustum.nearLeft, frustum.nearTop, -frustum.nearClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// top left
+	vertices[1] = { frustum.nearRight, frustum.nearTop, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// top right
+	vertices[2] = { frustum.nearLeft, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// bottom left
+	vertices[3] = { frustum.nearRight, frustum.nearBottom, -frustum.nearClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// bottom right
 	// far clip face
-	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top left
-	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// top right
-	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom left
-	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		0.0f };	// bottom right
+	vertices[4] = { frustum.farLeft, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// top left
+	vertices[5] = { frustum.farRight, frustum.farTop, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// top right
+	vertices[6] = { frustum.farLeft, frustum.farBottom, -frustum.farClip, 1.0f,			0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// bottom left
+	vertices[7] = { frustum.farRight, frustum.farBottom, -frustum.farClip, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,		-1.0f };	// bottom right
 }
 
 
@@ -674,14 +674,14 @@ public:
 
 		for (int x = -100; x <= 100; x++)
 		{
-			gridVertices[index++] = { (float)x, 0.0f, -100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
-			gridVertices[index++] = { (float)x, 0.0f,  100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
+			gridVertices[index++] = { (float)x, 0.0f, -100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   -1.0f };
+			gridVertices[index++] = { (float)x, 0.0f,  100.0f, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   -1.0f };
 		}
 
 		for (int z = -100; z <= 100; z++)
 		{
-			gridVertices[index++] = { -100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
-			gridVertices[index++] = {  100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   0.0f };
+			gridVertices[index++] = { -100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   -1.0f };
+			gridVertices[index++] = {  100.0f, 0.0f, (float)z, 1.0f,	0.3f, 0.3f, 0.3f, 1.0f,		0.0f, 0.0f,   -1.0f };
 		}
 
 		assert(index == numVertices);
@@ -807,11 +807,7 @@ public:
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_normalMapping", (int)normalMapping);
 
-			gridEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
-			axesEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 			//spozaTestEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
-			//sponzaDebugEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
-			//vampireEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_segmentTransforms", ones);
 
 			bunnyEntity.Get<Hedge::Mesh>().GetShader()->UploadConstant("u_magnitude", magnitude);
 

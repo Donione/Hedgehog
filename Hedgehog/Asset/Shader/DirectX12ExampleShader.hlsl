@@ -34,7 +34,12 @@ PSInput VSMain(float4 position  : a_position,
 {
     PSInput result;
 
-    float4x4 finalTransform = mul(u_Transform, u_segmentTransforms[(int)segmentID]);
+    float4x4 finalTransform;
+    if (segmentID != -1.0f)
+        finalTransform = mul(u_Transform, u_segmentTransforms[(int)segmentID]);
+    else
+        finalTransform = u_Transform;
+
     matrix VPM = mul(u_ViewProjection, finalTransform);
     result.position = mul(VPM, position);
     result.pos = position.xyz;

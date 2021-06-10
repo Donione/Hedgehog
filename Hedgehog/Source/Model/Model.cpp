@@ -739,7 +739,7 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[index * stride + 8] = 0.0f;
 		flatTBNVertices[index * stride + 9] = 0.0f;
 
-		flatTBNVertices[index * stride + 10] = 0.0f;
+		flatTBNVertices[index * stride + 10] = -1.0f;
 
 
 		// Normals
@@ -759,7 +759,7 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[normalIndex * stride + 8] = 0.0f;
 		flatTBNVertices[normalIndex * stride + 9] = 0.0f;
 
-		flatTBNVertices[normalIndex * stride + 10] = 0.0f;
+		flatTBNVertices[normalIndex * stride + 10] = -1.0f;
 
 
 		// Tangents
@@ -782,7 +782,7 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[tangentIndex * stride + 8] = 0.0f;
 		flatTBNVertices[tangentIndex * stride + 9] = 0.0f;
 
-		flatTBNVertices[tangentIndex * stride + 10] = 0.0f;
+		flatTBNVertices[tangentIndex * stride + 10] = -1.0f;
 
 
 		// Bitangents
@@ -805,7 +805,7 @@ void Model::CreateTBNFlatArraysObj()
 		flatTBNVertices[bitangentIndex * stride + 8] = 0.0f;
 		flatTBNVertices[bitangentIndex * stride + 9] = 0.0f;
 
-		flatTBNVertices[bitangentIndex * stride + 10] = 0.0f;
+		flatTBNVertices[bitangentIndex * stride + 10] = -1.0f;
 	}
 }
 
