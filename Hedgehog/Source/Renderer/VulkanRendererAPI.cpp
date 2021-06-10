@@ -21,9 +21,7 @@ void VulkanRendererAPI::Resize(int width, int height, bool fillViewport)
 
 	vkDeviceWaitIdle(renderContext->device);
 
-	void ImGui_ImplVulkan_DestroyDeviceObjects();
 	renderContext->ResizeSwapChain(width, height);
-	bool ImGui_ImplVulkan_CreateDeviceObjects();
 
 	if (fillViewport)
 	{

@@ -52,8 +52,8 @@ void VulkanContext::SwapBuffers()
 
 	presentInfo.pImageIndices = &swapChainImageIndex;
 
-	VkResult ret = vkQueuePresentKHR(graphicsQueue, &presentInfo);
-	if (ret != VK_SUCCESS)
+	VkResult result = vkQueuePresentKHR(graphicsQueue, &presentInfo);
+	if (result != VK_SUCCESS)
 	{
 		assert(false);
 	}
@@ -331,7 +331,8 @@ uint32_t VulkanContext::WaitForNextFrame()
 
 	//request image from the swapchain, one second timeout
 	uint32_t swapchainImageIndex;
-	if (vkAcquireNextImageKHR(device, swapchain, 1000000000, presentSemaphores[frameInFlightIndex], nullptr, &swapchainImageIndex) != VK_SUCCESS)
+	VkResult result = vkAcquireNextImageKHR(device, swapchain, 1000000000, presentSemaphores[frameInFlightIndex], nullptr, &swapchainImageIndex);
+	if (result != VK_SUCCESS)
 	{
 		assert(false);
 	}
