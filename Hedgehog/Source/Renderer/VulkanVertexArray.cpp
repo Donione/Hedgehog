@@ -47,7 +47,7 @@ VulkanVertexArray::~VulkanVertexArray()
 
 void VulkanVertexArray::Bind()
 {
-	vkCmdBindPipeline(vulkanContext->mainCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindPipeline(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
 void VulkanVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
@@ -71,6 +71,19 @@ void VulkanVertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
 	{
 		this->groups.emplace_back(group, 0.0f);
 	}
+}
+
+void VulkanVertexArray::Resize(int width, int height)
+{
+	vkDestroyPipelineLayout(vulkanContext->device, pipelineLayout, nullptr);
+	vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
+
+	const VulkanRendererAPI* renderer = dynamic_cast<const VulkanRendererAPI*>(RenderCommand::GetRenderer());
+	viewport = renderer->GetViewport();
+	scissor = renderer->GetScissor();
+
+	pipelineLayout = CreatePipelineLayout();
+	CreatePipeline();
 }
 
 void VulkanVertexArray::CreatePipeline()

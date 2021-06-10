@@ -24,8 +24,8 @@ VulkanContext::VulkanContext(HWND windowHandle)
 VulkanContext::~VulkanContext()
 {
 	DestroySyncObjects();
-	vkDestroyCommandPool(device, commandPool, nullptr);
 	DestroySwapChain();
+	vkDestroyCommandPool(device, commandPool, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkb::destroy_debug_utils_messenger(instance, debugMessenger);
@@ -36,7 +36,7 @@ VulkanContext::~VulkanContext()
 void VulkanContext::SwapBuffers()
 {
 	// this will put the image we just rendered into the visible window.
-	// we want to wait on the _renderSemaphore for that, 
+	// we want to wait on the renderSemaphore for that, 
 	// as it's necessary that drawing commands have finished before the image is displayed to the user
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -45,12 +45,13 @@ void VulkanContext::SwapBuffers()
 	presentInfo.pSwapchains = &swapchain;
 	presentInfo.swapchainCount = 1;
 
-	presentInfo.pWaitSemaphores = &renderSemaphore;
+	presentInfo.pWaitSemaphores = &renderSemaphores[frameInFlightIndex];
 	presentInfo.waitSemaphoreCount = 1;
 
-	presentInfo.pImageIndices = &frameIndex;
+	presentInfo.pImageIndices = &swapChainImageIndex;
 
-	if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS)
+	VkResult ret = vkQueuePresentKHR(graphicsQueue, &presentInfo);
+	if (ret != VK_SUCCESS)
 	{
 		assert(false);
 	}
@@ -167,9 +168,13 @@ void VulkanContext::CreateCommandBuffers()
 	// command level is Primary
 	cmdAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-	if (vkAllocateCommandBuffers(device, &cmdAllocInfo, &mainCommandBuffer) != VK_SUCCESS)
+	commandBuffers.resize(NUM_FRAMES_IN_FLIGHT);
+	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
 	{
-		assert(false);
+		if (vkAllocateCommandBuffers(device, &cmdAllocInfo, &commandBuffers[i]) != VK_SUCCESS)
+		{
+			assert(false);
+		}
 	}
 }
 
@@ -258,9 +263,13 @@ void VulkanContext::CreateSyncObjects()
 	//we want to create the fence with the Create Signaled flag, so we can wait on it before using it on a GPU command (for the first frame)
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	if (vkCreateFence(device, &fenceCreateInfo, nullptr, &renderFence) != VK_SUCCESS)
+	renderFences.resize(NUM_FRAMES_IN_FLIGHT);
+	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
 	{
-		assert(false);
+		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &renderFences[i]) != VK_SUCCESS)
+		{
+			assert(false);
+		}
 	}
 
 	//for the semaphores we don't need any flags
@@ -269,13 +278,18 @@ void VulkanContext::CreateSyncObjects()
 	semaphoreCreateInfo.pNext = nullptr;
 	semaphoreCreateInfo.flags = 0;
 
-	if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &presentSemaphore) != VK_SUCCESS)
+	presentSemaphores.resize(NUM_FRAMES_IN_FLIGHT);
+	renderSemaphores.resize(NUM_FRAMES_IN_FLIGHT);
+	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
 	{
-		assert(false);
-	}
-	if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderSemaphore) != VK_SUCCESS)
-	{
-		assert(false);
+		if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &presentSemaphores[i]) != VK_SUCCESS)
+		{
+			assert(false);
+		}
+		if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderSemaphores[i]) != VK_SUCCESS)
+		{
+			assert(false);
+		}
 	}
 }
 
@@ -292,35 +306,45 @@ void VulkanContext::DestroySwapChain()
 		vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 		vkDestroyImageView(device, swapchainImageViews[i], nullptr);
 	}
+
+	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 }
 
 void VulkanContext::DestroySyncObjects()
 {
-	vkDestroySemaphore(device, presentSemaphore, nullptr);
-	vkDestroySemaphore(device, renderSemaphore, nullptr);
-	vkDestroyFence(device, renderFence, nullptr);
+	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDestroySemaphore(device, presentSemaphores[i], nullptr);
+		vkDestroySemaphore(device, renderSemaphores[i], nullptr);
+		vkDestroyFence(device, renderFences[i], nullptr);
+	}
 }
 
 void VulkanContext::ResizeSwapChain(unsigned int width, unsigned int height)
 {
 	DestroySwapChain();
+	vkDestroyCommandPool(device, commandPool, nullptr);
+
 	CreateSwapChain(width, height);
+	CreateCommandBuffers();
+	CreateRenderPass();
+	CreateFrameBuffers(width, height);
 }
 
 uint32_t VulkanContext::WaitForNextFrame()
 {
 	//wait until the GPU has finished rendering the last frame. Timeout of 1 second
-	vkWaitForFences(device, 1, &renderFence, true, 1000000000);
-	vkResetFences(device, 1, &renderFence);
+	vkWaitForFences(device, 1, &renderFences[frameInFlightIndex], true, 1000000000);
+	vkResetFences(device, 1, &renderFences[frameInFlightIndex]);
 
 	//request image from the swapchain, one second timeout
 	uint32_t swapchainImageIndex;
-	if (vkAcquireNextImageKHR(device, swapchain, 1000000000, presentSemaphore, nullptr, &swapchainImageIndex) != VK_SUCCESS)
+	if (vkAcquireNextImageKHR(device, swapchain, 1000000000, presentSemaphores[frameInFlightIndex], nullptr, &swapchainImageIndex) != VK_SUCCESS)
 	{
 		assert(false);
 	}
 
-	frameIndex = swapchainImageIndex;
+	this->swapChainImageIndex = swapchainImageIndex;
 
 	return swapchainImageIndex;
 }

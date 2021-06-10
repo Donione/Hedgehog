@@ -25,29 +25,32 @@ void Application::Run()
 
 		frameDuration.Start();
 
-		RenderCommand::BeginFrame();
-
-		// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
-		for (auto& layer : layers)
+		if (!minimized)
 		{
-			if (layer->IsEnabled())
-			{
-				layer->OnUpdate(previousFrameDuration);
-			}
-		}
+			RenderCommand::BeginFrame();
 
-		imGuiComponent->BeginFrame();
-		// Fire OnGuiUpdate functions in order, first layers, overlays after
-		for (auto& layer : layers)
-		{
-			if (layer->IsEnabled())
+			// Fire OnUpdate functions (like rendering) in order, first layers, overlays after
+			for (auto& layer : layers)
 			{
-				layer->OnGuiUpdate();
+				if (layer->IsEnabled())
+				{
+					layer->OnUpdate(previousFrameDuration);
+				}
 			}
-		}
-		imGuiComponent->EndFrame();
 
-		RenderCommand::EndFrame();
+			imGuiComponent->BeginFrame();
+			// Fire OnGuiUpdate functions in order, first layers, overlays after
+			for (auto& layer : layers)
+			{
+				if (layer->IsEnabled())
+				{
+					layer->OnGuiUpdate();
+				}
+			}
+			imGuiComponent->EndFrame();
+
+			RenderCommand::EndFrame();
+		}
 
 		// Poll and handle messages (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -137,7 +140,15 @@ void Application::OnMessage(Message& message)
 
 		// TODO by doing it this way, we're resizing with every pixel change, maybe not the best way
 		const WindowSizeMessage& windowSizeMessage = dynamic_cast<const WindowSizeMessage&>(message);
-		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight(), false);
+		unsigned int width = windowSizeMessage.GetWidth();
+		unsigned int height = windowSizeMessage.GetHeight();
+
+		if (minimized = (width == 0 || height == 0))
+		{
+			return;
+		}
+
+		RenderCommand::Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight(), true);
 		window.SetSize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
 
 		// TODO for continuously update the window while it's being resized (mouse button is down and dragging)
@@ -145,7 +156,8 @@ void Application::OnMessage(Message& message)
 		// done resizing (mouse button up)
 		// The application is effectively stopped during resizing so we don't need to worry about delta time
 		// For now just copy paste most of the main application run loop
-		if (true)
+		// TODO Disable for now because we don't have a good way to update Vulkan pipeline with the new viewport
+		if (false)
 		{
 			RenderCommand::BeginFrame();
 
