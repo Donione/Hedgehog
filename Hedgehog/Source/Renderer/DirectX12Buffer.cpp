@@ -61,6 +61,9 @@ void DirectX12VertexBuffer::Bind(unsigned int slot) const
 
 void DirectX12VertexBuffer::SetData(const float* vertices, unsigned int size)
 {
+	assert(false);
+	// TODO We need to use the upload heap and schedule a copy to update the vertex buffer data
+
 	assert(size == vertexBufferView.SizeInBytes);
 
 	UINT8* pVertexDataBegin = nullptr;

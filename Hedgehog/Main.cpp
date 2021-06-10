@@ -1122,7 +1122,7 @@ public:
 						auto& frustum = camera.GetFrustum();
 						CreateFrustumVertices(frustum, frustumVertices);
 
-						//mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
+						mesh.Get()->GetVertexBuffers().at(0)->SetData(&frustumVertices[0].x, (unsigned int)sizeof(frustumVertices));
 					}
 					transform.CreateGuiControls(true, true, false);
 					
