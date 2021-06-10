@@ -49,7 +49,7 @@ public:
 
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override {}
 
-	const std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages() const { return shaderStages; }
+	const std::vector<VkPipelineShaderStageCreateInfo>& GetShaderStages() const { return shaderStages; }
 
 private:
 	const std::unique_ptr<uint32_t> ReadFile(const std::string& filePath, size_t* size);
