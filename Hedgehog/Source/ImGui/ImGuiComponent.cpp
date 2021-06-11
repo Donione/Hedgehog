@@ -90,7 +90,7 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 		init_info.DescriptorPool = descriptorPool;
 		init_info.Allocator = nullptr;
 		init_info.MinImageCount = 2;
-		init_info.ImageCount = 2;
+		init_info.ImageCount = vulkanContext->NUM_FRAMES_IN_FLIGHT;
 		init_info.CheckVkResultFn = check_vk_result;
 
 		ImGui_ImplVulkan_Init(&init_info, vulkanContext->renderPass);
