@@ -43,6 +43,7 @@ private:
 	void CreateSyncObjects();
 
 	void DestroySwapChain();
+	void DestroyFrameBuffers();
 	void DestroySyncObjects();
 
 	void ResizeSwapChain(unsigned int width, unsigned int height);
@@ -86,7 +87,8 @@ private:
 	std::vector<VkSemaphore> presentSemaphores;
 	std::vector<VkSemaphore> renderSemaphores;
 	// Fences are used for CPU-GPU synchronization
-	std::vector<VkFence> renderFences;
+	std::vector<VkFence> frameInFlightFences;
+	std::vector<VkFence> swapChainImageFences;
 };
 
 }  // namespace Hedge

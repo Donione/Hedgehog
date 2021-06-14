@@ -25,6 +25,7 @@ VulkanContext::~VulkanContext()
 {
 	DestroySyncObjects();
 	DestroySwapChain();
+	DestroyFrameBuffers();
 	vkDestroyRenderPass(device, renderPass, nullptr);
 	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 	vkDestroyCommandPool(device, commandPool, nullptr);
@@ -264,14 +265,15 @@ void VulkanContext::CreateSyncObjects()
 	//we want to create the fence with the Create Signaled flag, so we can wait on it before using it on a GPU command (for the first frame)
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	renderFences.resize(NUM_FRAMES_IN_FLIGHT);
+	frameInFlightFences.resize(NUM_FRAMES_IN_FLIGHT);
 	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
 	{
-		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &renderFences[i]) != VK_SUCCESS)
+		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &frameInFlightFences[i]) != VK_SUCCESS)
 		{
 			assert(false);
 		}
 	}
+	swapChainImageFences.resize(swapchainImages.size(), VK_NULL_HANDLE);
 
 	//for the semaphores we don't need any flags
 	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
@@ -297,8 +299,10 @@ void VulkanContext::CreateSyncObjects()
 void VulkanContext::DestroySwapChain()
 {
 	vkDestroySwapchainKHR(device, swapchain, nullptr);
+}
 
-	//destroy swapchain resources
+void VulkanContext::DestroyFrameBuffers()
+{
 	for (int i = 0; i < swapchainImageViews.size(); i++)
 	{
 		vkDestroyFramebuffer(device, framebuffers[i], nullptr);
@@ -312,34 +316,45 @@ void VulkanContext::DestroySyncObjects()
 	{
 		vkDestroySemaphore(device, presentSemaphores[i], nullptr);
 		vkDestroySemaphore(device, renderSemaphores[i], nullptr);
-		vkDestroyFence(device, renderFences[i], nullptr);
+		vkDestroyFence(device, frameInFlightFences[i], nullptr);
 	}
 }
 
 void VulkanContext::ResizeSwapChain(unsigned int width, unsigned int height)
 {
 	DestroySwapChain();
+	DestroyFrameBuffers();
+
 	CreateSwapChain(width, height);
 	CreateFrameBuffers(width, height);
 }
 
 uint32_t VulkanContext::WaitForNextFrame()
 {
-	//wait until the GPU has finished rendering the last frame. Timeout of 1 second
-	vkWaitForFences(device, 1, &renderFences[frameInFlightIndex], true, 1000000000);
-	vkResetFences(device, 1, &renderFences[frameInFlightIndex]);
+	//wait until the GPU has finished rendering the last frame
+	// I believe the following wait on fence is needed only when NUM_FRAMES_IN_FLIGHT < swapchainImages.size()
+	vkWaitForFences(device, 1, &frameInFlightFences[frameInFlightIndex], true, UINT64_MAX);
 
-	//request image from the swapchain, one second timeout
-	uint32_t swapchainImageIndex;
-	VkResult result = vkAcquireNextImageKHR(device, swapchain, 1000000000, presentSemaphores[frameInFlightIndex], nullptr, &swapchainImageIndex);
+	//request image from the swapchain
+	uint32_t swapChainImageIndex;
+	VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentSemaphores[frameInFlightIndex], nullptr, &swapChainImageIndex);
 	if (result != VK_SUCCESS)
 	{
 		assert(false);
 	}
 
-	this->swapChainImageIndex = swapchainImageIndex;
+	// Make sure that the image/commandBuffer we just acquired is ready to be used
+	if (swapChainImageFences[swapChainImageIndex] != VK_NULL_HANDLE)
+	{
+		vkWaitForFences(device, 1, &swapChainImageFences[swapChainImageIndex], true, UINT64_MAX);
+	}
 
-	return swapchainImageIndex;
+	// Assign a fence for the next image
+	swapChainImageFences[swapChainImageIndex] = frameInFlightFences[frameInFlightIndex];
+
+	this->swapChainImageIndex = swapChainImageIndex;
+
+	return swapChainImageIndex;
 }
 
 } // namespace Hedge

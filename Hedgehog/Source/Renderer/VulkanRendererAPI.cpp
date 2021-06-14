@@ -117,9 +117,7 @@ void VulkanRendererAPI::EndFrame()
 	}
 
 
-	//prepare the submission to the queue. 
-	//we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
-	//we will signal the _renderSemaphore, to signal that rendering has finished
+	//prepare the submission to the queue.
 	VkSubmitInfo submit = {};
 	submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit.pNext = nullptr;
@@ -128,18 +126,21 @@ void VulkanRendererAPI::EndFrame()
 
 	submit.pWaitDstStageMask = &waitStage;
 
+	// we want to wait on the presentSemaphore, as that semaphore is signaled when the swapchain is ready
 	submit.waitSemaphoreCount = 1;
 	submit.pWaitSemaphores = &renderContext->presentSemaphores[renderContext->frameInFlightIndex];
 
+	// we will signal the renderSemaphore, to signal that rendering has finished
 	submit.signalSemaphoreCount = 1;
 	submit.pSignalSemaphores = &renderContext->renderSemaphores[renderContext->frameInFlightIndex];
 
 	submit.commandBufferCount = 1;
 	submit.pCommandBuffers = &commandBuffer;
 
-	//submit command buffer to the queue and execute it.
+	// submit command buffer to the queue and execute it.
 	// renderFence will now block until the graphic commands finish execution
-	if (vkQueueSubmit(renderContext->graphicsQueue, 1, &submit, renderContext->renderFences[renderContext->frameInFlightIndex]) != VK_SUCCESS)
+	vkResetFences(renderContext->device, 1, &renderContext->frameInFlightFences[renderContext->frameInFlightIndex]);
+	if (vkQueueSubmit(renderContext->graphicsQueue, 1, &submit, renderContext->frameInFlightFences[renderContext->frameInFlightIndex]) != VK_SUCCESS)
 	{
 		assert(false);
 	}
