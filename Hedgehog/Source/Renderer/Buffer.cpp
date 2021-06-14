@@ -63,7 +63,7 @@ BufferLayout BufferLayout::operator+(const BufferLayout& other) const
 	unsigned int inputSlot = 0;
 	if (!result.elements.empty())
 	{
-		inputSlot = result.begin()->inputSlot + 1;
+		inputSlot = result.elements.back().inputSlot + 1;
 	}
 
 	for (auto& element : other)
