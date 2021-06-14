@@ -35,6 +35,25 @@ VulkanContext::~VulkanContext()
 	vkDestroyInstance(instance, nullptr);
 }
 
+void VulkanContext::SetSwapInterval(int interval)
+{
+	if (interval == swapInterval)
+	{
+		return;
+	}
+
+	swapInterval = interval;
+
+	// Rebuild the swapchain with new present mode
+	DestroySwapChain();
+	DestroyFrameBuffers();
+
+	unsigned int width = Application::GetInstance().GetWindow().GetWidth();
+	unsigned int height = Application::GetInstance().GetWindow().GetHeight();
+	CreateSwapChain(width, height);
+	CreateFrameBuffers(width, height);
+}
+
 
 void VulkanContext::SwapBuffers()
 {
@@ -128,7 +147,7 @@ void VulkanContext::CreateSwapChain(unsigned int width, unsigned int height)
 		//.use_default_format_selection()
 		.set_desired_format({ VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
 		//use vsync present mode
-		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(swapInterval == 0 ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_FIFO_RELAXED_KHR)
 		.set_desired_extent(width, height)
 		.build()
 		.value();

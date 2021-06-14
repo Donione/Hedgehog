@@ -24,7 +24,7 @@ public:
 	VulkanContext(HWND windowHandle);
 	virtual ~VulkanContext() override;
 
-	void SetSwapInterval(int interval) override { swapInterval = interval; }
+	void SetSwapInterval(int interval) override;
 	void MakeCurrent() override { /* Do Nothing */ }
 	void SwapBuffers() override;
 
