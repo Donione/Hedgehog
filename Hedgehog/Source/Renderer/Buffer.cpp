@@ -3,6 +3,7 @@
 #include <Renderer/Buffer.h>
 #include <Renderer/OpenGLBuffer.h>
 #include <Renderer/DirectX12Buffer.h>
+#include <Renderer/VulkanBuffer.h>
 
 
 namespace Hedge
@@ -19,6 +20,9 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout,
 
 	case RendererAPI::API::DirectX12:
 		return new DirectX12VertexBuffer(layout, vertices, size);
+		
+	case RendererAPI::API::Vulkan:
+		return new VulkanVertexBuffer(layout, vertices, size);
 
 	case RendererAPI::API::None:
 		return nullptr;

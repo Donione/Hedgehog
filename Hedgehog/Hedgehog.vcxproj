@@ -202,6 +202,7 @@
     <ClInclude Include="Include\Renderer\Shader.h" />
     <ClInclude Include="Include\Renderer\Texture.h" />
     <ClInclude Include="Include\Renderer\VertexArray.h" />
+    <ClInclude Include="Include\Renderer\VulkanBuffer.h" />
     <ClInclude Include="Include\Renderer\VulkanContext.h" />
     <ClInclude Include="Include\Renderer\VulkanRendererAPI.h" />
     <ClInclude Include="Include\Renderer\VulkanShader.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="Source\Renderer\Shader.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Renderer\VertexArray.cpp" />
+    <ClCompile Include="Source\Renderer\VulkanBuffer.cpp" />
     <ClCompile Include="Source\Renderer\VulkanContext.cpp" />
     <ClCompile Include="Source\Renderer\VulkanRendererAPI.cpp" />
     <ClCompile Include="Source\Renderer\VulkanShader.cpp" />

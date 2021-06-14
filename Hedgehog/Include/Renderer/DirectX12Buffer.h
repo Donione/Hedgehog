@@ -10,8 +10,6 @@ namespace Hedge
 
 class DirectX12VertexBuffer : public VertexBuffer
 {
-
-
 public:
 	DirectX12VertexBuffer(const BufferLayout& layout,
 						  const float* vertices,
@@ -24,7 +22,6 @@ public:
 	virtual const BufferLayout& GetLayout() const override { return layout; }
 
 	virtual void SetData(const float* vertices, unsigned int size) override;
-
 
 private:
 	BufferLayout layout;
