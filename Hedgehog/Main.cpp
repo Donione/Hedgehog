@@ -25,6 +25,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Renderer/VulkanVertexArray.h>
+#include <Renderer/VulkanBuffer.h>
 
 
 struct Vertex
@@ -1363,6 +1364,36 @@ public:
 													 Hedge::PrimitiveTopology::Triangle,
 													 {},
 													 {}));
+
+		Hedge::BufferLayout bufferLayout1 =
+		{
+			{ Hedge::ShaderDataType::Float2, "a_position" },
+		};
+
+		Hedge::BufferLayout bufferLayout2 =
+		{
+			{ Hedge::ShaderDataType::Float3, "a_color" },
+		};
+
+		float vertices1[] =
+		{
+			 0.0f, -0.5f,
+			 0.5f,  0.5f,
+			-0.5f,  0.5f,
+		};
+
+		float vertices2[] =
+		{
+			1.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 1.0f,
+		};
+
+		vertexBuffer1.reset(Hedge::VertexBuffer::Create(bufferLayout1, vertices1, sizeof(vertices1)));
+		vertexBuffer2.reset(Hedge::VertexBuffer::Create(bufferLayout2, vertices2, sizeof(vertices2)));
+
+		vertexArray->AddVertexBuffer(vertexBuffer1);
+		vertexArray->AddVertexBuffer(vertexBuffer2);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -1426,6 +1457,8 @@ private:
 
 	std::shared_ptr<Hedge::Shader> shader;
 	std::shared_ptr<Hedge::VertexArray> vertexArray;
+	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer1;
+	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer2;
 };
 
 class VulkanTest : public Hedge::Application
