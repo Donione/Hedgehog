@@ -19,7 +19,6 @@ VulkanVertexArray::VulkanVertexArray(const std::shared_ptr<Shader>& inputShader,
 	primitiveTopology(primitiveTopology),
 	bufferLayout(inputLayout),
 	textureDescriptions(textureDescriptions),
-	vertexInputState(CreateVertexInputState()),
 	inputAssemblyState(CreateInputAssemblyState(primitiveTopology)),
 	viewportState(CreateViewportState()),
 	rasterizationState(CreateRasterizationState()),
@@ -36,7 +35,6 @@ VulkanVertexArray::VulkanVertexArray(const std::shared_ptr<Shader>& inputShader,
 	scissor = renderer->GetScissor();
 
 	pipelineLayout = CreatePipelineLayout();
-	CreatePipeline();
 }
 
 VulkanVertexArray::~VulkanVertexArray()
@@ -47,13 +45,26 @@ VulkanVertexArray::~VulkanVertexArray()
 
 void VulkanVertexArray::Bind()
 {
+	if (pipeline == VK_NULL_HANDLE)
+	{
+		vertexInputState = CreateVertexInputState();
+		CreatePipeline();
+	}
+
 	vkCmdBindPipeline(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+	unsigned int slot = 0;
+	for (auto& vertexBuffer : vertexBuffers)
+	{
+		vertexBuffer->Bind(slot++);
+	}
 }
 
 void VulkanVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 {
 	vertexBuffers.push_back(vertexBuffer);
 	bufferLayout += vertexBuffer->GetLayout();
+	strides.push_back(vertexBuffer->GetLayout().GetStride());
 }
 
 void VulkanVertexArray::AddIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
@@ -111,16 +122,40 @@ void VulkanVertexArray::CreatePipeline()
 	}
 }
 
-VkPipelineVertexInputStateCreateInfo VulkanVertexArray::CreateVertexInputState() const
+VkPipelineVertexInputStateCreateInfo VulkanVertexArray::CreateVertexInputState()
 {
-	VkPipelineVertexInputStateCreateInfo info{};
+	int currentBinding = -1;
+	for (auto& input : bufferLayout)
+	{
+		if (input.inputSlot != currentBinding)
+		{
+			VkVertexInputBindingDescription vertexBindingDescription{};
+			vertexBindingDescription.binding = input.inputSlot;
+			vertexBindingDescription.stride = strides[input.inputSlot];
+			vertexBindingDescription.inputRate = input.instanceDataStep == 0 ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE;
 
-	// TODO Empty for now
+			vertexBindingDescriptions.push_back(vertexBindingDescription);
+
+			currentBinding = input.inputSlot;
+		}
+
+		VkVertexInputAttributeDescription vertexAttributeDescription{};
+		vertexAttributeDescription.location = vertexAttributeLocation;
+		vertexAttributeDescription.binding = currentBinding;
+		vertexAttributeDescription.format = GetVulkanFormat(input.type);
+		vertexAttributeDescription.offset = static_cast<uint32_t>(input.offset);
+
+		vertexAttributeDescriptions.push_back(vertexAttributeDescription);
+
+		vertexAttributeLocation++;
+	}
+
+	VkPipelineVertexInputStateCreateInfo info{};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	info.vertexBindingDescriptionCount = 0;
-	info.pVertexBindingDescriptions = nullptr;
-	info.vertexAttributeDescriptionCount = 0;
-	info.pVertexAttributeDescriptions = nullptr;
+	info.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDescriptions.size());
+	info.pVertexBindingDescriptions = vertexBindingDescriptions.data();
+	info.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size());
+	info.pVertexAttributeDescriptions = vertexAttributeDescriptions.data();
 
 	return info;
 }
@@ -243,18 +278,6 @@ VkPipelineLayout VulkanVertexArray::CreatePipelineLayout() const
 	}
 
 	return pipelineLayout;
-}
-
-VkPrimitiveTopology VulkanVertexArray::GetPipelinePrimitiveTopology(PrimitiveTopology topology) const
-{
-	switch (topology)
-	{
-	case PrimitiveTopology::Triangle:
-		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-	default:
-		return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
-	}
 }
 
 } // namespace Hedge

@@ -39,7 +39,7 @@ public:
 
 private:
 	void CreatePipeline();
-	VkPipelineVertexInputStateCreateInfo CreateVertexInputState() const;
+	VkPipelineVertexInputStateCreateInfo CreateVertexInputState();
 	VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyState(PrimitiveTopology primitiveTopology) const;
 	VkPipelineViewportStateCreateInfo CreateViewportState() const;
 	VkPipelineRasterizationStateCreateInfo CreateRasterizationState() const;
@@ -50,19 +50,22 @@ private:
 	VkPipelineDynamicStateCreateInfo CreatDynamicState() const;
 	VkPipelineLayout CreatePipelineLayout() const;
 
-	VkPrimitiveTopology GetPipelinePrimitiveTopology(PrimitiveTopology topology) const; // { return pipelinePrimitiveTopologies[(int)topology]; }
-
+	VkPrimitiveTopology GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
+	VkFormat GetVulkanFormat(ShaderDataType type) const { return VulkanFormats[(int)type]; }
 
 
 private:
 	PrimitiveTopology primitiveTopology;
 	BufferLayout bufferLayout;
+	// TODO I don't like keeping the strides here like this
+	std::vector<unsigned int> strides;
 	std::vector<Hedge::TextureDescription> textureDescriptions;
 	
 	unsigned int instanceCount = 1;
 
 	std::shared_ptr<Shader> baseShader;
 	std::shared_ptr<VulkanShader> shader;
+	unsigned int vertexAttributeLocation = 0;
 	std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;
 	std::shared_ptr<IndexBuffer> indexBuffer;
 	std::vector<std::pair<VertexGroup, float>> groups;
@@ -70,6 +73,8 @@ private:
 
 	VkPipeline pipeline = VK_NULL_HANDLE;
 
+	std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
+	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 	VkPipelineVertexInputStateCreateInfo vertexInputState;
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyState;
 	//VkPipelineTessellationStateCreateInfo tessellationState;
@@ -87,13 +92,28 @@ private:
 	VkViewport viewport{};
 	VkRect2D scissor{};
 
-	// TODO WTF why is this array not initialized to the values written here?
-	const VkPrimitiveTopology pipelinePrimitiveTopologies[4]
+	// These arrays are inline static so we can use them in constructor
+	// and not worry about order of initializtion
+	inline static const VkPrimitiveTopology pipelinePrimitiveTopologies[4]
 	{
 		VK_PRIMITIVE_TOPOLOGY_MAX_ENUM, // None / Undefined
 		VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
 		VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
 		VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+	};
+
+	inline static const VkFormat VulkanFormats[10] =
+	{
+		VK_FORMAT_UNDEFINED,
+		VK_FORMAT_R32_SFLOAT,
+		VK_FORMAT_R32G32_SFLOAT,
+		VK_FORMAT_R32G32B32_SFLOAT,
+		VK_FORMAT_R32G32B32A32_SFLOAT,
+		VK_FORMAT_R32_SINT,
+		VK_FORMAT_R32G32_SINT,
+		VK_FORMAT_R32G32B32_SINT,
+		VK_FORMAT_R32G32B32A32_SINT,
+		VK_FORMAT_R8_UINT,
 	};
 };
 
