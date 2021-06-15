@@ -30,6 +30,47 @@ uint32_t FindMemoryType(VkPhysicalDevice device, uint32_t requiredType, VkMemory
 	return 0;
 }
 
+void CreateBuffer(VkDevice device,
+				  VkDeviceSize size,
+				  VkBufferUsageFlags usage,
+				  VkBuffer* buffer)
+{
+	VkBufferCreateInfo bufferInfo{};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
+	{
+		assert(false);
+	}
+}
+
+void AllocateMemory(VkDevice device,
+					VkPhysicalDevice physicalDevice,
+					VkBuffer buffer,
+					VkDeviceMemory* bufferMemory)
+{
+	// Query the memory requirements for the vertex buffer
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+	// Allocate memory for the vertex buffer
+	// TODO We're using CPU visible buffer for now, will be changed to use staging buffers
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice,
+											   memRequirements.memoryTypeBits,
+											   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	if (vkAllocateMemory(device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
+	{
+		assert(false);
+	}
+}
+
 
 VulkanVertexBuffer::VulkanVertexBuffer(const BufferLayout& layout,
 									   const float* vertices,
@@ -39,35 +80,15 @@ VulkanVertexBuffer::VulkanVertexBuffer(const BufferLayout& layout,
 
 	this->layout = layout;
 
-	VkBufferCreateInfo bufferInfo{};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	CreateBuffer(vulkanContext->device,
+				 size,
+				 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+				 &vertexBuffer);
 
-	if (vkCreateBuffer(vulkanContext->device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
-	{
-		assert(false);
-	}
-
-
-	// Quary the memory requirements for the vertex buffer
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(vulkanContext->device, vertexBuffer, &memRequirements);
-
-	// Allocate memory for the vertex buffer
-	// TODO We're using CPU visible buffer for now, will be changed to use staging buffers
-	VkMemoryAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(vulkanContext->chosenGPU,
-											   memRequirements.memoryTypeBits,
-											   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-	if (vkAllocateMemory(vulkanContext->device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
-	{
-		assert(false);
-	}
+	AllocateMemory(vulkanContext->device,
+				   vulkanContext->chosenGPU,
+				   vertexBuffer,
+				   &vertexBufferMemory);
 
 	vkBindBufferMemory(vulkanContext->device,
 					   vertexBuffer,
@@ -86,8 +107,8 @@ VulkanVertexBuffer::~VulkanVertexBuffer()
 {
 	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
 
-	vkDestroyBuffer(vulkanContext->device, vertexBuffer, nullptr);
-	vkFreeMemory(vulkanContext->device, vertexBufferMemory, nullptr);
+	if (vertexBuffer != VK_NULL_HANDLE) vkDestroyBuffer(vulkanContext->device, vertexBuffer, nullptr);
+	if (vertexBufferMemory != VK_NULL_HANDLE) vkFreeMemory(vulkanContext->device, vertexBufferMemory, nullptr);
 }
 
 void VulkanVertexBuffer::Bind(unsigned int slot) const
@@ -108,6 +129,54 @@ void VulkanVertexBuffer::SetData(const float* vertices, unsigned int size)
 {
 	// Not implemented
 	assert(false);
+}
+
+
+VulkanIndexBuffer::VulkanIndexBuffer(const unsigned int* indices, unsigned int count)
+{
+	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
+
+	this->count = count;
+	VkDeviceSize size = count * sizeof(unsigned int);
+
+	CreateBuffer(vulkanContext->device,
+				 size,
+				 VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+				 &indexBuffer);
+
+	AllocateMemory(vulkanContext->device,
+				   vulkanContext->chosenGPU,
+				   indexBuffer,
+				   &indexBufferMemory);
+
+	vkBindBufferMemory(vulkanContext->device,
+					   indexBuffer,
+					   indexBufferMemory,
+					   0); // offset into the block of memory, must be aligned according to the memRequirements.alignment
+
+	// Copy data to the GPU
+	void* data;
+	vkMapMemory(vulkanContext->device, indexBufferMemory, 0, size, 0, &data);
+	memcpy(data, indices, size);
+	vkUnmapMemory(vulkanContext->device, indexBufferMemory);
+}
+
+VulkanIndexBuffer::~VulkanIndexBuffer()
+{
+	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
+
+	if (indexBuffer != VK_NULL_HANDLE) vkDestroyBuffer(vulkanContext->device, indexBuffer, nullptr);
+	if (indexBufferMemory != VK_NULL_HANDLE) vkFreeMemory(vulkanContext->device, indexBufferMemory, nullptr);
+}
+
+void VulkanIndexBuffer::Bind() const
+{
+	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
+
+	vkCmdBindIndexBuffer(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex],
+						 indexBuffer,
+						 0, // offset
+						 VK_INDEX_TYPE_UINT32);
 }
 
 } // namespace Hedge

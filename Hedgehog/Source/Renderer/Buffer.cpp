@@ -42,6 +42,9 @@ IndexBuffer* IndexBuffer::Create(const unsigned int* indices, unsigned int count
 	case RendererAPI::API::DirectX12:
 		return new DirectX12IndexBuffer(indices, count);
 
+	case RendererAPI::API::Vulkan:
+		return new VulkanIndexBuffer(indices, count);
+
 	case RendererAPI::API::None:
 		return nullptr;
 

@@ -26,8 +26,27 @@ public:
 private:
 	BufferLayout layout;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
+	VkBuffer vertexBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+};
+
+
+class VulkanIndexBuffer : public IndexBuffer
+{
+public:
+	VulkanIndexBuffer(const unsigned int* indices, unsigned int count);
+	virtual ~VulkanIndexBuffer() override;
+
+	virtual void Bind() const override;
+	virtual void Unbind() const override {}
+
+	virtual unsigned int GetCount() const override { return count; }
+
+private:
+	unsigned int count = 0;
+
+	VkBuffer indexBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 };
 
 } // namespace Hedge

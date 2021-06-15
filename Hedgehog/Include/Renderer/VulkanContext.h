@@ -33,6 +33,7 @@ public:
 	friend class VulkanShader;
 	friend class VulkanVertexArray;
 	friend class VulkanVertexBuffer;
+	friend class VulkanIndexBuffer;
 
 private:
 	vkb::Instance CreateInstance();

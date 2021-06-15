@@ -152,19 +152,12 @@ void VulkanRendererAPI::EndFrame()
 
 void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, unsigned int count, unsigned int offset)
 {
-	// TODO we don't have index buffer yet, so no vkCmdDrawIndexed
-	//vkCmdDrawIndexed(renderContext->mainCommandBuffer,
-	//				 count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
-	//				 vertexArray->GetInstanceCount(), 
-	//				 offset * 3,
-	//				 0, // vertexOffset
-	//				 0); // firstInstance
-
-	vkCmdDraw(renderContext->commandBuffers[renderContext->frameInFlightIndex],
-			  3, // vertexCount
-			  vertexArray->GetInstanceCount(),
-			  0, // firstVertex
-			  0); // firstInstance
+	vkCmdDrawIndexed(renderContext->commandBuffers[renderContext->frameInFlightIndex],
+					 count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
+					 vertexArray->GetInstanceCount(), 
+					 offset * 3,
+					 0, // vertexOffset
+					 0); // firstInstance
 }
 
 } // namespace Hedge

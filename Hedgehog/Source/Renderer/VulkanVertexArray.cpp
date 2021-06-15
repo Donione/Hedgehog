@@ -58,6 +58,8 @@ void VulkanVertexArray::Bind()
 	{
 		vertexBuffer->Bind(slot++);
 	}
+
+	indexBuffer->Bind();
 }
 
 void VulkanVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
