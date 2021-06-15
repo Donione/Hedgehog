@@ -1410,6 +1410,12 @@ public:
 		vertexArray->AddVertexBuffer(vertexBuffer3);
 
 		vertexArray->SetInstanceCount(3);
+
+		unsigned int indices[] = { 0, 1, 2 };
+
+		indexBuffer.reset(Hedge::IndexBuffer::Create(indices, 3));
+
+		vertexArray->AddIndexBuffer(indexBuffer);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -1476,6 +1482,7 @@ private:
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer1;
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer2;
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer3;
+	std::shared_ptr<Hedge::IndexBuffer> indexBuffer;
 };
 
 class VulkanTest : public Hedge::Application
