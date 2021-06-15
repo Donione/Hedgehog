@@ -74,6 +74,8 @@ private:
 	VkPipeline pipeline = VK_NULL_HANDLE;
 
 	std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
+	std::vector< VkVertexInputBindingDivisorDescriptionEXT> vertexBindingDivisorDescriptions;
+	VkPipelineVertexInputDivisorStateCreateInfoEXT vertexInputDivisiorState;
 	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 	VkPipelineVertexInputStateCreateInfo vertexInputState;
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyState;
