@@ -60,7 +60,7 @@ struct BufferElement
 	BufferElement() = default;
 	BufferElement(ShaderDataType type,
 				  const std::string& name,
-				  unsigned int instanceDataStep = 0,
+				  int instanceDataStep = -1,
 				  bool normalized = false)
 		:
 		type(type),
@@ -74,7 +74,7 @@ struct BufferElement
 	ShaderDataType type;
 	std::string name;
 	unsigned int size;
-	unsigned int instanceDataStep;
+	int instanceDataStep;
 	unsigned int inputSlot;
 	bool normalized;
 	// For OpenGL, the offset is later used via casting it to void*

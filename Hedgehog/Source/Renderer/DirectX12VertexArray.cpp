@@ -186,8 +186,8 @@ void DirectX12VertexArray::CreatePSO()
 				GetDirectXFormat(input.type),
 				input.inputSlot,
 				(UINT)input.offset,
-				input.instanceDataStep == 0 ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA,
-				input.instanceDataStep
+				input.instanceDataStep == -1 ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA,
+				input.instanceDataStep == -1 ? 0 : (UINT)input.instanceDataStep
 			});
 	}
 

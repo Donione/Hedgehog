@@ -134,7 +134,7 @@ VkPipelineVertexInputStateCreateInfo VulkanVertexArray::CreateVertexInputState()
 			VkVertexInputBindingDescription vertexBindingDescription{};
 			vertexBindingDescription.binding = input.inputSlot;
 			vertexBindingDescription.stride = strides[input.inputSlot];
-			if (input.instanceDataStep == 0)
+			if (input.instanceDataStep == -1)
 			{
 				vertexBindingDescription.inputRate =  VK_VERTEX_INPUT_RATE_VERTEX;
 			}
@@ -165,18 +165,22 @@ VkPipelineVertexInputStateCreateInfo VulkanVertexArray::CreateVertexInputState()
 		vertexAttributeLocation++;
 	}
 
-	vertexInputDivisiorState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
-	vertexInputDivisiorState.pNext = nullptr;
-	vertexInputDivisiorState.vertexBindingDivisorCount = static_cast<uint32_t>(vertexBindingDivisorDescriptions.size());
-	vertexInputDivisiorState.pVertexBindingDivisors = vertexBindingDivisorDescriptions.data();
-
 	VkPipelineVertexInputStateCreateInfo info{};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	info.pNext = &vertexInputDivisiorState;
 	info.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDescriptions.size());
 	info.pVertexBindingDescriptions = vertexBindingDescriptions.data();
 	info.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size());
 	info.pVertexAttributeDescriptions = vertexAttributeDescriptions.data();
+
+	if (!vertexBindingDivisorDescriptions.empty())
+	{
+		vertexInputDivisiorState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
+		vertexInputDivisiorState.pNext = nullptr;
+		vertexInputDivisiorState.vertexBindingDivisorCount = static_cast<uint32_t>(vertexBindingDivisorDescriptions.size());
+		vertexInputDivisiorState.pVertexBindingDivisors = vertexBindingDivisorDescriptions.data();
+
+		info.pNext = &vertexInputDivisiorState;
+	}
 
 	return info;
 }

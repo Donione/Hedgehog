@@ -61,7 +61,20 @@ void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& ver
 							  element.normalized ? GL_TRUE : GL_FALSE,
 							  layout.GetStride(),
 							  (const void*)element.offset);
-		glVertexAttribDivisor(vertexAttribIndex, element.instanceDataStep);
+		if (element.instanceDataStep == -1)
+		{
+			glVertexAttribDivisor(vertexAttribIndex, 0);
+		}
+		else if (element.instanceDataStep == 0)
+		{
+			// OpenGL doesn't support zero divisor instance data rate, afaik
+			// TODO find out if there's an externsion or something for it
+			assert(element.instanceDataStep != 0);
+		}
+		else
+		{
+			glVertexAttribDivisor(vertexAttribIndex, (GLuint)element.instanceDataStep);
+		}
 
 		vertexAttribIndex++;
 	}
