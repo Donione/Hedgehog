@@ -1375,6 +1375,11 @@ public:
 			{ Hedge::ShaderDataType::Float3, "a_color" },
 		};
 
+		Hedge::BufferLayout bufferLayout3 =
+		{
+			{ Hedge::ShaderDataType::Float2, "a_offset", 1 },
+		};
+
 		float vertices1[] =
 		{
 			 0.0f, -0.5f,
@@ -1389,11 +1394,22 @@ public:
 			0.0f, 0.0f, 1.0f,
 		};
 
+		float vertices3[] =
+		{
+			0.0f, 0.0f,
+			0.25f, 0.25f,
+			0.5f, 0.5f,
+		};
+
 		vertexBuffer1.reset(Hedge::VertexBuffer::Create(bufferLayout1, vertices1, sizeof(vertices1)));
 		vertexBuffer2.reset(Hedge::VertexBuffer::Create(bufferLayout2, vertices2, sizeof(vertices2)));
+		vertexBuffer3.reset(Hedge::VertexBuffer::Create(bufferLayout3, vertices3, sizeof(vertices3)));
 
 		vertexArray->AddVertexBuffer(vertexBuffer1);
 		vertexArray->AddVertexBuffer(vertexBuffer2);
+		vertexArray->AddVertexBuffer(vertexBuffer3);
+
+		vertexArray->SetInstanceCount(3);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -1459,6 +1475,7 @@ private:
 	std::shared_ptr<Hedge::VertexArray> vertexArray;
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer1;
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer2;
+	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer3;
 };
 
 class VulkanTest : public Hedge::Application
