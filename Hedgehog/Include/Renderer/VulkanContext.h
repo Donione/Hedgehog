@@ -52,6 +52,17 @@ private:
 
 	uint32_t WaitForNextFrame();
 
+	uint32_t FindMemoryType(uint32_t requiredType, VkMemoryPropertyFlags requiredProperties);
+	void CreateVulkanBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer* buffer);
+	void AllocateMemory(VkBuffer buffer, VkMemoryPropertyFlags requiredProperties, VkDeviceMemory* bufferMemory);
+	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void CreateStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+	void CreateBuffer(VkBufferUsageFlags usage,
+					  void* data,
+					  VkDeviceSize size,
+					  VkBuffer* buffer,
+					  VkDeviceMemory* bufferMemory);
+
 
 private:
 	static int const NUM_FRAMES_IN_FLIGHT = 3;
