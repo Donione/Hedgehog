@@ -61,6 +61,10 @@ void Application::Run()
 		{
 			if (msg.message == WM_QUIT)
 			{
+				// TODO At this point the window has been destroyed
+				// It seems that Vulkan has a problem with cleaning up a device/surface when the associated window is gone
+				// We need to catch WM_CLOSE message, finish rendering in progress, clean up all Vulkan objects (like vertex arrays)
+				// and only then we can clean up the Vulkan Context and let the window close and be destoryed
 				running = false;
 				break;
 			}

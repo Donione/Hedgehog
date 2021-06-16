@@ -110,11 +110,11 @@ DirectX12Shader::ConstantBuffer DirectX12Shader::CreateConstantBuffer(ConstantBu
 			nullptr,
 			IID_PPV_ARGS(&constantBuffer.buffer[i])));
 
-	// Map and initialize the constant buffer. We don't unmap this until the
-	// app closes. Keeping things mapped for the lifetime of the resource is okay.
-	CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(constantBuffer.buffer[i]->Map(0, &readRange, reinterpret_cast<void**>(&constantBuffer.mappedData[i])));
-	// Any reason to zero the newly created constant buffer?
+		// Map and initialize the constant buffer. We don't unmap this until the
+		// app closes. Keeping things mapped for the lifetime of the resource is okay.
+		CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
+		ThrowIfFailed(constantBuffer.buffer[i]->Map(0, &readRange, reinterpret_cast<void**>(&constantBuffer.mappedData[i])));
+		// Any reason to zero the newly created constant buffer?
 	}
 
 	return constantBuffer;
