@@ -34,11 +34,16 @@ VulkanVertexArray::VulkanVertexArray(const std::shared_ptr<Shader>& inputShader,
 	viewport = renderer->GetViewport();
 	scissor = renderer->GetScissor();
 
+	CreateDescriptorSetLayouts();
 	pipelineLayout = CreatePipelineLayout();
 }
 
 VulkanVertexArray::~VulkanVertexArray()
 {
+	for (auto descriptorSetLayout : descriptorSetLayouts)
+	{
+		vkDestroyDescriptorSetLayout(vulkanContext->device, descriptorSetLayout, nullptr);
+	}
 	vkDestroyPipelineLayout(vulkanContext->device, pipelineLayout, nullptr);
 	vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
 }
@@ -292,8 +297,10 @@ VkPipelineLayout VulkanVertexArray::CreatePipelineLayout() const
 {
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = nullptr;
+
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();;
+
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -303,6 +310,45 @@ VkPipelineLayout VulkanVertexArray::CreatePipelineLayout() const
 	}
 
 	return pipelineLayout;
+}
+
+void VulkanVertexArray::CreateDescriptorSetLayouts()
+{
+	for (int set = 0; set < shader->GetConstBufferCount(); set++)
+	{
+		descriptorSetLayouts.push_back(CreateDescriptorSetLayout(1)); // shader->GetNumberOfBindings(set);
+	}
+}
+
+VkDescriptorSetLayout VulkanVertexArray::CreateDescriptorSetLayout(unsigned int numberOfBindings) const
+{
+	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+	descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+
+	std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+	for (uint32_t binding = 0; binding < numberOfBindings; binding++)
+	{
+		VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
+		descriptorSetLayoutBinding.binding = binding;
+		descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorSetLayoutBinding.descriptorCount = 1; // TODO arrays of uniform buffers
+		descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL; // TODO add to API
+		descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+
+		descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
+	}
+
+	descriptorSetLayoutCreateInfo.bindingCount = numberOfBindings;
+	descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings.data();
+
+	VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+	VkResult result = vkCreateDescriptorSetLayout(vulkanContext->device, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout);
+	if (result != VK_SUCCESS)
+	{
+		assert(false);
+	}
+
+	return descriptorSetLayout;
 }
 
 } // namespace Hedge

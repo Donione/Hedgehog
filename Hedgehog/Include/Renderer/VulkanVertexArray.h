@@ -49,6 +49,8 @@ private:
 	VkPipelineColorBlendStateCreateInfo CreateColorBlendState() const;
 	VkPipelineDynamicStateCreateInfo CreatDynamicState() const;
 	VkPipelineLayout CreatePipelineLayout() const;
+		void CreateDescriptorSetLayouts();
+			VkDescriptorSetLayout CreateDescriptorSetLayout(unsigned int numberOfBindings) const;
 
 	VkPrimitiveTopology GetPipelinePrimitiveTopology(PrimitiveTopology topology) const { return pipelinePrimitiveTopologies[(int)topology]; }
 	VkFormat GetVulkanFormat(ShaderDataType type) const { return VulkanFormats[(int)type]; }
@@ -87,6 +89,8 @@ private:
 	VkPipelineColorBlendAttachmentState colorBlendAttachmentState;
 	VkPipelineColorBlendStateCreateInfo colorBlendState;
 	VkPipelineDynamicStateCreateInfo dynamicState;
+
+	std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 	VulkanContext* vulkanContext = nullptr;
