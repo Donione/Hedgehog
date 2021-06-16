@@ -189,8 +189,8 @@ void VulkanContext::CreateCommandBuffers()
 	// command level is Primary
 	cmdAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-	commandBuffers.resize(NUM_FRAMES_IN_FLIGHT);
-	for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
+	commandBuffers.resize(swapchainImages.size());
+	for (int i = 0; i < swapchainImages.size(); i++)
 	{
 		if (vkAllocateCommandBuffers(device, &cmdAllocInfo, &commandBuffers[i]) != VK_SUCCESS)
 		{

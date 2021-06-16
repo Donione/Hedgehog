@@ -57,7 +57,7 @@ void VulkanRendererAPI::BeginFrame()
 {
 	uint32_t swapchainImageIndex = renderContext->WaitForNextFrame();
 
-	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->frameInFlightIndex];
+	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->swapChainImageIndex];
 
 	//now that we are sure that the commands finished executing, we can safely reset the command buffer to begin recording again.
 	if (vkResetCommandBuffer(commandBuffer, 0) != VK_SUCCESS)
@@ -105,7 +105,7 @@ void VulkanRendererAPI::BeginFrame()
 
 void VulkanRendererAPI::EndFrame()
 {
-	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->frameInFlightIndex];
+	VkCommandBuffer commandBuffer = renderContext->commandBuffers[renderContext->swapChainImageIndex];
 
 	//finalize the render pass
 	vkCmdEndRenderPass(commandBuffer);
@@ -152,7 +152,7 @@ void VulkanRendererAPI::EndFrame()
 
 void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, unsigned int count, unsigned int offset)
 {
-	vkCmdDrawIndexed(renderContext->commandBuffers[renderContext->frameInFlightIndex],
+	vkCmdDrawIndexed(renderContext->commandBuffers[renderContext->swapChainImageIndex],
 					 count > 0 ? count * 3 : vertexArray->GetIndexBuffer()->GetCount(),
 					 vertexArray->GetInstanceCount(), 
 					 offset * 3,
