@@ -19,10 +19,12 @@ VulkanContext::VulkanContext(HWND windowHandle)
 	CreateFrameBuffers(Application::GetInstance().GetWindow().GetWidth(),
 					   Application::GetInstance().GetWindow().GetHeight());
 	CreateSyncObjects();
+	CreateDescriptorPool();
 }
 
 VulkanContext::~VulkanContext()
 {
+	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	DestroySyncObjects();
 	DestroySwapChain();
 	DestroyFrameBuffers();
@@ -312,6 +314,28 @@ void VulkanContext::CreateSyncObjects()
 		{
 			assert(false);
 		}
+	}
+}
+
+void VulkanContext::CreateDescriptorPool()
+{
+	VkDescriptorPoolSize poolSizes[] =
+	{
+		// type,                                     descriptorCount
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+	};
+
+	VkDescriptorPoolCreateInfo descriptorPoolInfo{};
+	descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	descriptorPoolInfo.maxSets = 2 * 1000;
+	descriptorPoolInfo.poolSizeCount = 2;
+	descriptorPoolInfo.pPoolSizes = poolSizes;
+
+	if (vkCreateDescriptorPool(device, &descriptorPoolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+	{
+		assert(false);
 	}
 }
 

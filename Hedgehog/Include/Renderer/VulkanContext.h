@@ -43,6 +43,7 @@ private:
 	void CreateRenderPass();
 	void CreateFrameBuffers(unsigned int width, unsigned int height);
 	void CreateSyncObjects();
+	void CreateDescriptorPool();
 
 	void DestroySwapChain();
 	void DestroyFrameBuffers();
@@ -102,6 +103,8 @@ private:
 	// Fences are used for CPU-GPU synchronization
 	std::vector<VkFence> frameInFlightFences;
 	std::vector<VkFence> swapChainImageFences;
+
+	VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 };
 
 }  // namespace Hedge

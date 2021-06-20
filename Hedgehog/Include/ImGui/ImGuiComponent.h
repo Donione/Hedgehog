@@ -29,7 +29,6 @@ private:
 	void CreateSRVDescHeap();
 
 	// Vulkan implementation specific
-	void CreateDescriptorPool();
 	void UploadFonts();
 
 private:
