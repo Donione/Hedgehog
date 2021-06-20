@@ -49,6 +49,8 @@ public:
 
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override {}
 
+	virtual const size_t GetConstBufferCount() const override {}
+
 	const std::vector<VkPipelineShaderStageCreateInfo>& GetShaderStages() const { return shaderStages; }
 
 private:
