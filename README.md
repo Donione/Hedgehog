@@ -19,13 +19,13 @@ Mainly the renderer portion of the engine has been and is being worked on.
 ### Features
 * Window handling (bare winapi)
 * Indexed Instanced Rendering
+* Cameras
 * Directional, Point and Spot lights
 * Textures
 * Normal Mapping
 * Entity Component System
 * Skeletal animations
-* barebones .obj model loading
-* barebones .dae model loading
+* simple model loading (.tri, .obj, .dae formats)
 
 ### Feature TODO/wish list
 * shadows
