@@ -39,3 +39,11 @@ Mainly the renderer portion of the engine has been and is being worked on.
 * [stb](https://github.com/nothings/stb) for image loading
 * [pugixml](https://github.com/zeux/pugixml/) for xml parsing
 * [vk-bootstrap](https://github.com/charles-lunarg/vk-bootstrap) for vulkan setup
+
+### Gallery
+#### Simple model with a point light and a spotlight
+![Simple model with a point light and a spotlight](./pictures/simple_model_lights.PNG)
+#### Larger model with textures and normal maps
+![Larger model with textures and normal maps](./pictures/larger_model_texture_normal.PNG)
+#### Animation
+![Animation](./pictures/animation.gif)
