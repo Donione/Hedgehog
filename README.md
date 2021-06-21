@@ -25,11 +25,11 @@ Mainly the renderer portion of the engine has been and is being worked on.
 * Normal Mapping
 * Entity Component System
 * Skeletal animations
-* simple model loading (.tri, .obj, .dae formats)
+* Simple model loading (.tri, .obj, .dae formats)
 
 ### Feature TODO/wish list
-* shadows
-* defered rendering
+* Shadows
+* Deferred rendering
 
 ### Third-party libraries
 * [glad](https://github.com/Dav1dde/glad) for OpenGL setup
