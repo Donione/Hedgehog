@@ -499,35 +499,35 @@ void VulkanContext::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-void VulkanContext::CreateStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+void VulkanContext::CreateBuffer(VkDeviceSize size,
+								 VkBufferUsageFlags usage,
+								 VkMemoryPropertyFlags requiredProperties,
+								 VkBuffer* buffer,
+								 VkDeviceMemory* bufferMemory)
 {
-	CreateVulkanBuffer(size,
-					   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-					   buffer);
-
-	AllocateMemory(*buffer,
-				   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				   bufferMemory);
-
+	CreateVulkanBuffer(size, usage, buffer);
+	AllocateMemory(*buffer, requiredProperties, bufferMemory);
 	vkBindBufferMemory(device,
 					   *buffer,
 					   *bufferMemory,
 					   0); // offset into the block of memory, must be aligned according to the memRequirements.alignment
 }
 
-void VulkanContext::CreateBuffer(VkBufferUsageFlags usage,
-								 void* data,
-								 VkDeviceSize size,
-								 VkBuffer* buffer,
-								 VkDeviceMemory* bufferMemory)
+void VulkanContext::CreateStagedBuffer(VkBufferUsageFlags usage,
+									   void* data,
+									   VkDeviceSize size,
+									   VkBuffer* buffer,
+									   VkDeviceMemory* bufferMemory)
 {
 	// Create a staging buffer
 	VkBuffer stagingBuffer = VK_NULL_HANDLE;
 	VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
 
-	CreateStagingBuffer(size,
-						&stagingBuffer,
-						&stagingBufferMemory);
+	CreateBuffer(size,
+				 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				 &stagingBuffer,
+				 &stagingBufferMemory);
 
 	// Copy data to the staging buffer
 	void* mappedData;
@@ -536,20 +536,22 @@ void VulkanContext::CreateBuffer(VkBufferUsageFlags usage,
 	vkUnmapMemory(device, stagingBufferMemory);
 
 	// Create buffer on GPU
-	CreateVulkanBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, buffer);
-
-	AllocateMemory(*buffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferMemory);
-
-	vkBindBufferMemory(device,
-					   *buffer,
-					   *bufferMemory,
-					   0); // offset into the block of memory, must be aligned according to the memRequirements.alignment
+	CreateBuffer(size,
+				 VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage,
+				 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				 buffer,
+				 bufferMemory);
 
 	CopyBuffer(stagingBuffer, *buffer, size);
 
 	// Clean up the staging buffer
-	vkDestroyBuffer(device, stagingBuffer, nullptr);
-	vkFreeMemory(device, stagingBufferMemory, nullptr);
+	DestoyVulkanBuffer(stagingBuffer, stagingBufferMemory);
+}
+
+void VulkanContext::DestoyVulkanBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory)
+{
+	vkDestroyBuffer(device, buffer, nullptr);
+	vkFreeMemory(device, bufferMemory, nullptr);
 }
 
 } // namespace Hedge

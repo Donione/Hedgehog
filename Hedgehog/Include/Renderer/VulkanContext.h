@@ -57,12 +57,18 @@ private:
 	void CreateVulkanBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer* buffer);
 	void AllocateMemory(VkBuffer buffer, VkMemoryPropertyFlags requiredProperties, VkDeviceMemory* bufferMemory);
 	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	void CreateStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
-	void CreateBuffer(VkBufferUsageFlags usage,
-					  void* data,
-					  VkDeviceSize size,
+	void CreateBuffer(VkDeviceSize size,
+					  VkBufferUsageFlags usage,
+					  VkMemoryPropertyFlags requiredProperties,
 					  VkBuffer* buffer,
 					  VkDeviceMemory* bufferMemory);
+	void CreateStagedBuffer(VkBufferUsageFlags usage,
+							void* data,
+							VkDeviceSize size,
+							VkBuffer* buffer,
+							VkDeviceMemory* bufferMemory);
+
+	void DestoyVulkanBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory);
 
 
 private:

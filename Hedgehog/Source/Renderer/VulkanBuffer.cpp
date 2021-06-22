@@ -15,11 +15,11 @@ VulkanVertexBuffer::VulkanVertexBuffer(const BufferLayout& layout,
 
 	this->layout = layout;
 
-	vulkanContext->CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-								(void*)vertices,
-								size,
-								&vertexBuffer,
-								&vertexBufferMemory);
+	vulkanContext->CreateStagedBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+									  (void*)vertices,
+									  size,
+									  &vertexBuffer,
+									  &vertexBufferMemory);
 }
 
 VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -58,11 +58,11 @@ VulkanIndexBuffer::VulkanIndexBuffer(const unsigned int* indices, unsigned int c
 	this->count = count;
 	VkDeviceSize size = count * sizeof(unsigned int);
 
-	vulkanContext->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-								(void*)indices,
-								size,
-								&indexBuffer,
-								&indexBufferMemory);
+	vulkanContext->CreateStagedBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+									  (void*)indices,
+									  size,
+									  &indexBuffer,
+									  &indexBufferMemory);
 }
 
 VulkanIndexBuffer::~VulkanIndexBuffer()
