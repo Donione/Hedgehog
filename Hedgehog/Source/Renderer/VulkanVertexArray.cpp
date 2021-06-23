@@ -34,17 +34,11 @@ VulkanVertexArray::VulkanVertexArray(const std::shared_ptr<Shader>& inputShader,
 	viewport = renderer->GetViewport();
 	scissor = renderer->GetScissor();
 
-	CreateDescriptorSetLayouts();
-	pipelineLayout = CreatePipelineLayout();
+	pipelineLayout = shader->GetPipelineLayout();
 }
 
 VulkanVertexArray::~VulkanVertexArray()
 {
-	for (auto descriptorSetLayout : descriptorSetLayouts)
-	{
-		vkDestroyDescriptorSetLayout(vulkanContext->device, descriptorSetLayout, nullptr);
-	}
-	vkDestroyPipelineLayout(vulkanContext->device, pipelineLayout, nullptr);
 	vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
 }
 
@@ -56,7 +50,9 @@ void VulkanVertexArray::Bind()
 		CreatePipeline();
 	}
 
-	vkCmdBindPipeline(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindPipeline(vulkanContext->commandBuffers[vulkanContext->swapChainImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+	shader->Bind();
 
 	unsigned int slot = 0;
 	for (auto& vertexBuffer : vertexBuffers)
@@ -124,7 +120,8 @@ void VulkanVertexArray::CreatePipeline()
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	pipelineInfo.basePipelineIndex = -1;
 
-	if (vkCreateGraphicsPipelines(vulkanContext->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
+	if (vkCreateGraphicsPipelines(vulkanContext->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+	{
 		assert(false);
 	}
 }
@@ -291,64 +288,6 @@ VkPipelineDynamicStateCreateInfo VulkanVertexArray::CreatDynamicState() const
 	// TODO skip dynaimc state for now
 
 	return dynamicState;
-}
-
-VkPipelineLayout VulkanVertexArray::CreatePipelineLayout() const
-{
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();;
-
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
-	pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-	if (vkCreatePipelineLayout(vulkanContext->device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-		assert(false);
-	}
-
-	return pipelineLayout;
-}
-
-void VulkanVertexArray::CreateDescriptorSetLayouts()
-{
-	for (int set = 0; set < shader->GetConstBufferCount(); set++)
-	{
-		descriptorSetLayouts.push_back(CreateDescriptorSetLayout(1)); // shader->GetNumberOfBindings(set);
-	}
-}
-
-VkDescriptorSetLayout VulkanVertexArray::CreateDescriptorSetLayout(unsigned int numberOfBindings) const
-{
-	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
-	descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-
-	std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-	for (uint32_t binding = 0; binding < numberOfBindings; binding++)
-	{
-		VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-		descriptorSetLayoutBinding.binding = binding;
-		descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorSetLayoutBinding.descriptorCount = 1; // TODO arrays of uniform buffers
-		descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL; // TODO add to API
-		descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
-
-		descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
-	}
-
-	descriptorSetLayoutCreateInfo.bindingCount = numberOfBindings;
-	descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings.data();
-
-	VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-	VkResult result = vkCreateDescriptorSetLayout(vulkanContext->device, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout);
-	if (result != VK_SUCCESS)
-	{
-		assert(false);
-	}
-
-	return descriptorSetLayout;
 }
 
 } // namespace Hedge

@@ -66,7 +66,8 @@ public:
 
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override;
 
-	const size_t GetConstBufferCount() const { return constantBuffers.size(); }
+	virtual const size_t GetConstBufferCount() const override { return constantBuffers.size(); }
+
 	const D3D12_SHADER_BYTECODE GetVSBytecode() const;
 	const D3D12_SHADER_BYTECODE GetPSBytecode() const;
 	const D3D12_SHADER_BYTECODE GetGSBytecode() const;
