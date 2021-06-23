@@ -663,12 +663,12 @@ public:
 
 		Vertex axesVertices[6] =
 		{
-			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // X axis
-			{ 100.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f },
-			{ 0.0f, -100.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // Y axis
-			{ 0.0f, 100.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f },
-			{ 0.0f, 0.0f, -100.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   0.0f }, // Z axis
-			{ 0.0f, 0.0f, 100.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   0.0f },
+			{ -100.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   -1.0f }, // X axis
+			{ 100.0f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   -1.0f },
+			{ 0.0f, -100.0f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   -1.0f }, // Y axis
+			{ 0.0f, 100.0f, 0.0f, 1.0f,		0.0f, 1.0f, 0.0f, 1.0f,		0.0f, 0.0f,   -1.0f },
+			{ 0.0f, 0.0f, -100.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   -1.0f }, // Z axis
+			{ 0.0f, 0.0f, 100.0f, 1.0f,		0.0f, 0.0f, 1.0f, 1.0f,		0.0f, 0.0f,   -1.0f },
 		};
 
 		unsigned int axesIndices[] = { 0, 1, 2, 3, 4, 5 };
@@ -972,7 +972,7 @@ public:
 
 				char label[256] = {};
 
-				sprintf_s(label, "Show %s", name.c_str());
+				sprintf_s(label, "%s", name.c_str());
 				if (ImGui::TreeNode(label))
 				{
 					ImGui::Checkbox(label, &mesh.enabled);
