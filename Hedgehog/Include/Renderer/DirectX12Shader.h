@@ -108,7 +108,7 @@ private:
 	ID3DBlob* geometryShader = nullptr;
 
 	ConstantBufferDescription description;
-	ID3D12DescriptorHeap* CBVDescHeap = nullptr;
+	//ID3D12DescriptorHeap* CBVDescHeap = nullptr;
 	std::unordered_map<ConstantBufferUsage, ConstantBuffer> constantBuffers;
 	int constBuffersSkipped = 0;
 	std::unordered_map<std::string, ConstantBufferView> constantBufferViews;

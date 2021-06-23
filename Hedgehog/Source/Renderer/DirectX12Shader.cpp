@@ -129,7 +129,7 @@ unsigned long long DirectX12Shader::GetConstantBufferSize(ConstantBufferUsage us
 		{
 			// TODO properly follow packing rules
 			// the following won't work on floats and float2s
-			size += ((element.size + 15) & ~15);
+			size += ((element.size * element.count + 15) & ~15);
 		}
 	}
 	// CB size is required to be 256-byte aligned.
@@ -145,7 +145,6 @@ DirectX12Shader::ConstantBufferView DirectX12Shader::CreateConstantBufferView(Co
 	}
 	newBuffer.size = element.size * element.count;
 	newBuffer.totalSize = constantBuffers[element.usage].totalSize;
-	constantBufferViews.emplace(element.name, newBuffer);
 
 	dataOffsets.at(element.usage) += ((element.size * element.count + 15) & ~15);
 
@@ -166,11 +165,13 @@ DirectX12Shader::~DirectX12Shader()
 		pixelShader = nullptr;
 	}
 
-	if (CBVDescHeap)
-	{
-		CBVDescHeap->Release();
-		CBVDescHeap = nullptr;
-	}
+	//if (CBVDescHeap)
+	//{
+	//	CBVDescHeap->Release();
+	//	CBVDescHeap = nullptr;
+	//}
+	
+	// TODO probably should unmap constant buffers
 }
 
 void DirectX12Shader::Bind()
@@ -190,6 +191,7 @@ void DirectX12Shader::Bind()
 	for (auto const& [key, constBuffer] : constantBuffers)
 	{
 		// Scene constant buffers are (should) be updated once per frame at most, so no need to offset
+		// TODO We are assuming here that a different pipeline HASN'T been bound in between multiple bind calls to the vertex array associated with this shader
 		if (key == ConstantBufferUsage::Scene)
 		{
 			dx12context->g_pd3dCommandList->SetGraphicsRootConstantBufferView(constBuffer.rootParamIndex,
