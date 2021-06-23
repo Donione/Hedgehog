@@ -1360,6 +1360,15 @@ public:
 		shader.reset(Hedge::Shader::Create("..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv",
 										   "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv"));
 
+		Hedge::ConstantBufferDescription constantBufferDescription =
+		{
+			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_dummy", sizeof(glm::vec2), Hedge::ConstantBufferUsage::Scene },
+		};
+
+		shader->SetupConstantBuffers(constantBufferDescription);
+
 		vertexArray.reset(Hedge::VertexArray::Create(shader,
 													 Hedge::PrimitiveTopology::Triangle,
 													 {},
@@ -1424,6 +1433,16 @@ public:
 
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
+			glm::mat4 one = glm::mat4(1.0f);
+			vertexArray->GetShader()->UploadConstant("u_projectionView", glm::value_ptr(one), sizeof(glm::mat4));
+			
+			glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
+			vertexArray->GetShader()->UploadConstant("u_transform", glm::value_ptr(translate), sizeof(glm::mat4));
+			Hedge::Renderer::Submit(vertexArray);
+
+			vertexArray->GetShader()->UploadConstant("u_projectionView", glm::value_ptr(one), sizeof(glm::mat4));
+			translate = glm::translate(one, glm::vec3(0.0f, -0.25f, 0.0f));
+			vertexArray->GetShader()->UploadConstant("u_transform", glm::value_ptr(translate), sizeof(glm::mat4));
 			Hedge::Renderer::Submit(vertexArray);
 
 			scene.OnUpdate(duration);
