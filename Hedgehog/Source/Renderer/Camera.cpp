@@ -186,15 +186,29 @@ void Camera::CreateProjectionMatrix()
 
 void Camera::CreateOrthographicMatrix()
 {
+	// Using right-handed coordinates (default in GLM)
 	if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 	{
 		// DirectX clip volume z normalized device coordinates go from 0 to 1
-		projection = glm::orthoRH_ZO(frustum.nearLeft,
-									 frustum.nearRight,
-									 frustum.nearBottom,
-									 frustum.nearTop,
-									 frustum.nearClip,
-									 frustum.farClip);
+		projection = glm::orthoZO(frustum.nearLeft,
+								  frustum.nearRight,
+								  frustum.nearBottom,
+								  frustum.nearTop,
+								  frustum.nearClip,
+								  frustum.farClip);
+	}
+	else if (Renderer::GetAPI() == RendererAPI::API::Vulkan)
+	{
+		// Vulkan clip volume z normalized device coordinates go from 0 to 1
+		projection = glm::orthoZO(frustum.nearLeft,
+								  frustum.nearRight,
+								  frustum.nearBottom,
+								  frustum.nearTop,
+								  frustum.nearClip,
+								  frustum.farClip);
+
+		// The Y axis in Vulkan has opposite direction to the other APIs
+		projection = glm::scale(projection, glm::vec3(1.0f, -1.0f, 1.0f));
 	}
 	else
 	{
@@ -212,7 +226,12 @@ void Camera::CreatePerspectiveMatrix()
 {
 	if (Renderer::GetAPI() == RendererAPI::API::DirectX12)
 	{
-		projection = glm::perspectiveRH_ZO(glm::radians(frustum.fov), frustum.aspectRatio, frustum.nearClip, frustum.farClip);
+		projection = glm::perspectiveZO(glm::radians(frustum.fov), frustum.aspectRatio, frustum.nearClip, frustum.farClip);
+	}
+	else if (Renderer::GetAPI() == RendererAPI::API::Vulkan)
+	{
+		projection = glm::perspectiveZO(glm::radians(frustum.fov), frustum.aspectRatio, frustum.nearClip, frustum.farClip);
+		projection = glm::scale(projection, glm::vec3(1.0f, -1.0f, 1.0f));
 	}
 	else
 	{
