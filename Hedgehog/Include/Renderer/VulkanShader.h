@@ -28,25 +28,25 @@ public:
 
 	virtual void SetupConstantBuffers(ConstantBufferDescription constBufferDesc) override;
 
-	virtual void UploadConstant(const std::string& name, float constant) override {}
-	virtual void UploadConstant(const std::string& name, glm::vec2 constant) override {}
-	virtual void UploadConstant(const std::string& name, glm::vec3 constant) override {}
-	virtual void UploadConstant(const std::string& name, glm::vec4 constant) override {}
+	virtual void UploadConstant(const std::string& name, float constant) override;
+	virtual void UploadConstant(const std::string& name, glm::vec2 constant) override;
+	virtual void UploadConstant(const std::string& name, glm::vec3 constant) override;
+	virtual void UploadConstant(const std::string& name, glm::vec4 constant) override;
 
-	virtual void UploadConstant(const std::string& name, glm::mat3x3 constant) override {}
-	virtual void UploadConstant(const std::string& name, glm::mat4x4 constant) override {}
+	virtual void UploadConstant(const std::string& name, glm::mat3x3 constant) override;
+	virtual void UploadConstant(const std::string& name, glm::mat4x4 constant) override;
 
-	virtual void UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant) override {}
+	virtual void UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant) override;
 
-	virtual void UploadConstant(const std::string& name, int constant) override {}
+	virtual void UploadConstant(const std::string& name, int constant) override;
 
-	virtual void UploadConstant(const std::string& name, const DirectionalLight& constant) override {}
-	virtual void UploadConstant(const std::string& name, const PointLight& constant) override {}
-	virtual void UploadConstant(const std::string& name, const SpotLight& constant) override {}
+	virtual void UploadConstant(const std::string& name, const DirectionalLight& constant) override;
+	virtual void UploadConstant(const std::string& name, const PointLight& constant) override;
+	virtual void UploadConstant(const std::string& name, const SpotLight& constant) override;
 
-	virtual void UploadConstant(const std::string& name, const DirectionalLight* constant, int count = 1) override {}
-	virtual void UploadConstant(const std::string& name, const PointLight* constant, int count = 1) override {}
-	virtual void UploadConstant(const std::string& name, const SpotLight* constant, int count = 1) override {}
+	virtual void UploadConstant(const std::string& name, const DirectionalLight* constant, int count = 1) override;
+	virtual void UploadConstant(const std::string& name, const PointLight* constant, int count = 1) override;
+	virtual void UploadConstant(const std::string& name, const SpotLight* constant, int count = 1) override;
 
 	virtual void UploadConstant(const std::string& name, const void* constant, unsigned long long size) override;
 

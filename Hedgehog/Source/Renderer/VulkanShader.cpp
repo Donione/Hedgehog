@@ -5,6 +5,8 @@
 
 #include <fstream>
 
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace Hedge
 {
@@ -134,6 +136,76 @@ void VulkanShader::SetupConstantBuffers(ConstantBufferDescription constBufferDes
 	descriptorSets.push_back(CreateDescriptorSets());
 }
 
+void VulkanShader::UploadConstant(const std::string& name, float constant)
+{
+	UploadConstant(name, static_cast<void*>(&constant), sizeof(float));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, glm::vec2 constant)
+{
+	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::vec2));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, glm::vec3 constant)
+{
+	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::vec3));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, glm::vec4 constant)
+{
+	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::vec4));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, glm::mat3x3 constant)
+{
+	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::mat3x3));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, glm::mat4x4 constant)
+{
+	UploadConstant(name, static_cast<void*>(glm::value_ptr(constant)), sizeof(glm::mat4x4));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const std::vector<glm::mat4>& constant)
+{
+	UploadConstant(name, static_cast<const void*>(constant.data()), sizeof(glm::mat4) * constant.size());
+}
+
+void VulkanShader::UploadConstant(const std::string& name, int constant)
+{
+	UploadConstant(name, static_cast<void*>(&constant), sizeof(int));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const DirectionalLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(DirectionalLight));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const PointLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(PointLight));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const SpotLight& constant)
+{
+	UploadConstant(name, static_cast<const void*>(&constant), sizeof(SpotLight));
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const DirectionalLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(DirectionalLight) * count);
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const PointLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(PointLight) * count);
+}
+
+void VulkanShader::UploadConstant(const std::string& name, const SpotLight* constant, int count)
+{
+	UploadConstant(name, static_cast<const void*>(constant), sizeof(SpotLight) * count);
+}
+
 void VulkanShader::UploadConstant(const std::string& name, const void* constant, unsigned long long size)
 {
 	if (!uniformVariableViews.contains(name)) return;
@@ -144,9 +216,9 @@ void VulkanShader::UploadConstant(const std::string& name, const void* constant,
 
 	auto vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
 
-	// TODO support multiple objects using the same buffer
 	void* mappedMemmory = uniformBuffers.at(uniformVariable.set).mappedMemory[vulkanContext->swapChainImageIndex];
 	size_t dataSize = uniformBuffers.at(uniformVariable.set).dataSize;
+	// TODO get rid of the hard-coded alignment calculations
 	memcpy(static_cast<uint8_t*>(mappedMemmory) + bindCount * ((dataSize + 0x3F) & ~0x3F) + uniformVariable.offset,
 		   constant,
 		   size);
