@@ -3,7 +3,7 @@
 
 layout(location = 0) in vec2 a_position;
 layout(location = 1) in vec3 a_color;
-layout(location = 2) in vec2 a_offset;
+layout(location = 2) in float a_offset;
 
 
 layout(set = 0, binding = 0) uniform SceneConstantBuffer
@@ -22,7 +22,7 @@ layout(location = 0) out vec3 fragColor;
 void main()
 {
     mat4 PVM = sceneConstantBuffer.u_projectionView * objectConstantBuffer.u_transform;
-    gl_Position = PVM * vec4(a_position + a_offset, 0.0, 1.0);
+    gl_Position = PVM * vec4(a_position, a_offset, 1.0);
 
     fragColor = a_color;
 }

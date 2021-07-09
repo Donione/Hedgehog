@@ -1384,7 +1384,7 @@ public:
 
 		Hedge::BufferLayout bufferLayout3 =
 		{
-			{ Hedge::ShaderDataType::Float2, "a_offset", 1 },
+			{ Hedge::ShaderDataType::Float, "a_offset", 1 },
 		};
 
 		float vertices1[] =
@@ -1403,9 +1403,9 @@ public:
 
 		float vertices3[] =
 		{
-			0.0f, 0.0f,
-			0.25f, 0.25f,
-			0.5f, 0.5f,
+			0.0f,
+			-1.0f,
+			0.25f,
 		};
 
 		vertexBuffer1.reset(Hedge::VertexBuffer::Create(bufferLayout1, vertices1, sizeof(vertices1)));
@@ -1486,16 +1486,12 @@ public:
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
 			glm::mat4 one = glm::mat4(1.0f);
-			vertexArray->GetShader()->UploadConstant("u_projectionView", glm::value_ptr(one), sizeof(glm::mat4));
-			
-			glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
-			vertexArray->GetShader()->UploadConstant("u_transform", glm::value_ptr(translate), sizeof(glm::mat4));
-			Hedge::Renderer::Submit(vertexArray);
 
-			vertexArray->GetShader()->UploadConstant("u_projectionView", glm::value_ptr(one), sizeof(glm::mat4));
-			translate = glm::translate(one, glm::vec3(0.0f, -0.25f, 0.0f));
-			vertexArray->GetShader()->UploadConstant("u_transform", glm::value_ptr(translate), sizeof(glm::mat4));
-			Hedge::Renderer::Submit(vertexArray);
+			glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
+			Hedge::Renderer::Submit(vertexArray, translate);
+
+			translate = glm::translate(one, glm::vec3(0.0f, -1.5f, 0.0f));
+			Hedge::Renderer::Submit(vertexArray, translate);
 
 			scene.OnUpdate(duration);
 		}
