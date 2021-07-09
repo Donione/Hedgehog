@@ -1350,11 +1350,9 @@ public:
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
 
 		auto camera = scene.CreateEntity("Scene Camera");
-		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f)); // camera space, +z goes into the screen
-		//camera.Add<Hedge::Camera>(Hedge::Camera::CreateOrthographic(aspectRatio, 1.0f, 0.01f, 25.0f));
+		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f));
 		auto& cameraTransform = camera.Add<Hedge::Transform>();
-		cameraTransform.SetTranslation(glm::vec3(1.0f, 1.0f, 3.0f)); // world space, +z goes out of the screen
-		cameraTransform.SetRotation(glm::vec3(-10.0f, 20.0f, 0.0f));
+		cameraTransform.SetTranslation(glm::vec3(0.0f, 0.0f, 3.0f));
 
 
 		shader.reset(Hedge::Shader::Create("..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv",
@@ -1429,7 +1427,61 @@ public:
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
 	{
+		// Poll WASD input
+		if (GetKeyState(0x44) < 0) // 'D'
+		{
+			xOffset++;
+		}
+
+		if (GetKeyState(0x41) < 0) // 'A'
+		{
+			xOffset--;
+		}
+
+		if (GetKeyState(0x57) < 0) // 'W'
+		{
+			zOffset--;
+		}
+
+		if (GetKeyState(0x53) < 0) // 'S'
+		{
+			zOffset++;
+		}
+
+		if (GetKeyState(0x45) < 0) // 'E'
+		{
+			zRotation--;
+		}
+
+		if (GetKeyState(0x51) < 0) // 'Q'
+		{
+			zRotation++;
+		}
+
 		auto primaryCamera = scene.GetPrimaryCamera();
+
+		if (GetKeyState(VK_SPACE) < 0)
+		{
+			if (primaryCamera)
+			{
+				primaryCamera.Get<Hedge::Transform>().SetTranslation({ 0.0f, 0.0f, 0.0f });
+				primaryCamera.Get<Hedge::Transform>().SetRotation({ 0.0f, 0.0f, 0.0f });
+			}
+		}
+
+		if (primaryCamera)
+		{
+			primaryCamera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
+			primaryCamera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
+		}
+
+		xOffset = 0;
+		yOffset = 0;
+		zOffset = 0;
+
+		xRotation = 0;
+		yRotation = 0;
+		zRotation = 0;
 
 		Hedge::Renderer::BeginScene(primaryCamera);
 		{
@@ -1450,6 +1502,17 @@ public:
 		Hedge::Renderer::EndScene();
 	}
 
+	void OnGuiUpdate() override
+	{
+		ImGui::Begin("Camera");
+
+		auto primaryCamera = scene.GetPrimaryCamera();
+		primaryCamera.Get<Hedge::Camera>().CreateGuiControls();
+		primaryCamera.Get<Hedge::Transform>().CreateGuiControls(true, true, false);
+
+		ImGui::End();
+	}
+
 	void OnMessage(const Hedge::Message& message) override
 	{
 		if (message.GetMessageType() == Hedge::MessageType::WindowSize)
@@ -1457,6 +1520,36 @@ public:
 			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
 			std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(vertexArray)->Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+		}
+
+		if (message.GetMessageType() == Hedge::MessageType::MouseMoved)
+		{
+			const Hedge::MouseMoveMessage& mouseMoveMessage = dynamic_cast<const Hedge::MouseMoveMessage&>(message);
+
+			if (lastX == 0 && lastY == 0)
+			{
+				lastX = mouseMoveMessage.GetX();
+				lastY = mouseMoveMessage.GetY();
+			}
+			else
+			{
+				// Rotate camera only if the right mouse button is pressed
+				if (GetKeyState(VK_RBUTTON) < 0)
+				{
+					yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX);
+					xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY);
+				}
+
+				lastX = mouseMoveMessage.GetX();
+				lastY = mouseMoveMessage.GetY();
+			}
+		}
+
+		if (message.GetMessageType() == Hedge::MessageType::MouseScrolled)
+		{
+			const Hedge::MouseScrollMessage& mouseScrollMessage = dynamic_cast<const Hedge::MouseScrollMessage&>(message);
+
+			yOffset += mouseScrollMessage.GetDistance();
 		}
 	}
 
@@ -1483,6 +1576,22 @@ private:
 	float cameraFOV = 56.0f;
 	float cameraZoom = 1.0f;
 
+	// Mouse and Keyboard controls
+	int lastX = 0;
+	int lastY = 0;
+
+	float xOffset = 0;
+	float yOffset = 0;
+	float zOffset = 0;
+
+	float xRotation = 0;
+	float yRotation = 0;
+	float zRotation = 0;
+
+	float movementSpeed = 2.5f / 1000.0f; // units/ms
+	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
+	float mouseSpeed = 135.0f / 681.0f; // deg/px
+	float scrollSpeed = 0.25; // units/mousestep
 
 	// Render settings
 	bool wireframeMode;

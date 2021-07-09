@@ -58,9 +58,9 @@ void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray,
 	if (!usedShaders.contains(vertexArray->GetShader()))
 	{
 		auto projectionView = sceneCamera.Get<Camera>().GetProjection() * glm::inverse(sceneCamera.Get<Transform>().Get());
-		vertexArray->GetShader()->UploadConstant("u_ViewProjection", projectionView);
+		vertexArray->GetShader()->UploadConstant("u_projectionView", projectionView);
 	}
-	vertexArray->GetShader()->UploadConstant("u_Transform", transform);
+	vertexArray->GetShader()->UploadConstant("u_transform", transform);
 
 	auto& groups = vertexArray->GetGroups();
 
