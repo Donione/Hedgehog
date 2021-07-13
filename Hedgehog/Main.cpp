@@ -1515,7 +1515,14 @@ public:
 		{
 			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
 
-			std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(vertexArray)->Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+			if (windowSizeMessage.GetHeight() != viewportDesc.height
+				|| windowSizeMessage.GetWidth() != viewportDesc.width)
+			{
+				std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(vertexArray)->Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
+
+				viewportDesc.height = windowSizeMessage.GetHeight();
+				viewportDesc.width = windowSizeMessage.GetWidth();
+			}
 		}
 
 		if (message.GetMessageType() == Hedge::MessageType::MouseMoved)
