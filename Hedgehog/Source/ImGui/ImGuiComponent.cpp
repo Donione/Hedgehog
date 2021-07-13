@@ -86,9 +86,10 @@ ImGuiComponent::ImGuiComponent(HWND hwnd, RenderContext* renderContext)
 		init_info.Queue = vulkanContext->graphicsQueue;
 		init_info.PipelineCache = VK_NULL_HANDLE;
 		init_info.DescriptorPool = vulkanContext->descriptorPool;
-		init_info.Allocator = nullptr;
+		init_info.Subpass = 0;
 		init_info.MinImageCount = 2;
 		init_info.ImageCount = vulkanContext->NUM_FRAMES_IN_FLIGHT;
+		init_info.Allocator = nullptr;
 		init_info.CheckVkResultFn = check_vk_result;
 
 		ImGui_ImplVulkan_Init(&init_info, vulkanContext->renderPass);
@@ -250,11 +251,6 @@ ImGuiComponent::~ImGuiComponent()
 	ImGui::DestroyContext();
 
 	if (SRVDescHeap) { SRVDescHeap->Release(); SRVDescHeap = nullptr; }
-
-	if (descriptorPool != VK_NULL_HANDLE)
-	{
-		vkDestroyDescriptorPool(dynamic_cast<VulkanContext*>(renderContext)->device, descriptorPool, nullptr);
-	}
 }
 
 } // namespace Hedge

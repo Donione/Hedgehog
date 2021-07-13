@@ -35,8 +35,6 @@ private:
 	RenderContext* renderContext;
 
 	ID3D12DescriptorHeap* SRVDescHeap = nullptr;
-
-	VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 };
 
 } // namespace Hedge
