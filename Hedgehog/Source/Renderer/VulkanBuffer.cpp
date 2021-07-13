@@ -26,8 +26,7 @@ VulkanVertexBuffer::~VulkanVertexBuffer()
 {
 	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
 
-	if (vertexBuffer != VK_NULL_HANDLE) vkDestroyBuffer(vulkanContext->device, vertexBuffer, nullptr);
-	if (vertexBufferMemory != VK_NULL_HANDLE) vkFreeMemory(vulkanContext->device, vertexBufferMemory, nullptr);
+	vulkanContext->DestoyVulkanBuffer(vertexBuffer, vertexBufferMemory);
 }
 
 void VulkanVertexBuffer::Bind(unsigned int slot) const
@@ -69,8 +68,7 @@ VulkanIndexBuffer::~VulkanIndexBuffer()
 {
 	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
 
-	if (indexBuffer != VK_NULL_HANDLE) vkDestroyBuffer(vulkanContext->device, indexBuffer, nullptr);
-	if (indexBufferMemory != VK_NULL_HANDLE) vkFreeMemory(vulkanContext->device, indexBufferMemory, nullptr);
+	vulkanContext->DestoyVulkanBuffer(indexBuffer, indexBufferMemory);
 }
 
 void VulkanIndexBuffer::Bind() const

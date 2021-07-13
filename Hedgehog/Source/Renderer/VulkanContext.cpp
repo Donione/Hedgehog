@@ -548,10 +548,98 @@ void VulkanContext::CreateStagedBuffer(VkBufferUsageFlags usage,
 	DestoyVulkanBuffer(stagingBuffer, stagingBufferMemory);
 }
 
+void VulkanContext::CreateVulkanImage(unsigned int width,
+									  unsigned int height,
+									  VkImageType type,
+									  VkFormat format,
+									  VkImageUsageFlags usage,
+									  VkImage& image)
+{
+	VkImageCreateInfo imageInfo{};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = type;
+	imageInfo.format = format;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+	imageInfo.usage = usage;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+	if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+	{
+		assert(false);
+	}
+}
+
+void VulkanContext::AllocateImageMemory(VkImage image,
+										VkMemoryPropertyFlags requiredProperties,
+										VkDeviceMemory& imageMemory)
+{
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, requiredProperties);
+
+	if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+	{
+		assert(false);
+	}
+
+	vkBindImageMemory(device, image, imageMemory, 0);
+}
+
+void VulkanContext::CreateImage(unsigned int width,
+								unsigned int height,
+								VkImageType type,
+								VkFormat format,
+								VkImageUsageFlags usage,
+								VkImage& image,
+								VkDeviceMemory& imageMemory)
+{
+	CreateVulkanImage(width, height, type, format, usage, image);
+	AllocateImageMemory(image, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imageMemory);
+}
+
+VkImageView VulkanContext::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+	VkImageViewCreateInfo viewInfo{};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = format;
+	viewInfo.subresourceRange.aspectMask = aspectFlags;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+
+	VkImageView imageView;
+	if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+	{
+		assert(false);
+	}
+
+	return imageView;
+}
+
 void VulkanContext::DestoyVulkanBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory)
 {
-	vkDestroyBuffer(device, buffer, nullptr);
-	vkFreeMemory(device, bufferMemory, nullptr);
+	if (bufferMemory != VK_NULL_HANDLE) vkFreeMemory(device, bufferMemory, nullptr);
+	if (buffer != VK_NULL_HANDLE) vkDestroyBuffer(device, buffer, nullptr);
+}
+
+void VulkanContext::DestroyVulkanImage(VkImage image, VkDeviceMemory imageMemory)
+{
+	if (imageMemory != VK_NULL_HANDLE) vkFreeMemory(device, imageMemory, nullptr);
+	if (image != VK_NULL_HANDLE) vkDestroyImage(device, image, nullptr);
 }
 
 } // namespace Hedge

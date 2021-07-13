@@ -68,7 +68,26 @@ private:
 							VkBuffer* buffer,
 							VkDeviceMemory* bufferMemory);
 
+	void CreateVulkanImage(unsigned int width,
+						   unsigned int height,
+						   VkImageType type,
+						   VkFormat format,
+						   VkImageUsageFlags usage,
+						   VkImage& image);
+	void AllocateImageMemory(VkImage image,
+							 VkMemoryPropertyFlags requiredProperties,
+							 VkDeviceMemory& imageMemory);
+	void CreateImage(unsigned int width,
+					 unsigned int height,
+					 VkImageType type,
+					 VkFormat format,
+					 VkImageUsageFlags usage,
+					 VkImage& image,
+					 VkDeviceMemory& imageMemory);
+	VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
 	void DestoyVulkanBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory);
+	void DestroyVulkanImage(VkImage image, VkDeviceMemory imageMemory);
 
 
 private:
