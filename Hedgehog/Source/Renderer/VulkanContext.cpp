@@ -14,6 +14,8 @@ VulkanContext::VulkanContext(HWND windowHandle)
 	CreateDevice(vkbInst);
 	CreateSwapChain(Application::GetInstance().GetWindow().GetWidth(),
 					Application::GetInstance().GetWindow().GetHeight());
+	CreadeDepthImage(Application::GetInstance().GetWindow().GetWidth(),
+					 Application::GetInstance().GetWindow().GetHeight());
 	CreateCommandBuffers();
 	CreateRenderPass();
 	CreateFrameBuffers(Application::GetInstance().GetWindow().GetWidth(),
@@ -26,6 +28,8 @@ VulkanContext::~VulkanContext()
 {
 	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	DestroySyncObjects();
+	vkDestroyImageView(device, depthImageView, nullptr);
+	DestroyVulkanImage(depthImage, depthImageMemory);
 	DestroySwapChain();
 	DestroyFrameBuffers();
 	vkDestroyRenderPass(device, renderPass, nullptr);
@@ -161,6 +165,20 @@ void VulkanContext::CreateSwapChain(unsigned int width, unsigned int height)
 	swapchainImageFormat = vkbSwapchain.image_format;
 }
 
+void VulkanContext::CreadeDepthImage(unsigned int width, unsigned int height)
+{
+	depthFormat = VK_FORMAT_D32_SFLOAT;
+
+	CreateImage(width,
+				height,
+				VK_IMAGE_TYPE_2D,
+				depthFormat,
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+				depthImage,
+				depthImageMemory);
+	depthImageView = CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+}
+
 void VulkanContext::CreateCommandBuffers()
 {
 	//create a command pool for commands submitted to the graphics queue.	
@@ -227,21 +245,48 @@ void VulkanContext::CreateRenderPass()
 	color_attachment_ref.attachment = 0;
 	color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+
+	VkAttachmentDescription depthAttachment{};
+	depthAttachment.format = depthFormat;
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthAttachmentRef{};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+
 	//we are going to create 1 subpass, which is the minimum you can do
 	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_attachment_ref;
+	subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+	std::vector<VkAttachmentDescription> attachments = { color_attachment, depthAttachment };
 	VkRenderPassCreateInfo render_pass_info = {};
 	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-
 	//connect the color attachment to the info
-	render_pass_info.attachmentCount = 1;
-	render_pass_info.pAttachments = &color_attachment;
+	render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());
+	render_pass_info.pAttachments = attachments.data();
 	//connect the subpass to the info
 	render_pass_info.subpassCount = 1;
 	render_pass_info.pSubpasses = &subpass;
+	render_pass_info.dependencyCount = 1;
+	render_pass_info.pDependencies = &dependency;
 
 	if (vkCreateRenderPass(device, &render_pass_info, nullptr, &renderPass) != VK_SUCCESS)
 	{
@@ -254,22 +299,22 @@ void VulkanContext::CreateFrameBuffers(unsigned int width, unsigned int height)
 	//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
 	VkFramebufferCreateInfo fb_info = {};
 	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	fb_info.pNext = nullptr;
-
 	fb_info.renderPass = renderPass;
-	fb_info.attachmentCount = 1;
 	fb_info.width = width;
 	fb_info.height = height;
 	fb_info.layers = 1;
 
 	//grab how many images we have in the swapchain
 	const size_t swapchain_imagecount = swapchainImages.size();
-	framebuffers = std::vector<VkFramebuffer>(swapchain_imagecount);
+	framebuffers.resize(swapchain_imagecount);
 
 	//create framebuffers for each of the swapchain image views
-	for (size_t i = 0; i < swapchain_imagecount; i++) {
+	for (size_t i = 0; i < swapchain_imagecount; i++)
+	{
+		std::vector<VkImageView> attachments = { swapchainImageViews[i], depthImageView };
+		fb_info.attachmentCount = static_cast<uint32_t>(attachments.size());
+		fb_info.pAttachments = attachments.data();
 
-		fb_info.pAttachments = &swapchainImageViews[i];
 		if (vkCreateFramebuffer(device, &fb_info, nullptr, &framebuffers[i]) != VK_SUCCESS)
 		{
 			assert(false);
@@ -365,10 +410,13 @@ void VulkanContext::DestroySyncObjects()
 
 void VulkanContext::ResizeSwapChain(unsigned int width, unsigned int height)
 {
+	vkDestroyImageView(device, depthImageView, nullptr);
+	DestroyVulkanImage(depthImage, depthImageMemory);
 	DestroySwapChain();
 	DestroyFrameBuffers();
 
 	CreateSwapChain(width, height);
+	CreadeDepthImage(width, height);
 	CreateFrameBuffers(width, height);
 }
 

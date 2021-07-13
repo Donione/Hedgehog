@@ -79,9 +79,10 @@ void VulkanRendererAPI::BeginFrame()
 	}
 
 
-	//make a clear-color from frame number. This will flash with a 120*pi frame period.
-	VkClearValue clearValue{};
-	clearValue.color = { { clearColor.r, clearColor.g, clearColor.b, clearColor.a } };
+	std::vector<VkClearValue> clearValues;
+	clearValues.resize(2, {});
+	clearValues[0].color = { { clearColor.r, clearColor.g, clearColor.b, clearColor.a } };
+	clearValues[1].depthStencil = { 1.0, 0 };
 
 	//start the main renderpass. 
 	//We will use the clear color from above, and the framebuffer of the index the swapchain gave us
@@ -97,8 +98,8 @@ void VulkanRendererAPI::BeginFrame()
 	rpInfo.framebuffer = renderContext->framebuffers[swapchainImageIndex];
 
 	//connect clear values
-	rpInfo.clearValueCount = 1;
-	rpInfo.pClearValues = &clearValue;
+	rpInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	rpInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(commandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 }

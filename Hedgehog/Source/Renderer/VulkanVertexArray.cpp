@@ -111,7 +111,7 @@ void VulkanVertexArray::CreatePipeline()
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizationState;
 	pipelineInfo.pMultisampleState = &multisampleState;
-	pipelineInfo.pDepthStencilState = nullptr; // &depthStencilState; // TODO skip depth testing for now
+	pipelineInfo.pDepthStencilState = &depthStencilState;
 	pipelineInfo.pColorBlendState = &colorBlendState;
 	pipelineInfo.pDynamicState = nullptr; // &dynamicState; // TODO skip dynamic state for now
 	pipelineInfo.layout = pipelineLayout;
@@ -248,7 +248,12 @@ VkPipelineDepthStencilStateCreateInfo VulkanVertexArray::CreateDepthStencilState
 {
 	VkPipelineDepthStencilStateCreateInfo depthStencilState{};
 
-	// TODO skip depth testing for now
+	depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depthStencilState.depthTestEnable = VK_TRUE;
+	depthStencilState.depthWriteEnable = VK_TRUE;
+	depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	depthStencilState.depthBoundsTestEnable = VK_FALSE;
+	depthStencilState.stencilTestEnable = VK_FALSE;
 
 	return depthStencilState;
 }

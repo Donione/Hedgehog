@@ -39,6 +39,7 @@ private:
 	vkb::Instance CreateInstance();
 	void CreateDevice(vkb::Instance& vkbInst);
 	void CreateSwapChain(unsigned int width, unsigned int height);
+	void CreadeDepthImage(unsigned int width, unsigned int height);
 	void CreateCommandBuffers();
 	void CreateRenderPass();
 	void CreateFrameBuffers(unsigned int width, unsigned int height);
@@ -111,6 +112,11 @@ private:
 	std::vector<VkImage> swapchainImages;
 	//array of image-views from the swapchain
 	std::vector<VkImageView> swapchainImageViews;
+
+	VkFormat depthFormat;
+	VkImage depthImage = VK_NULL_HANDLE;
+	VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
+	VkImageView depthImageView = VK_NULL_HANDLE;
 
 	VkQueue graphicsQueue; //queue we will submit to
 	uint32_t graphicsQueueFamily; //family of that queue
