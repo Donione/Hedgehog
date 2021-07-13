@@ -37,7 +37,7 @@ void VulkanVertexBuffer::Bind(unsigned int slot) const
 	// TODO maybe this should be done in the vertex array, especiall if there are multiple vertex buffers
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize vertexBufferOffsets[] = { 0 };
-	vkCmdBindVertexBuffers(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex],
+	vkCmdBindVertexBuffers(vulkanContext->commandBuffers[vulkanContext->swapChainImageIndex],
 						   slot,
 						   1, // bindingCount
 						   vertexBuffers,
@@ -77,7 +77,7 @@ void VulkanIndexBuffer::Bind() const
 {
 	VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(Application::GetInstance().GetRenderContext());
 
-	vkCmdBindIndexBuffer(vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex],
+	vkCmdBindIndexBuffer(vulkanContext->commandBuffers[vulkanContext->swapChainImageIndex],
 						 indexBuffer,
 						 0, // offset
 						 VK_INDEX_TYPE_UINT32);

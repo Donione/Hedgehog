@@ -166,7 +166,7 @@ void ImGuiComponent::EndFrame()
 	case RendererAPI::API::Vulkan:
 	{
 		VulkanContext* vulkanContext = dynamic_cast<VulkanContext*>(renderContext);
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex]);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanContext->commandBuffers[vulkanContext->swapChainImageIndex]);
 		break;
 	}
 
@@ -201,7 +201,7 @@ void ImGuiComponent::UploadFonts()
 
 	// Use any command queue
 	VkCommandPool command_pool = vulkanContext->commandPool;
-	VkCommandBuffer command_buffer = vulkanContext->commandBuffers[vulkanContext->frameInFlightIndex];
+	VkCommandBuffer command_buffer = vulkanContext->commandBuffers[vulkanContext->swapChainImageIndex];
 
 	auto err = vkResetCommandPool(vulkanContext->device, command_pool, 0);
 	check_vk_result(err);
