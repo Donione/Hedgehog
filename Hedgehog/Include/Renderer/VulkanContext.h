@@ -57,6 +57,8 @@ private:
 	uint32_t FindMemoryType(uint32_t requiredType, VkMemoryPropertyFlags requiredProperties);
 	void CreateVulkanBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer* buffer);
 	void AllocateMemory(VkBuffer buffer, VkMemoryPropertyFlags requiredProperties, VkDeviceMemory* bufferMemory);
+	VkCommandBuffer BeginSingleUseCommands();
+	void EndSingleUseCommands(VkCommandBuffer commandBuffer);
 	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	void CreateBuffer(VkDeviceSize size,
 					  VkBufferUsageFlags usage,

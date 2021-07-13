@@ -503,11 +503,11 @@ void VulkanContext::AllocateMemory(VkBuffer buffer, VkMemoryPropertyFlags requir
 	}
 }
 
-void VulkanContext::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+VkCommandBuffer VulkanContext::BeginSingleUseCommands()
 {
 	// TODO temporary create a new commandBuffer and submit it here
 	// We want to move it to RendererAPI::Begin() so we can submit multiple transfers and all that good stuff
-	// Possibly creating a separate command pool amd queue dedicate for transfers
+	// Possibly creating a separate command pool and queue dedicate for transfers
 
 	// Create a one-shot command buffer
 	VkCommandBufferAllocateInfo allocInfo{};
@@ -526,12 +526,11 @@ void VulkanContext::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 	// Record a transfer command
 	vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-	VkBufferCopy copyRegion{};
-	copyRegion.srcOffset = 0; // Optional
-	copyRegion.dstOffset = 0; // Optional
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	return commandBuffer;
+}
 
+void VulkanContext::EndSingleUseCommands(VkCommandBuffer commandBuffer)
+{
 	vkEndCommandBuffer(commandBuffer);
 
 	// Submit the command buffer and wait for completion
@@ -545,6 +544,19 @@ void VulkanContext::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 
 	// Clean up the command buffer
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+void VulkanContext::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+	VkCommandBuffer commandBuffer = BeginSingleUseCommands();
+
+	VkBufferCopy copyRegion{};
+	copyRegion.srcOffset = 0; // Optional
+	copyRegion.dstOffset = 0; // Optional
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	EndSingleUseCommands(commandBuffer);
 }
 
 void VulkanContext::CreateBuffer(VkDeviceSize size,
