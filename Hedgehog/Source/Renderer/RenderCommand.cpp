@@ -9,7 +9,7 @@
 namespace Hedge
 {
 
-void RenderCommand::Init(RenderContext* renderContext)
+void RenderCommand::Create()
 {
 	switch (Renderer::GetAPI())
 	{
@@ -35,7 +35,10 @@ void RenderCommand::Init(RenderContext* renderContext)
 	}
 
 	assert(rendererAPI);
+}
 
+void RenderCommand::Init(RenderContext* renderContext)
+{
 	if (rendererAPI)
 	{
 		rendererAPI->Init(renderContext);

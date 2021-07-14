@@ -87,6 +87,13 @@ void Application::Init()
 	//window.SetMessageCallback(&OnMessage); // can't do that
 	//window.SetMessageCallback([this] (Message& message) { this->OnMessage(message); }); // this works too
 
+	RenderCommand::Create();
+
+	Renderer::SetWireframeMode(false);
+	Renderer::SetDepthTest(true);
+	Renderer::SetFaceCulling(false);
+	Renderer::SetBlending(false);
+
 	switch (Renderer::GetAPI())
 	{
 	case RendererAPI::API::OpenGL:
@@ -116,15 +123,9 @@ void Application::Init()
 	renderContext->SetSwapInterval(0);
 
 	RenderCommand::Init(renderContext);
-
 	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 	RenderCommand::SetScissor(0, 0, window.GetWidth(), window.GetHeight());
 	RenderCommand::SetClearColor(clear_color);
-
-	Renderer::SetWireframeMode(false);
-	Renderer::SetDepthTest(true);
-	Renderer::SetFaceCulling(false);
-	Renderer::SetBlending(false);
 
 	imGuiComponent = new ImGuiComponent(window.GetHandle(), renderContext);
 
