@@ -111,7 +111,7 @@ void VulkanVertexArray::CreatePipeline()
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizationState;
 	pipelineInfo.pMultisampleState = &multisampleState;
-	pipelineInfo.pDepthStencilState = &depthStencilState;
+	pipelineInfo.pDepthStencilState = RenderCommand::GetDepthTest() ? &depthStencilState : nullptr;
 	pipelineInfo.pColorBlendState = &colorBlendState;
 	pipelineInfo.pDynamicState = nullptr; // &dynamicState; // TODO skip dynamic state for now
 	pipelineInfo.layout = pipelineLayout;

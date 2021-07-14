@@ -51,15 +51,10 @@ void VulkanContext::SetSwapInterval(int interval)
 	swapInterval = interval;
 
 	// Rebuild the swapchain with new present mode
-	DestroySwapChain();
-	DestroyFrameBuffers();
-
 	unsigned int width = Application::GetInstance().GetWindow().GetWidth();
 	unsigned int height = Application::GetInstance().GetWindow().GetHeight();
-	CreateSwapChain(width, height);
-	CreateFrameBuffers(width, height);
+	ResizeSwapChain(width, height);
 }
-
 
 void VulkanContext::SwapBuffers()
 {
@@ -266,20 +261,34 @@ void VulkanContext::CreateRenderPass()
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_attachment_ref;
-	subpass.pDepthStencilAttachment = &depthAttachmentRef;
+	if (RenderCommand::GetDepthTest())
+	{
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+	}
 
 	VkSubpassDependency dependency{};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-	std::vector<VkAttachmentDescription> attachments = { color_attachment, depthAttachment };
+	if (RenderCommand::GetDepthTest())
+	{
+		dependency.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+
+	std::vector<VkAttachmentDescription> attachments = { color_attachment };
+	if (RenderCommand::GetDepthTest())
+	{
+		attachments.push_back(depthAttachment);
+	}
 	VkRenderPassCreateInfo render_pass_info = {};
 	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	//connect the color attachment to the info
+	//connect the color and optionally depth attachments to the info
 	render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());
 	render_pass_info.pAttachments = attachments.data();
 	//connect the subpass to the info
@@ -311,7 +320,12 @@ void VulkanContext::CreateFrameBuffers(unsigned int width, unsigned int height)
 	//create framebuffers for each of the swapchain image views
 	for (size_t i = 0; i < swapchain_imagecount; i++)
 	{
-		std::vector<VkImageView> attachments = { swapchainImageViews[i], depthImageView };
+		std::vector<VkImageView> attachments = { swapchainImageViews[i] };
+		if (RenderCommand::GetDepthTest())
+		{
+			attachments.push_back(depthImageView);
+		}
+
 		fb_info.attachmentCount = static_cast<uint32_t>(attachments.size());
 		fb_info.pAttachments = attachments.data();
 
