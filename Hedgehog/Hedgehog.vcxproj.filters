@@ -407,5 +407,11 @@
     <CustomBuild Include="Asset\Shader\VulkanExamplePixelShader.frag">
       <Filter>Assets\Shader</Filter>
     </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanModelExamplePixelShader.frag">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanModelExampleVertexShader.vert">
+      <Filter>Assets\Shader</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
