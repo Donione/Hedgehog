@@ -11,12 +11,12 @@
 
 cbuffer SceneConstantBuffer : register(b0)
 {
-    float4x4 u_ViewProjection;
+    float4x4 u_projectionView;
 };
 
 cbuffer ObjectConstantBuffer : register(b1)
 {
-    float4x4 u_Transform;
+    float4x4 u_transform;
     float3 u_lightColor;
 }
 
@@ -29,7 +29,7 @@ PSInput VSMain(float3 position : a_position, float3 normal : a_normal)
 {
     PSInput result;
 
-    float4x4 VPM = mul(u_ViewProjection, u_Transform);
+    float4x4 VPM = mul(u_projectionView, u_transform);
     result.position = mul(VPM, float4(position, 1.0f));
 
     return result;
