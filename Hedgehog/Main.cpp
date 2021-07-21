@@ -1355,74 +1355,111 @@ public:
 		cameraTransform.SetTranslation(glm::vec3(0.0f, 0.0f, 3.0f));
 
 
-		shader.reset(Hedge::Shader::Create("..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv",
-										   "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv"));
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			std::string exampleVSSource = "..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv";
+			std::string examplePSSource = "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv";
 
-		Hedge::ConstantBufferDescription constantBufferDescription =
+			Hedge::ConstantBufferDescription constantBufferDescription =
+			{
+				{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+				{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+				{ "u_dummy", sizeof(glm::vec2), Hedge::ConstantBufferUsage::Scene },
+			};
+
+			Hedge::BufferLayout bufferLayout1 =
+			{
+				{ Hedge::ShaderDataType::Float2, "a_position" },
+			};
+
+			float vertices1[] =
+			{
+				 0.0f, -0.5f,
+				 0.5f,  0.5f,
+				-0.5f,  0.5f,
+			};
+
+			unsigned int indices[] = { 0, 1, 2 };
+
+			exampleMesh = Hedge::Mesh(vertices1, sizeof(vertices1),
+									  indices, 3,
+									  Hedge::PrimitiveTopology::Triangle, bufferLayout1, constantBufferDescription,
+									  exampleVSSource,
+									  examplePSSource);
+		
+			Hedge::BufferLayout bufferLayout2 =
+			{
+				{ Hedge::ShaderDataType::Float3, "a_color" },
+			};
+
+			Hedge::BufferLayout bufferLayout3 =
+			{
+				{ Hedge::ShaderDataType::Float, "a_offset", 1 },
+			};
+
+			float vertices2[] =
+			{
+				1.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 1.0f,
+			};
+
+			float vertices3[] =
+			{
+				0.0f,
+				-1.0f,
+				0.25f,
+			};
+
+			vertexBuffer2.reset(Hedge::VertexBuffer::Create(bufferLayout2, vertices2, sizeof(vertices2)));
+			vertexBuffer3.reset(Hedge::VertexBuffer::Create(bufferLayout3, vertices3, sizeof(vertices3)));
+
+			exampleMesh.Get()->AddVertexBuffer(vertexBuffer2);
+			exampleMesh.Get()->AddVertexBuffer(vertexBuffer3);
+
+			exampleMesh.Get()->SetInstanceCount(3);
+		}
+
+
+		std::string bunnyModelFilename = "..\\Hedgehog\\Asset\\Model\\bunny.tri";
+
+		Hedge::PrimitiveTopology bunnyPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
+
+		Hedge::BufferLayout bunnyVertexBufferArrayLayout =
+		{
+			{ Hedge::ShaderDataType::Float3, "a_position" },
+			{ Hedge::ShaderDataType::Float3, "a_normal" },
+		};
+
+		Hedge::ConstantBufferDescription bunnyConstBufferDesc =
 		{
 			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_dummy", sizeof(glm::vec2), Hedge::ConstantBufferUsage::Scene },
+			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Object },
 		};
 
-		shader->SetupConstantBuffers(constantBufferDescription);
-
-		vertexArray.reset(Hedge::VertexArray::Create(shader,
-													 Hedge::PrimitiveTopology::Triangle,
-													 {},
-													 {}));
-
-		Hedge::BufferLayout bufferLayout1 =
+		std::string bunnyVertexSrc;
+		std::string bunnyFragmentSrc;
+		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
-			{ Hedge::ShaderDataType::Float2, "a_position" },
-		};
-
-		Hedge::BufferLayout bufferLayout2 =
+			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
-			{ Hedge::ShaderDataType::Float3, "a_color" },
-		};
-
-		Hedge::BufferLayout bufferLayout3 =
+			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
+			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
 		{
-			{ Hedge::ShaderDataType::Float, "a_offset", 1 },
-		};
+			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExampleVertexShader.spv";
+			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExamplePixelShader.spv";
+		}
 
-		float vertices1[] =
-		{
-			 0.0f, -0.5f,
-			 0.5f,  0.5f,
-			-0.5f,  0.5f,
-		};
-
-		float vertices2[] =
-		{
-			1.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 1.0f,
-		};
-
-		float vertices3[] =
-		{
-			0.0f,
-			-1.0f,
-			0.25f,
-		};
-
-		vertexBuffer1.reset(Hedge::VertexBuffer::Create(bufferLayout1, vertices1, sizeof(vertices1)));
-		vertexBuffer2.reset(Hedge::VertexBuffer::Create(bufferLayout2, vertices2, sizeof(vertices2)));
-		vertexBuffer3.reset(Hedge::VertexBuffer::Create(bufferLayout3, vertices3, sizeof(vertices3)));
-
-		vertexArray->AddVertexBuffer(vertexBuffer1);
-		vertexArray->AddVertexBuffer(vertexBuffer2);
-		vertexArray->AddVertexBuffer(vertexBuffer3);
-
-		vertexArray->SetInstanceCount(3);
-
-		unsigned int indices[] = { 0, 1, 2 };
-
-		indexBuffer.reset(Hedge::IndexBuffer::Create(indices, 3));
-
-		vertexArray->AddIndexBuffer(indexBuffer);
+		bunnyMesh = Hedge::Mesh(bunnyModelFilename,
+										  bunnyPrimitiveTopology, bunnyVertexBufferArrayLayout,
+										  bunnyConstBufferDesc,
+										  bunnyVertexSrc, bunnyFragmentSrc);
 	}
 
 	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
@@ -1487,11 +1524,17 @@ public:
 		{
 			glm::mat4 one = glm::mat4(1.0f);
 
-			glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
-			Hedge::Renderer::Submit(vertexArray, translate);
+			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+			{
+				glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
+				Hedge::Renderer::Submit(exampleMesh.Get(), translate);
 
-			translate = glm::translate(one, glm::vec3(0.0f, -1.5f, 0.0f));
-			Hedge::Renderer::Submit(vertexArray, translate);
+				translate = glm::translate(one, glm::vec3(0.0f, -1.5f, 0.0f));
+				Hedge::Renderer::Submit(exampleMesh.Get(), translate);
+			}
+
+			bunnyMesh.GetShader()->UploadConstant("u_lightColor", glm::vec3(0.8f, 0.2f, 0.2f));
+			Hedge::Renderer::Submit(bunnyMesh.Get(), glm::translate(glm::mat4(1.0f), glm::vec3(2.0, 0.0, 0.0)));
 
 			scene.OnUpdate(duration);
 		}
@@ -1614,6 +1657,9 @@ private:
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer2;
 	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer3;
 	std::shared_ptr<Hedge::IndexBuffer> indexBuffer;
+
+	Hedge::Mesh exampleMesh;
+	Hedge::Mesh bunnyMesh;
 };
 
 class VulkanTest : public Hedge::Application

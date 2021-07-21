@@ -62,7 +62,7 @@ void Mesh::CreateMesh(const float* vertices, unsigned int sizeOfVertices,
 	auto shader = std::shared_ptr<Shader>(Hedge::Shader::Create(VSfilename, PSfilename, GSfilename));
 	shader->SetupConstantBuffers(constBufferDesc);
 
-	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, bufferLayout, textureDescriptions));
+	vertexArray.reset(Hedge::VertexArray::Create(shader, primitiveTopology, {}, textureDescriptions));
 
 	std::unordered_map<TextureType, int> texturePosition = 
 	{
