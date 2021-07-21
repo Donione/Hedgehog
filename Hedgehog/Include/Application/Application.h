@@ -77,6 +77,11 @@ private:
 	Stopwatch frameDuration;
 
 	bool initialized = false;
+
+	bool wireframeMode = true;
+	bool depthTest = true;
+	bool faceCulling = true;
+	bool blending = false;
 };
 
 } // namespace Hedge

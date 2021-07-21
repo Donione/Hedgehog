@@ -89,10 +89,17 @@ void Application::Init()
 
 	RenderCommand::Create();
 
-	Renderer::SetWireframeMode(false);
-	Renderer::SetDepthTest(true);
-	Renderer::SetFaceCulling(false);
-	Renderer::SetBlending(false);
+	// TODO Clean up the renderer settings setting
+	// We can't call these for OpenGL before creating the context
+	// For DirectX 12 it doesn't matter
+	// Vulkan uses these setting in context creation
+	if (Renderer::GetAPI() == RendererAPI::API::Vulkan)
+	{
+		Renderer::SetWireframeMode(wireframeMode);
+		Renderer::SetDepthTest(depthTest);
+		Renderer::SetFaceCulling(faceCulling);
+		Renderer::SetBlending(blending);
+	}
 
 	switch (Renderer::GetAPI())
 	{
@@ -120,7 +127,15 @@ void Application::Init()
 	assert(renderContext);
 
 	// Setup VSYNC
-	renderContext->SetSwapInterval(0);
+	renderContext->SetSwapInterval(1);
+
+	if (Renderer::GetAPI() != RendererAPI::API::Vulkan)
+	{
+		Renderer::SetWireframeMode(wireframeMode);
+		Renderer::SetDepthTest(depthTest);
+		Renderer::SetFaceCulling(faceCulling);
+		Renderer::SetBlending(blending);
+	}
 
 	RenderCommand::Init(renderContext);
 	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
