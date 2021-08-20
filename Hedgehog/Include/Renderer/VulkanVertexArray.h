@@ -35,7 +35,7 @@ public:
 	virtual unsigned int GetInstanceCount() const override { return instanceCount; }
 
 
-	void Resize(int width, int height);
+	void ResizeViewport();
 
 private:
 	void CreatePipeline();

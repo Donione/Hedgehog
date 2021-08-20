@@ -120,8 +120,8 @@ void OpenGLRendererAPI::BeginFrame()
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
-	//glScissor(0, 0, Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
-	glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glScissor(0, 0, Application::GetInstance().GetWindow().GetWidth(), Application::GetInstance().GetWindow().GetHeight());
+	//glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

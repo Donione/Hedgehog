@@ -1,3 +1,5 @@
+#include <Application/Application.h>
+
 #include <Renderer/VulkanRendererAPI.h>
 
 #include <backends/imgui_impl_vulkan.h>
@@ -91,10 +93,13 @@ void VulkanRendererAPI::BeginFrame()
 	rpInfo.pNext = nullptr;
 
 	rpInfo.renderPass = renderContext->renderPass;
-	rpInfo.renderArea.offset.x = (int)viewport.x;
-	rpInfo.renderArea.offset.y = (int)viewport.y;
-	rpInfo.renderArea.extent.width = (int)viewport.width;
-	rpInfo.renderArea.extent.height = (int)viewport.height;
+
+	// Set the render area to the entire window/swap chain size, so the ImGui renders properly since it uses the same render pass
+	// but will (could) render outside of the main window viewport panel
+	rpInfo.renderArea.offset.x = 0;
+	rpInfo.renderArea.offset.y = 0;
+	rpInfo.renderArea.extent.width = Application::GetInstance().GetWindow().GetWidth();
+	rpInfo.renderArea.extent.height = Application::GetInstance().GetWindow().GetHeight();
 	rpInfo.framebuffer = renderContext->framebuffers[swapchainImageIndex];
 
 	//connect clear values

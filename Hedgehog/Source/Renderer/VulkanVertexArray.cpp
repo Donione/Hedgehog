@@ -87,9 +87,11 @@ void VulkanVertexArray::SetupGroups(const std::vector<VertexGroup>& groups)
 	}
 }
 
-void VulkanVertexArray::Resize(int width, int height)
+void VulkanVertexArray::ResizeViewport()
 {
-	vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
+	// TODO we can't just destroy the current pipeline here, it's most likely still in use
+	// for now, just leak it and create a new one
+	//vkDestroyPipeline(vulkanContext->device, pipeline, nullptr);
 
 	const VulkanRendererAPI* renderer = dynamic_cast<const VulkanRendererAPI*>(RenderCommand::GetRenderer());
 	viewport = renderer->GetViewport();
