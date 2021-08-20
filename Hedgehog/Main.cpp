@@ -89,10 +89,15 @@ public:
 			frustumVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 			frustumFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
-		else
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			frustumVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
 			frustumFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			frustumVertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv";
+			frustumFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv";
 		}
 
 		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
@@ -172,6 +177,13 @@ public:
 			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 			modelGeometrySrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelShader.hlsl";
 		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			modelVertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelVertexShader.spv";
+			modelFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelPixelShader.spv";
+		}
+
+		modelGeometrySrc = "";
 
 		bunnyEntity = scene.CreateEntity("Bunny");
 		bunnyEntity.Add<Hedge::Mesh>(modelFilename,
@@ -216,93 +228,92 @@ public:
 
 
 
-		Hedge::ConstantBufferDescription constBufferDesc =
-		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65},
-		};
-		
-		auto PrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
+		//Hedge::ConstantBufferDescription constBufferDesc =
+		//{
+		//	{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+		//	{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+		//	{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65},
+		//};
+		//
+		//auto PrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
 
-		Hedge::BufferLayout vertexBufferLayout =
-		{
-			{ Hedge::ShaderDataType::Float4, "a_position" },
-			{ Hedge::ShaderDataType::Float4, "a_color" },
-			{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
-			{ Hedge::ShaderDataType::Float,  "a_segmentID" }
-		};
+		//Hedge::BufferLayout vertexBufferLayout =
+		//{
+		//	{ Hedge::ShaderDataType::Float4, "a_position" },
+		//	{ Hedge::ShaderDataType::Float4, "a_color" },
+		//	{ Hedge::ShaderDataType::Float2, "a_textureCoordinates"},
+		//	{ Hedge::ShaderDataType::Float,  "a_segmentID" }
+		//};
 
-		float vertices[] =
-		{
-			// 1x1x1 cube centered around the origin (0, 0, 0)
-			// front face - white with some red on the bottom
-			-0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
-			 0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
-			-0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
-			 0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
-			 // back face - black with some red on the bottom
-			-0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
-			 0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
-			-0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
-			 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
-
-
-			-0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
-			 0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
-			-0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
-			 0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
-			 // back face - black with some red on the bottom
-			-0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
-			 0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
-			-0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
-			 0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+		//float vertices[] =
+		//{
+		//	// 1x1x1 cube centered around the origin (0, 0, 0)
+		//	// front face - white with some red on the bottom
+		//	-0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+		//	 0.5f,  0.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+		//	-0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+		//	 0.5f, -0.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
+		//	 // back face - black with some red on the bottom
+		//	-0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   0.0f, // top left
+		//	 0.5f,  0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   0.0f, // top right
+		//	-0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   0.0f, // bottom left
+		//	 0.5f, -0.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   0.0f, // bottom right
 
 
-			-0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
-			 0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
-			-0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
-			 0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
-			 // back face - black with some red on the bottom
-			-0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
-			 0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
-			-0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
-			 0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
-		};
+		//	-0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+		//	 0.5f,  0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+		//	-0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+		//	 0.5f, -0.5f + 1.5f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
+		//	 // back face - black with some red on the bottom
+		//	-0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   1.0f, // top left
+		//	 0.5f,  0.5f + 1.5f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   1.0f, // top right
+		//	-0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   1.0f, // bottom left
+		//	 0.5f, -0.5f + 1.5f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   1.0f, // bottom right
 
-		// Shaders
-		std::string vertexSrc;
-		std::string fragmentSrc;
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
-		{
-			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
-			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
-		}
-		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
-		{
-			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
-		}
 
-		std::string vertexSrcTexture;
-		std::string fragmentSrcTexture;
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
-		{
-			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapVertexShader.glsl";
-			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapPixelShader.glsl";
-		}
-		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
-		{
-			vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
-			fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
-		}
+		//	-0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+		//	 0.5f,  0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+		//	-0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+		//	 0.5f, -0.5f + 3.0f,  0.5f, 1.0f,		1.0f, 0.8f, 0.8f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
+		//	 // back face - black with some red on the bottom
+		//	-0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,   2.0f, // top left
+		//	 0.5f,  0.5f + 3.0f, -0.5f, 1.0f,		0.0f, 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,   2.0f, // top right
+		//	-0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,   2.0f, // bottom left
+		//	 0.5f, -0.5f + 3.0f, -0.5f, 1.0f,		0.2f, 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,   2.0f, // bottom right
+		//};
 
-		unsigned int indices[36 * 3] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
-		for (int i = 0; i < 36; i++)
-		{
-			indices[1 * 36 + i] = indices[i] + 8;
-			indices[2 * 36 + i] = indices[i] + 16;
-		}
+		//std::string vertexSrc;
+		//std::string fragmentSrc;
+		//if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		//{
+		//	vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
+		//	fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExamplePixelShader.glsl";
+		//}
+		//else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		//{
+		//	vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		//	fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
+		//}
+
+		//std::string vertexSrcTexture;
+		//std::string fragmentSrcTexture;
+		//if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
+		//{
+		//	vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapVertexShader.glsl";
+		//	fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\OpenGLNormalMapPixelShader.glsl";
+		//}
+		//else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
+		//{
+		//	vertexSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
+		//	fragmentSrcTexture = "..\\Hedgehog\\Asset\\Shader\\DirectX12NormalMapShader.hlsl";
+		//}
+
+		//unsigned int indices[36 * 3] = { 0,2,1, 1,2,3, 4,5,7, 4,7,6, 2,6,3, 3,6,7, 0,5,4, 0,1,5, 1,3,7, 1,7,5, 0,4,2, 2,4,6 };
+		//for (int i = 0; i < 36; i++)
+		//{
+		//	indices[1 * 36 + i] = indices[i] + 8;
+		//	indices[2 * 36 + i] = indices[i] + 16;
+		//}
 
 		// We want to share this mesh for multiple render objects
 		// Mesh component is just a bunch of smart pointers so we can just copy them for each entity
@@ -583,12 +594,17 @@ public:
 			lightVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
 			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
 		}
-		else
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			lightVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
 			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
 		}
-		
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			lightVertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExampleVertexShader.spv";
+			lightFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExamplePixelShader.spv";
+		}
+
 		auto pointLightMesh = Hedge::Mesh(modelFilename,
 										  lightPrimitiveTopology, lightVertexBufferArrayLayout,
 										  lightconstBufferDesc,
@@ -695,6 +711,8 @@ public:
 			gridIndices[i] = i;
 		}
 
+		std::string vertexSrc;
+		std::string fragmentSrc;
 		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
 		{
 			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLExampleVertexShader.glsl";
@@ -705,8 +723,13 @@ public:
 			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ExampleShader.hlsl";
 		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			vertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv";
+			fragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv";
+		}
 
-		constBufferDesc =
+		Hedge::ConstantBufferDescription constBufferDesc =
 		{
 			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
 			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
@@ -904,6 +927,14 @@ public:
 			Hedge::RenderCommand::SetScissor(viewportDesc.x, viewportDesc.y, viewportDesc.width, viewportDesc.height);
 			aspectRatio = (float)size.x / (float)size.y;
 			scene.GetPrimaryCamera().Get<Hedge::Camera>().SetAspectRatio(aspectRatio);
+
+			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+			{
+				// TODO the scene/ECS should handle this (similar to scene updating DirectX12 vertex arrays with render setting
+				std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(bunnyEntity.Get<Hedge::Mesh>().Get())->ResizeViewport();
+				std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(axesEntity.Get<Hedge::Mesh>().Get())->ResizeViewport();
+				std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(gridEntity.Get<Hedge::Mesh>().Get())->ResizeViewport();
+			}
 		}
 
 		viewportHovered = ImGui::IsMouseHoveringRect(pos, ImVec2(pos.x + size.x, pos.y + size.y));
@@ -913,6 +944,8 @@ public:
 
 		ImGui::Begin("Window");
 		ImGui::Text("Client Area Size: %u %u", Hedge::Application::GetInstance().GetWindow().GetWidth(), Hedge::Application::GetInstance().GetWindow().GetHeight());
+		ImGui::Text("Viewport Position: %u %u", viewportDesc.x, viewportDesc.y);
+		ImGui::Text("Viewport Size: %u %u", viewportDesc.width, viewportDesc.height);
 		ImGui::End();
 
 
@@ -924,6 +957,10 @@ public:
 		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
 		{
 			ImGui::Text("API used: DirectX12");
+		}
+		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
+		{
+			ImGui::Text("API used: Vulkan");
 		}
 
 		// Following code snippet can be used to disable ImGui controls and grey them out
@@ -1333,367 +1370,12 @@ public:
 	}
 };
 
-
-class VulkanTestLayer : public Hedge::Layer
-{
-public:
-	VulkanTestLayer(bool enable = true) :
-		Layer("Vulkan Test Layer", enable)
-	{
-		previousWireframeMode = wireframeMode = Hedge::RenderCommand::GetWireframeMode();
-		previousDepthTest = depthTest = Hedge::RenderCommand::GetDepthTest();
-		previousFaceCulling = faceCulling = Hedge::RenderCommand::GetFaceCulling();
-		previousBlending = blending = Hedge::RenderCommand::GetBlending();
-
-		viewportDesc = { 0, 0, (int)Hedge::Application::GetInstance().GetWindow().GetWidth(), (int)Hedge::Application::GetInstance().GetWindow().GetHeight() };
-	
-		aspectRatio = (float)Hedge::Application::GetInstance().GetWindow().GetWidth() / (float)Hedge::Application::GetInstance().GetWindow().GetHeight();
-
-		auto camera = scene.CreateEntity("Scene Camera");
-		auto& camera1camera = camera.Add<Hedge::Camera>(Hedge::Camera::CreatePerspective(aspectRatio, cameraFOV, 0.01f, 100.0f));
-		auto& cameraTransform = camera.Add<Hedge::Transform>();
-		cameraTransform.SetTranslation(glm::vec3(0.0f, 0.0f, 3.0f));
-
-
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
-		{
-			std::string exampleVSSource = "..\\Hedgehog\\Asset\\Shader\\VulkanExampleVertexShader.spv";
-			std::string examplePSSource = "..\\Hedgehog\\Asset\\Shader\\VulkanExamplePixelShader.spv";
-
-			Hedge::ConstantBufferDescription constantBufferDescription =
-			{
-				{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-				{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-				{ "u_dummy", sizeof(glm::vec2), Hedge::ConstantBufferUsage::Scene },
-			};
-
-			Hedge::BufferLayout bufferLayout1 =
-			{
-				{ Hedge::ShaderDataType::Float2, "a_position" },
-			};
-
-			float vertices1[] =
-			{
-				 0.0f, -0.5f,
-				 0.5f,  0.5f,
-				-0.5f,  0.5f,
-			};
-
-			unsigned int indices[] = { 0, 1, 2 };
-
-			exampleMesh = Hedge::Mesh(vertices1, sizeof(vertices1),
-									  indices, 3,
-									  Hedge::PrimitiveTopology::Triangle, bufferLayout1, constantBufferDescription,
-									  exampleVSSource,
-									  examplePSSource);
-		
-			Hedge::BufferLayout bufferLayout2 =
-			{
-				{ Hedge::ShaderDataType::Float3, "a_color" },
-			};
-
-			Hedge::BufferLayout bufferLayout3 =
-			{
-				{ Hedge::ShaderDataType::Float, "a_offset", 1 },
-			};
-
-			float vertices2[] =
-			{
-				1.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 0.0f, 1.0f,
-			};
-
-			float vertices3[] =
-			{
-				0.0f,
-				-1.0f,
-				0.25f,
-			};
-
-			vertexBuffer2.reset(Hedge::VertexBuffer::Create(bufferLayout2, vertices2, sizeof(vertices2)));
-			vertexBuffer3.reset(Hedge::VertexBuffer::Create(bufferLayout3, vertices3, sizeof(vertices3)));
-
-			exampleMesh.Get()->AddVertexBuffer(vertexBuffer2);
-			exampleMesh.Get()->AddVertexBuffer(vertexBuffer3);
-
-			exampleMesh.Get()->SetInstanceCount(3);
-		}
-
-
-		std::string bunnyModelFilename = "..\\Hedgehog\\Asset\\Model\\bunny.tri";
-
-		Hedge::PrimitiveTopology bunnyPrimitiveTopology = Hedge::PrimitiveTopology::Triangle;
-
-		Hedge::BufferLayout bunnyVertexBufferArrayLayout =
-		{
-			{ Hedge::ShaderDataType::Float3, "a_position" },
-			{ Hedge::ShaderDataType::Float3, "a_normal" },
-		};
-
-		Hedge::ConstantBufferDescription bunnyConstBufferDesc =
-		{
-			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Object },
-		};
-
-		std::string bunnyVertexSrc;
-		std::string bunnyFragmentSrc;
-		if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::DirectX12)
-		{
-			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
-			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\DirectX12ModelExampleShader.hlsl";
-		}
-		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::OpenGL)
-		{
-			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExampleVertexShader.glsl";
-			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\OpenGLModelExamplePixelShader.glsl";
-		}
-		else if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
-		{
-			bunnyVertexSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExampleVertexShader.spv";
-			bunnyFragmentSrc = "..\\Hedgehog\\Asset\\Shader\\VulkanModelExamplePixelShader.spv";
-		}
-
-		bunnyMesh = Hedge::Mesh(bunnyModelFilename,
-										  bunnyPrimitiveTopology, bunnyVertexBufferArrayLayout,
-										  bunnyConstBufferDesc,
-										  bunnyVertexSrc, bunnyFragmentSrc);
-	}
-
-	void OnUpdate(const std::chrono::duration<double, std::milli>& duration) override
-	{
-		// Poll WASD input
-		if (GetKeyState(0x44) < 0) // 'D'
-		{
-			xOffset++;
-		}
-
-		if (GetKeyState(0x41) < 0) // 'A'
-		{
-			xOffset--;
-		}
-
-		if (GetKeyState(0x57) < 0) // 'W'
-		{
-			zOffset--;
-		}
-
-		if (GetKeyState(0x53) < 0) // 'S'
-		{
-			zOffset++;
-		}
-
-		if (GetKeyState(0x45) < 0) // 'E'
-		{
-			zRotation--;
-		}
-
-		if (GetKeyState(0x51) < 0) // 'Q'
-		{
-			zRotation++;
-		}
-
-		auto primaryCamera = scene.GetPrimaryCamera();
-
-		if (GetKeyState(VK_SPACE) < 0)
-		{
-			if (primaryCamera)
-			{
-				primaryCamera.Get<Hedge::Transform>().SetTranslation({ 0.0f, 0.0f, 0.0f });
-				primaryCamera.Get<Hedge::Transform>().SetRotation({ 0.0f, 0.0f, 0.0f });
-			}
-		}
-
-		if (primaryCamera)
-		{
-			primaryCamera.Get<Hedge::Transform>().Translate(glm::vec3(xOffset * movementSpeed * (float)duration.count(), yOffset * scrollSpeed, zOffset * movementSpeed * (float)duration.count()));
-			primaryCamera.Get<Hedge::Transform>().Rotate(glm::vec3(mouseSpeed * xRotation, mouseSpeed * yRotation, zRotation * rotationSpeed * (float)duration.count()));
-		}
-
-		xOffset = 0;
-		yOffset = 0;
-		zOffset = 0;
-
-		xRotation = 0;
-		yRotation = 0;
-		zRotation = 0;
-
-		Hedge::Renderer::BeginScene(primaryCamera);
-		{
-			glm::mat4 one = glm::mat4(1.0f);
-
-			if (Hedge::Renderer::GetAPI() == Hedge::RendererAPI::API::Vulkan)
-			{
-				glm::mat4 translate = glm::translate(one, glm::vec3(-0.5f, 0.0f, 0.0f));
-				Hedge::Renderer::Submit(exampleMesh.Get(), translate);
-
-				translate = glm::translate(one, glm::vec3(0.0f, -1.5f, 0.0f));
-				Hedge::Renderer::Submit(exampleMesh.Get(), translate);
-			}
-
-			bunnyMesh.GetShader()->UploadConstant("u_lightColor", glm::vec3(0.8f, 0.2f, 0.2f));
-			Hedge::Renderer::Submit(bunnyMesh.Get(), glm::translate(glm::mat4(1.0f), glm::vec3(2.0, 0.0, 0.0)));
-
-			scene.OnUpdate(duration);
-		}
-		Hedge::Renderer::EndScene();
-	}
-
-	void OnGuiUpdate() override
-	{
-		ImGui::Begin("Camera");
-
-		auto primaryCamera = scene.GetPrimaryCamera();
-		primaryCamera.Get<Hedge::Camera>().CreateGuiControls();
-		primaryCamera.Get<Hedge::Transform>().CreateGuiControls(true, true, false);
-
-		ImGui::End();
-	}
-
-	void OnMessage(const Hedge::Message& message) override
-	{
-		if (message.GetMessageType() == Hedge::MessageType::WindowSize)
-		{
-			const Hedge::WindowSizeMessage& windowSizeMessage = dynamic_cast<const Hedge::WindowSizeMessage&>(message);
-
-			if (windowSizeMessage.GetHeight() != viewportDesc.height
-				|| windowSizeMessage.GetWidth() != viewportDesc.width)
-			{
-				std::dynamic_pointer_cast<Hedge::VulkanVertexArray>(vertexArray)->Resize(windowSizeMessage.GetWidth(), windowSizeMessage.GetHeight());
-
-				viewportDesc.height = windowSizeMessage.GetHeight();
-				viewportDesc.width = windowSizeMessage.GetWidth();
-			}
-		}
-
-		if (message.GetMessageType() == Hedge::MessageType::MouseMoved)
-		{
-			const Hedge::MouseMoveMessage& mouseMoveMessage = dynamic_cast<const Hedge::MouseMoveMessage&>(message);
-
-			if (lastX == 0 && lastY == 0)
-			{
-				lastX = mouseMoveMessage.GetX();
-				lastY = mouseMoveMessage.GetY();
-			}
-			else
-			{
-				// Rotate camera only if the right mouse button is pressed
-				if (GetKeyState(VK_RBUTTON) < 0)
-				{
-					yRotation -= ((float)mouseMoveMessage.GetX() - (float)lastX);
-					xRotation -= ((float)mouseMoveMessage.GetY() - (float)lastY);
-				}
-
-				lastX = mouseMoveMessage.GetX();
-				lastY = mouseMoveMessage.GetY();
-			}
-		}
-
-		if (message.GetMessageType() == Hedge::MessageType::MouseScrolled)
-		{
-			const Hedge::MouseScrollMessage& mouseScrollMessage = dynamic_cast<const Hedge::MouseScrollMessage&>(message);
-
-			yOffset += mouseScrollMessage.GetDistance();
-		}
-	}
-
-private:
-	Hedge::Scene scene;
-
-	struct ViewportDesc
-	{
-		int x;
-		int y;
-		int width;
-		int height;
-
-		bool operator!=(const ViewportDesc& other)
-		{
-			return x != other.x || y != other.y || width != other.width || height != other.height;
-		}
-	};
-
-	ViewportDesc viewportDesc;
-
-	// Camera
-	float aspectRatio;
-	float cameraFOV = 56.0f;
-	float cameraZoom = 1.0f;
-
-	// Mouse and Keyboard controls
-	int lastX = 0;
-	int lastY = 0;
-
-	float xOffset = 0;
-	float yOffset = 0;
-	float zOffset = 0;
-
-	float xRotation = 0;
-	float yRotation = 0;
-	float zRotation = 0;
-
-	float movementSpeed = 2.5f / 1000.0f; // units/ms
-	float rotationSpeed = 180.0f / 1000.0f; // deg/ms
-	float mouseSpeed = 135.0f / 681.0f; // deg/px
-	float scrollSpeed = 0.25; // units/mousestep
-
-	// Render settings
-	bool wireframeMode;
-	bool depthTest;
-	bool faceCulling;
-	bool blending;
-
-	bool previousWireframeMode;
-	bool previousDepthTest;
-	bool previousFaceCulling;
-	bool previousBlending;
-
-
-	std::shared_ptr<Hedge::Shader> shader;
-	std::shared_ptr<Hedge::VertexArray> vertexArray;
-	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer1;
-	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer2;
-	std::shared_ptr<Hedge::VertexBuffer> vertexBuffer3;
-	std::shared_ptr<Hedge::IndexBuffer> indexBuffer;
-
-	Hedge::Mesh exampleMesh;
-	Hedge::Mesh bunnyMesh;
-};
-
-class VulkanTest : public Hedge::Application
-{
-public:
-	VulkanTest(HINSTANCE hInstance) : Application(hInstance)
-	{
-		layers.PushOverlay(new ExampleOverlay("1st Example Overlay"));
-		layers.Push(new VulkanTestLayer());
-	}
-
-	~VulkanTest()
-	{
-		Hedge::Layer* layer;
-		while (layer = layers.TopOverlay())
-		{
-			layers.PopOverlay();
-			delete layer;
-		}
-		while (layer = layers.Top())
-		{
-			layers.Pop();
-			delete layer;
-		}
-	}
-};
-
 // Main function for SubSystem Console
 int main(int argc, char* argv[])
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	//Sandbox app(hInstance);
-	VulkanTest app(hInstance);
+	Sandbox app(hInstance);
 	app.Run();
 
 	return 0;

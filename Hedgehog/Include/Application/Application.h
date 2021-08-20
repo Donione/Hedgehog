@@ -78,7 +78,7 @@ private:
 
 	bool initialized = false;
 
-	bool wireframeMode = true;
+	bool wireframeMode = false;
 	bool depthTest = true;
 	bool faceCulling = true;
 	bool blending = false;
