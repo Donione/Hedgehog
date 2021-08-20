@@ -335,8 +335,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">]</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">]</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
@@ -345,6 +345,44 @@
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanModelPixelShader.frag">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Asset\Shader\VulkanModelVertexShader.vert">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(VULKAN_SDK)\Bin32\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(VULKAN_SDK)\Bin\glslc.exe" "%(FullPath)" -o "$(ProjectDir)Asset\Shader\%(Filename).spv"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Asset\Shader\%(Filename).spv;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
