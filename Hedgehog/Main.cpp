@@ -67,8 +67,8 @@ public:
 
 		Hedge::ConstantBufferDescription frustumConstBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65 },
 		};
 
@@ -147,8 +147,8 @@ public:
 
 		Hedge::ConstantBufferDescription modelconstBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 			{ "u_viewPos", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Scene },
 			{ "u_directionalLight", sizeof(Hedge::DirectionalLight), Hedge::ConstantBufferUsage::Light },
 			{ "u_numberOfPointLights", sizeof(int), Hedge::ConstantBufferUsage::Light },
@@ -571,8 +571,8 @@ public:
 
 		Hedge::ConstantBufferDescription lightconstBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
 			{ "u_lightColor", sizeof(glm::vec3), Hedge::ConstantBufferUsage::Object },
 		};
 
@@ -708,9 +708,9 @@ public:
 
 		constBufferDesc =
 		{
-			{ "u_ViewProjection", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
-			{ "u_Transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
-			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65},
+			{ "u_projectionView", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Scene },
+			{ "u_transform", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object },
+			{ "u_segmentTransforms", sizeof(glm::mat4), Hedge::ConstantBufferUsage::Object, 65 },
 		};
 
 		axesEntity = scene.CreateEntity("Axes");

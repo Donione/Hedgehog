@@ -4,18 +4,18 @@ layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec3 a_normal;
 layout(location = 2) in vec3 a_offset;
 
-uniform mat4 u_ViewProjection;
-uniform mat4 u_Transform;
+uniform mat4 u_projectionView;
+uniform mat4 u_transform;
 
-out vec3 vv_Position;
-out vec3 vv_Normal;
+out vec3 v_Position;
+out vec3 v_Normal;
 
 void main()
 {
-	vec4 position = u_Transform * vec4(a_position + a_offset, 1.0f);
+	vec4 position = u_transform * vec4(a_position + a_offset, 1.0f);
 	
-	gl_Position = u_ViewProjection * position;
+	gl_Position = u_projectionView * position;
 
-	vv_Position = vec3(position);
-	vv_Normal = normalize(vec3(u_Transform * vec4(a_normal, 0.0)));
+	v_Position = vec3(position);
+	v_Normal = normalize(vec3(u_transform * vec4(a_normal, 0.0)));
 }

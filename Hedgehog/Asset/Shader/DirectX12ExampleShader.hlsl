@@ -11,12 +11,12 @@
 
 cbuffer SceneConstantBuffer : register(b0)
 {
-    matrix u_ViewProjection;
+    matrix u_projectionView;
 };
 
 cbuffer ObjectConstantBuffer : register(b1)
 {
-    matrix u_Transform;
+    matrix u_transform;
     float4x4 u_segmentTransforms[65];
 }
 
@@ -36,11 +36,15 @@ PSInput VSMain(float4 position  : a_position,
 
     float4x4 finalTransform;
     if (segmentID != -1.0f)
-        finalTransform = mul(u_Transform, u_segmentTransforms[(int)segmentID]);
+    {
+        finalTransform = mul(u_transform, u_segmentTransforms[(int)segmentID]);
+    }
     else
-        finalTransform = u_Transform;
+    {
+        finalTransform = u_transform;
+    }
 
-    matrix VPM = mul(u_ViewProjection, finalTransform);
+    matrix VPM = mul(u_projectionView, finalTransform);
     result.position = mul(VPM, position);
     result.pos = position.xyz;
     result.color = color;
